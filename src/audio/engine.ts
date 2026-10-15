@@ -11,6 +11,8 @@ const LOOKAHEAD = 0.1
 const HIDDEN_LOOKAHEAD = 1.5
 /** Gap before the first click, so it is never scheduled in the past. */
 const START_DELAY = 0.06
+/** Clicks later than this (scheduler stalled) are skipped rather than played in a burst. */
+const LATE_TOLERANCE = 0.05
 /** Let the audio device sleep this long after stopping (saves battery on phones). */
 const SUSPEND_AFTER_MS = 1500
 const LEVEL_GAIN: Record<ClickKind, number> = { accent: 1, normal: 0.7, sub: 0.4 }
@@ -38,12 +40,16 @@ export class MetronomeEngine {
   private pending: ClickEvent[] = []
   private readonly sequencer: Sequencer
   private running = false
+  /** True once start() has resumed the context and begun scheduling. */
+  private scheduling = false
   /** Bumped by every start/stop so a start() still awaiting resume() can tell it is stale. */
   private generation = 0
 
   constructor(
     private readonly getSettings: () => Settings,
     onTempoChange: (bpm: number) => void,
+    /** Called when the browser or OS stops the audio while playing (e.g. a phone call on iOS). */
+    private readonly onInterrupted: () => void = () => {},
   ) {
     this.sequencer = new Sequencer(getSettings, onTempoChange)
   }
@@ -57,10 +63,14 @@ export class MetronomeEngine {
     if (this.running) return
     this.running = true
     const generation = ++this.generation
-    const ctx = this.ensureContext()
-    clearTimeout(this.suspendTimer)
+    let ctx: AudioContext
     try {
-      if (ctx.state !== 'running') await ctx.resume()
+      ctx = this.ensureContext()
+      clearTimeout(this.suspendTimer)
+      // Resume even if the state reads 'running': right after the idle suspend() is issued,
+      // Firefox and Safari still report 'running' until it completes, and skipping resume()
+      // would leave the context suspended.
+      await ctx.resume()
     } catch (error) {
       if (generation === this.generation) this.running = false
       throw error
@@ -68,6 +78,7 @@ export class MetronomeEngine {
     if (generation !== this.generation) return // stopped (or restarted) while resuming
 
     this.sequencer.start(ctx.currentTime + START_DELAY)
+    this.scheduling = true
     this.schedule()
     this.startTimer()
   }
@@ -75,6 +86,7 @@ export class MetronomeEngine {
   stop(): void {
     if (!this.running) return
     this.running = false
+    this.scheduling = false
     this.generation++
     this.stopTimer()
     this.pending = []
@@ -95,11 +107,16 @@ export class MetronomeEngine {
   /** Play one accented click, e.g. after choosing a new sound while stopped. */
   async preview(sound: SoundId): Promise<void> {
     if (this.running) return
-    const ctx = this.ensureContext()
-    clearTimeout(this.suspendTimer)
-    if (ctx.state !== 'running') await ctx.resume()
-    this.play('accent', this.clicksFor(sound), ctx.currentTime + 0.01)
-    this.scheduleSuspend()
+    try {
+      const ctx = this.ensureContext()
+      clearTimeout(this.suspendTimer)
+      await ctx.resume()
+      if (this.running) return // playback started while resuming
+      this.play('accent', this.clicksFor(sound), ctx.currentTime + 0.01)
+      this.scheduleSuspend()
+    } catch {
+      // Audio unavailable; the preview is only a nicety.
+    }
   }
 
   /** Clicks that have reached the speakers since the last call, oldest first. */
@@ -130,6 +147,15 @@ export class MetronomeEngine {
     this.ctx = ctx
     this.master = master
 
+    // The OS can take the audio away while playing (iOS phone call, Siri, another app grabbing
+    // the audio session). Stop and report it rather than showing "playing" while silent.
+    ctx.addEventListener('statechange', () => {
+      if (this.scheduling && ctx.state !== 'running') {
+        this.stop()
+        this.onInterrupted()
+      }
+    })
+
     // Older iOS versions only unlock audio after something plays inside the user gesture.
     const silence = ctx.createBufferSource()
     silence.buffer = ctx.createBuffer(1, 1, ctx.sampleRate)
@@ -143,7 +169,7 @@ export class MetronomeEngine {
     if (!ctx || !this.running) return
 
     const lookahead = document.hidden ? HIDDEN_LOOKAHEAD : LOOKAHEAD
-    this.sequencer.catchUp(ctx.currentTime, START_DELAY)
+    this.sequencer.catchUp(ctx.currentTime, LATE_TOLERANCE)
     const clicks = this.clicksFor(this.getSettings().sound)
 
     for (const event of this.sequencer.scheduleUntil(ctx.currentTime + lookahead)) {
@@ -179,12 +205,15 @@ export class MetronomeEngine {
   /** Context time of the sample currently coming out of the speakers. */
   private audibleTime(ctx: AudioContext): number {
     // currentTime runs ahead of what is heard by the output latency (100 ms+ on Bluetooth).
+    const latency = ctx.outputLatency || 0
     const stamp = ctx.getOutputTimestamp?.()
     if (stamp?.contextTime && stamp.performanceTime) {
       const elapsed = (performance.now() - stamp.performanceTime) / 1000
-      return Math.min(ctx.currentTime, stamp.contextTime + elapsed)
+      // Firefox shifts both stamp fields by the latency, which cancels out here; capping by
+      // currentTime - outputLatency keeps the compensation there too.
+      return Math.min(ctx.currentTime - latency, stamp.contextTime + elapsed)
     }
-    return ctx.currentTime - (ctx.outputLatency || ctx.baseLatency || 0)
+    return ctx.currentTime - (latency || ctx.baseLatency || 0)
   }
 
   private startTimer(): void {

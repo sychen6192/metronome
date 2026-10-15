@@ -38,6 +38,7 @@ const els = {
   subdivisions: byId('subdivisions'),
   sound: byId<HTMLSelectElement>('sound'),
   volume: byId<HTMLInputElement>('volume'),
+  trainer: byId<HTMLDetailsElement>('trainer'),
   trainerState: byId('trainer-state'),
   trainerStep: byId<HTMLInputElement>('trainer-step'),
   trainerEvery: byId<HTMLInputElement>('trainer-every'),
@@ -60,6 +61,13 @@ let settings: Settings = loadSettings(storage())
 const engine = new MetronomeEngine(
   () => settings,
   (bpm) => update({ bpm }),
+  () => {
+    // The OS took the audio away (e.g. a phone call): reflect that the metronome stopped.
+    void wakeLock.release()
+    clearActiveBeat()
+    renderPlayState()
+    showToast(t('audioInterrupted'))
+  },
 )
 const wakeLock = new ScreenWakeLock()
 const tapTempo = new TapTempo()
@@ -145,7 +153,7 @@ function render(): void {
 
 function renderPlayState(): void {
   const playing = engine.playing
-  els.play.setAttribute('aria-pressed', String(playing))
+  // The accessible name switches between Start and Stop, so no aria-pressed as well.
   els.play.classList.toggle('playing', playing)
   els.playLabel.textContent = playing ? t('stop') : t('play')
   document.body.classList.toggle('is-playing', playing)
@@ -225,15 +233,27 @@ function holdToRepeat(button: HTMLButtonElement, action: () => void): void {
   const stop = () => {
     clearTimeout(delay)
     clearInterval(repeat)
+    delay = repeat = undefined
+  }
+  // The action disables the button at the tempo limit, after which some browsers stop
+  // delivering pointer events to it, so the repeat also ends itself there.
+  const tick = () => {
+    action()
+    if (button.disabled) stop()
   }
   button.addEventListener('pointerdown', (event) => {
-    if (event.button !== 0) return
-    action()
-    delay = window.setTimeout(() => (repeat = window.setInterval(action, 70)), 400)
+    // Ignore extra fingers, and never leave an earlier repeat running.
+    if (event.button !== 0 || !event.isPrimary) return
+    stop()
+    tick()
+    if (!button.disabled) delay = window.setTimeout(() => (repeat = window.setInterval(tick, 70)), 400)
   })
   for (const type of ['pointerup', 'pointerleave', 'pointercancel', 'blur'] as const) {
     button.addEventListener(type, stop)
   }
+  // Releasing outside the button (or on a now-disabled one) still ends the repeat.
+  window.addEventListener('pointerup', stop)
+  window.addEventListener('pointercancel', stop)
   // Keyboard activation (Enter/Space on the focused button) arrives as a click with detail 0.
   button.addEventListener('click', (event) => {
     if (event.detail === 0) action()
@@ -270,6 +290,8 @@ function bindEvents(): void {
   els.tempo.addEventListener(
     'wheel',
     (event) => {
+      // Ctrl/⌘ + wheel and trackpad pinch are page zoom; leave them to the browser.
+      if (event.ctrlKey || event.metaKey) return
       event.preventDefault()
       wheelDelta += event.deltaY
       const steps = Math.trunc(wheelDelta / 40)
@@ -311,7 +333,10 @@ function bindEvents(): void {
   els.volume.addEventListener('input', () => update({ volume: els.volume.valueAsNumber / 100 }))
 
   els.trainerToggle.addEventListener('click', () => {
-    update({ trainer: { ...settings.trainer, enabled: !settings.trainer.enabled } })
+    const enabled = !settings.trainer.enabled
+    update({ trainer: { ...settings.trainer, enabled } })
+    // Show the step / interval / target fields when the trainer is switched on.
+    if (enabled) els.trainer.open = true
   })
   const trainerField = (input: HTMLInputElement, key: 'step' | 'everyBars' | 'target', min: number, max: number) => {
     input.addEventListener('change', () => {
@@ -348,6 +373,10 @@ function onKeyDown(event: KeyboardEvent): void {
     if (!event.repeat) void togglePlay()
     return
   }
+  if ((event.key === 't' || event.key === 'T') && !isTextEntry(target)) {
+    if (!event.repeat) tap(event.timeStamp)
+    return
+  }
   // Let sliders and form fields keep their own arrow-key behaviour.
   if (target instanceof HTMLElement && target.matches('input, select, textarea')) return
 
@@ -363,10 +392,6 @@ function onKeyDown(event: KeyboardEvent): void {
       event.preventDefault()
       changeBpm(-step)
       break
-    case 't':
-    case 'T':
-      if (!event.repeat) tap(event.timeStamp)
-      break
   }
 }
 
@@ -374,4 +399,4 @@ translatePage()
 buildControls()
 bindEvents()
 render()
-setupPwa(els.install)
+setupPwa(els.install, () => engine.playing)

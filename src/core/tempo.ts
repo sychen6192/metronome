@@ -45,23 +45,33 @@ export function rampTempo(bpm: number, target: number, step: number): number {
   return bpm
 }
 
+/** Longer than one beat at the slowest tempo, so even 20 BPM can be tapped. */
+const TAP_RESET_MS = Math.ceil((60_000 / MIN_BPM) * 1.2)
+
 /**
  * Tap tempo: averages the intervals between the most recent taps.
- * A pause longer than `resetAfterMs` starts a new measurement.
+ * A pause longer than `resetAfterMs` starts a new measurement, and so does an interval less than
+ * half or more than double the current average (the player switched to a different tempo).
  */
 export class TapTempo {
   private taps: number[] = []
 
   constructor(
     private readonly maxTaps = 6,
-    private readonly resetAfterMs = 2000,
+    private readonly resetAfterMs = TAP_RESET_MS,
   ) {}
 
   /** Register a tap at `timeMs` (e.g. `event.timeStamp`). Returns the BPM once at least two taps exist. */
   tap(timeMs: number): number | null {
     const last = this.taps.at(-1)
-    if (last !== undefined && (timeMs - last > this.resetAfterMs || timeMs <= last)) {
-      this.taps = []
+    if (last !== undefined) {
+      const interval = timeMs - last
+      const average = this.taps.length >= 2 ? (last - this.taps[0]!) / (this.taps.length - 1) : interval
+      if (interval <= 0 || interval > this.resetAfterMs) {
+        this.taps = []
+      } else if (interval < average / 2 || interval > average * 2) {
+        this.taps = [last]
+      }
     }
     this.taps.push(timeMs)
     if (this.taps.length > this.maxTaps) this.taps.shift()

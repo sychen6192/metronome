@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { renderClicks } from '../src/audio/sounds'
+import { CLICK_PEAK, renderClicks } from '../src/audio/sounds'
 import { SOUNDS } from '../src/core/settings'
 
 /** Just enough of BaseAudioContext for renderClicks to run outside a browser. */
@@ -23,7 +23,7 @@ describe.each(SOUNDS)('%s sound', (sound) => {
       expect(Number.isFinite(sample)).toBe(true)
       peak = Math.max(peak, Math.abs(sample))
     }
-    expect(peak).toBeCloseTo(0.9, 2)
+    expect(peak).toBeCloseTo(CLICK_PEAK, 2)
     expect(Math.abs(data[0]!)).toBeLessThan(0.05)
     expect(Math.abs(data.at(-1)!)).toBeLessThan(0.01)
   })
