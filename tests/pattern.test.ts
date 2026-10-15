@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { PATTERN_BOX, batonProgress, patternGeometry, patternPath, pointOnSegment } from '../src/core/pattern'
+import {
+  PATTERN_BOX,
+  arrowhead,
+  batonProgress,
+  patternGeometry,
+  pointOnSegment,
+  shapesPath,
+  strokeOutline,
+  strokeWidth,
+} from '../src/core/pattern'
 
 describe('patternGeometry', () => {
   it.each(Array.from({ length: 16 }, (_, i) => i + 1))('%i beats: one point and one segment per beat, inside the box', (beats) => {
@@ -130,11 +139,6 @@ describe('patternGeometry', () => {
     expect(last.c2.y).toBeLessThan(last.to.y)
   })
 
-  it('serialises a closed path', () => {
-    const path = patternPath(patternGeometry(4))
-    expect(path.startsWith('M 200.0 212.0')).toBe(true)
-    expect(path.match(/C /g)).toHaveLength(4)
-  })
 })
 
 describe('baton motion', () => {
@@ -156,5 +160,57 @@ describe('baton motion', () => {
     const speed = (t: number) => (batonProgress(t + 0.001) - batonProgress(t)) / 0.001
     expect(speed(0.01)).toBeGreaterThan(speed(0.5) * 3)
     expect(speed(0.98)).toBeGreaterThan(speed(0.5) * 3)
+  })
+})
+
+describe('stroke drawing', () => {
+  const segment = patternGeometry(4).segments[0]!
+
+  it('is light through the rebound and heaviest arriving at the ictus', () => {
+    expect(strokeWidth(0, 1, 4)).toBe(1)
+    expect(strokeWidth(0.3, 1, 4)).toBe(1)
+    expect(strokeWidth(1, 1, 4)).toBe(4)
+    let previous = 0
+    for (let u = 0; u <= 1; u += 0.05) {
+      const w = strokeWidth(u, 1, 4)
+      expect(w).toBeGreaterThanOrEqual(previous)
+      previous = w
+    }
+  })
+
+  it('outlines the stroke at its width on both sides of the path', () => {
+    const outline = strokeOutline(segment, 1, 4, 48)
+    // 49 points down each side plus 7 per round end.
+    expect(outline).toHaveLength(2 * 49 + 14)
+    const start = outline[0]!
+    const end = outline[48]!
+    expect(Math.hypot(start.x - segment.from.x, start.y - segment.from.y)).toBeCloseTo(0.5)
+    expect(Math.hypot(end.x - segment.to.x, end.y - segment.to.y)).toBeCloseTo(2)
+  })
+
+  it('points arrowheads the way the baton travels', () => {
+    const [tip, a, b] = arrowhead(segment, 0.8, 10, 4)
+    const at = pointOnSegment(segment, 0.8)
+    const ahead = pointOnSegment(segment, 0.82)
+    const base = { x: (a!.x + b!.x) / 2, y: (a!.y + b!.y) / 2 }
+    // Tip and base straddle the point, the tip on the side the path continues to.
+    expect(Math.hypot(tip!.x - ahead.x, tip!.y - ahead.y)).toBeLessThan(Math.hypot(base.x - ahead.x, base.y - ahead.y))
+    expect(Math.hypot(tip!.x - base.x, tip!.y - base.y)).toBeCloseTo(10)
+    expect(Math.hypot((tip!.x + base.x) / 2 - at.x, (tip!.y + base.y) / 2 - at.y)).toBeCloseTo(0)
+  })
+
+  it('winds every shape the same way, so overlaps fill once', () => {
+    const area = (path: string) => {
+      const points = path.replace(/[MZ]/g, '').split('L').map((pair) => pair.trim().split(' ').map(Number))
+      let sum = 0
+      points.forEach(([x, y], i) => {
+        const [nx, ny] = points[(i + 1) % points.length]!
+        sum += x! * ny! - nx! * y!
+      })
+      return sum
+    }
+    const square = [{ x: 0, y: 0 }, { x: 0, y: 10 }, { x: 10, y: 10 }, { x: 10, y: 0 }]
+    const [one, two] = shapesPath([square, [...square].reverse()]).split(' M ')
+    expect(Math.sign(area(one!))).toBe(Math.sign(area(`M ${two}`)))
   })
 })

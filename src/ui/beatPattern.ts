@@ -1,9 +1,12 @@
 import {
   PATTERN_BOX,
+  arrowhead,
   batonProgress,
   patternGeometry,
-  patternPath,
   pointOnSegment,
+  shapesPath,
+  strokeOutline,
+  strokeWidth,
   type PatternGeometry,
   type Point,
 } from '../core/pattern'
@@ -20,6 +23,16 @@ function svg<K extends keyof SVGElementTagNameMap>(tag: K, attributes: Record<st
 
 /** Baton radius on screen: 12 px on a phone, growing with the figure up to 16 px. */
 const batonRadius = (figureWidth: number) => Math.min(16, Math.max(12, figureWidth / 30))
+
+/**
+ * Pen widths on screen, in px: light through each rebound, pressing into the ictus, heaviest on
+ * the fall into the downbeat, as a conducting textbook draws the pattern.
+ */
+const PEN = { thin: 1.5, heavy: 3.4, downbeat: 4.8 }
+/** Where on each stroke its arrowhead sits: on the fall, clear of the subdivision ticks. */
+const ARROW_AT = 0.8
+/** Length of the printed mark at each ictus, in px: the plane the baton strikes. */
+const ICTUS_MARK = 16
 
 const percent = (point: Point) => ({
   left: `${(point.x / PATTERN_BOX.width) * 100}%`,
@@ -42,6 +55,8 @@ export class BeatPattern {
   private struck: HTMLElement | null = null
   /** Stopped: the baton waits at the top and follows the pattern when the meter changes. */
   private resting = true
+  /** Screen px per drawing unit. */
+  private scale = 1
 
   constructor(
     private readonly figure: HTMLElement,
@@ -60,10 +75,13 @@ export class BeatPattern {
     this.baton = svg('circle', { class: 'baton', r: 13 })
     drawing.append(this.path, this.ticks, this.marks, this.ripples, this.baton)
     figure.prepend(drawing)
-    // The drawing scales with the figure; the baton keeps a steady size on screen.
+    // The drawing scales with the figure; pen widths, marks and the baton keep their size on screen.
     new ResizeObserver(([entry]) => {
       const width = entry?.contentRect.width ?? 0
-      if (width > 0) this.baton.setAttribute('r', ((batonRadius(width) * PATTERN_BOX.width) / width).toFixed(2))
+      if (width <= 0) return
+      this.scale = width / PATTERN_BOX.width
+      this.baton.setAttribute('r', (batonRadius(width) / this.scale).toFixed(2))
+      this.drawStrokes()
     }).observe(figure)
     this.rest()
   }
@@ -75,10 +93,8 @@ export class BeatPattern {
     if (rebuild) {
       this.clearStrike()
       this.geometry = patternGeometry(beats)
-      this.path.setAttribute('d', patternPath(this.geometry))
-      this.marks.replaceChildren(
-        ...this.geometry.ictus.map((point) => svg('circle', { class: 'ictus', cx: point.x, cy: point.y, r: 5 })),
-      )
+      this.marks.replaceChildren(...this.geometry.ictus.map(() => svg('line', { class: 'ictus' })))
+      this.drawStrokes()
       this.ripples.replaceChildren(
         ...this.geometry.ictus.map((point) => svg('circle', { class: 'ripple', cx: point.x, cy: point.y, r: 22 })),
       )
@@ -144,6 +160,33 @@ export class BeatPattern {
     this.struck?.classList.remove('active')
     this.struck = null
     this.marks.querySelector('.active')?.classList.remove('active')
+  }
+
+  /** The pattern's strokes, arrowheads and ictus marks at the current on-screen scale. */
+  private drawStrokes(): void {
+    const unit = (px: number) => px / this.scale
+    const { segments, labelsOnIctus } = this.geometry
+    const shapes = segments.map((segment, k) => {
+      const heavy = k === segments.length - 1 ? PEN.downbeat : PEN.heavy
+      return strokeOutline(segment, unit(PEN.thin), unit(heavy))
+    })
+    // Crowded bars have no room for arrows; the numerals' order carries the direction.
+    if (!labelsOnIctus) {
+      segments.forEach((segment, k) => {
+        const heavy = k === segments.length - 1 ? PEN.downbeat : PEN.heavy
+        const halfWidth = Math.max(4, strokeWidth(ARROW_AT, PEN.thin, heavy) * 1.1)
+        shapes.push(arrowhead(segment, ARROW_AT, unit(halfWidth * 2.4), unit(halfWidth)))
+      })
+    }
+    this.path.setAttribute('d', shapesPath(shapes))
+    const half = unit(ICTUS_MARK / 2)
+    this.geometry.ictus.forEach((point, beat) => {
+      const mark = this.marks.children[beat]
+      mark?.setAttribute('x1', (point.x - half).toFixed(2))
+      mark?.setAttribute('x2', (point.x + half).toFixed(2))
+      mark?.setAttribute('y1', point.y.toFixed(2))
+      mark?.setAttribute('y2', point.y.toFixed(2))
+    })
   }
 
   private placeBaton(point: Point): void {

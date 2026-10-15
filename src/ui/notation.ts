@@ -16,8 +16,11 @@ const beam = (from: number, to: number, y: number) =>
   `<rect x="${stemX(from)}" y="${y}" width="${stemX(to) - stemX(from) + STEM_W}" height="2.6"/>`
 const flag = (x: number) =>
   `<path d="M${stemX(x) + STEM_W} ${STEM_TOP} c0 4 6 5 4.5 11" fill="none" stroke="currentColor" stroke-width="1.5"/>`
-const tuplet = (label: string) =>
-  `<text x="22" y="7" text-anchor="middle" font-size="8" font-weight="700" font-family="system-ui, sans-serif">${label}</text>`
+// The engraved tuplet 3 (SMuFL U+E883) from the app's Bravura subset, with plain score digits for
+// when that face is blocked.
+const tuplet = () =>
+  `<text class="tuplet" x="22" y="8" text-anchor="middle" font-size="18" font-family="Metronome Engraved">\uE883</text>` +
+  `<text class="tuplet-plain" x="22" y="7" text-anchor="middle" font-size="8" font-weight="700" font-family="Old Standard TT, Georgia, serif">3</text>`
 
 function beamed(xs: readonly number[], beams: number): string {
   const first = xs[0]!
@@ -32,10 +35,10 @@ function beamed(xs: readonly number[], beams: number): string {
 const GLYPHS: Record<Subdivision, string> = {
   quarter: head(20) + stem(20),
   eighth: beamed([12, 28], 1),
-  triplet: tuplet('3') + beamed([7, 20, 33], 1),
+  triplet: tuplet() + beamed([7, 20, 33], 1),
   sixteenth: beamed([4, 14.5, 25, 35.5], 2),
   // Quarter + eighth under a triplet: the swung pair.
-  swing: tuplet('3') + head(10) + stem(10) + head(29) + stem(29) + flag(29),
+  swing: tuplet() + head(10) + stem(10) + head(29) + stem(29) + flag(29),
 }
 
 export function subdivisionIcon(subdivision: Subdivision): string {

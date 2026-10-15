@@ -153,12 +153,82 @@ export function batonProgress(t: number): number {
   return time + (k / (2 * Math.PI)) * Math.sin(2 * Math.PI * time)
 }
 
-/** Path data for the whole pattern, for an SVG <path>. */
-export function patternPath(geometry: PatternGeometry): string {
-  const p = (point: Point) => `${point.x.toFixed(1)} ${point.y.toFixed(1)}`
-  const start = geometry.segments[0]!.from
+function tangentOnSegment({ from, c1, c2, to }: Segment, u: number): Point {
+  const v = 1 - u
+  const x = 3 * v * v * (c1.x - from.x) + 6 * v * u * (c2.x - c1.x) + 3 * u * u * (to.x - c2.x)
+  const y = 3 * v * v * (c1.y - from.y) + 6 * v * u * (c2.y - c1.y) + 3 * u * u * (to.y - c2.y)
+  const length = Math.hypot(x, y)
+  if (length > 1e-9) return { x: x / length, y: y / length }
+  const dx = to.x - from.x
+  const dy = to.y - from.y
+  const chord = Math.hypot(dx, dy) || 1
+  return { x: dx / chord, y: dy / chord }
+}
+
+/**
+ * Width of a stroke along its segment, as a pen draws a beat: light through the rebound, pressing
+ * down as the baton falls into the next ictus.
+ */
+export function strokeWidth(u: number, thin: number, heavy: number): number {
+  const t = Math.min(1, Math.max(0, (u - 0.3) / 0.7))
+  return thin + (heavy - thin) * t * t * (3 - 2 * t)
+}
+
+/** Closed outline of one segment's stroke, with round ends, `thin` to `heavy` wide. */
+export function strokeOutline(segment: Segment, thin: number, heavy: number, samples = 48): Point[] {
+  const left: Point[] = []
+  const right: Point[] = []
+  for (let i = 0; i <= samples; i++) {
+    const u = i / samples
+    const p = pointOnSegment(segment, u)
+    const t = tangentOnSegment(segment, u)
+    const half = strokeWidth(u, thin, heavy) / 2
+    left.push({ x: p.x - t.y * half, y: p.y + t.x * half })
+    right.push({ x: p.x + t.y * half, y: p.y - t.x * half })
+  }
+  const cap = (u: number, radius: number, forward: 1 | -1): Point[] => {
+    const p = pointOnSegment(segment, u)
+    const t = tangentOnSegment(segment, u)
+    // From one side round the end to the other: the left side first at the end, the right at the start.
+    return Array.from({ length: 7 }, (_, k) => {
+      const angle = (Math.PI * (k + 1)) / 8
+      const across = Math.cos(angle) * forward
+      const along = Math.sin(angle) * forward
+      return { x: p.x - t.y * radius * across + t.x * radius * along, y: p.y + t.x * radius * across + t.y * radius * along }
+    })
+  }
+  return [...left, ...cap(1, heavy / 2, 1), ...right.reverse(), ...cap(0, thin / 2, -1)]
+}
+
+/** A small arrowhead on the stroke at `u`, pointing the way the baton travels. */
+export function arrowhead(segment: Segment, u: number, length: number, halfWidth: number): Point[] {
+  const p = pointOnSegment(segment, u)
+  const t = tangentOnSegment(segment, u)
+  const base = { x: p.x - (t.x * length) / 2, y: p.y - (t.y * length) / 2 }
   return [
-    `M ${p(start)}`,
-    ...geometry.segments.map(({ c1, c2, to }) => `C ${p(c1)}, ${p(c2)}, ${p(to)}`),
-  ].join(' ')
+    { x: p.x + (t.x * length) / 2, y: p.y + (t.y * length) / 2 },
+    { x: base.x - t.y * halfWidth, y: base.y + t.x * halfWidth },
+    { x: base.x + t.y * halfWidth, y: base.y - t.x * halfWidth },
+  ]
+}
+
+function signedArea(points: readonly Point[]): number {
+  let area = 0
+  points.forEach((p, i) => {
+    const q = points[(i + 1) % points.length]!
+    area += p.x * q.y - q.x * p.y
+  })
+  return area / 2
+}
+
+/**
+ * Path data for filled shapes drawn as one <path>. All are wound the same way, so where they
+ * overlap they fill once (a translucent ink stays even) instead of cancelling out.
+ */
+export function shapesPath(shapes: readonly (readonly Point[])[]): string {
+  const p = (point: Point) => `${point.x.toFixed(2)} ${point.y.toFixed(2)}`
+  return shapes
+    .map((shape) => (signedArea(shape) < 0 ? [...shape].reverse() : shape))
+    .map((shape) => `M ${shape.map(p).join(' L ')} Z`)
+    .join(' ')
 }
