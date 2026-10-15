@@ -10,11 +10,27 @@ interface BeforeInstallPromptEvent extends Event {
 
 const UPDATE_CHECK_MS = 60 * 60 * 1000
 
-export function setupPwa(installButton: HTMLButtonElement): void {
+export function setupPwa(installButton: HTMLButtonElement, isPlaying: () => boolean): void {
   // Updates wait for the user to press "Reload" so a new version never interrupts playback.
+  let reloadRequested = false
   const updateServiceWorker = registerSW({
     onNeedRefresh() {
-      showToast(t('updateAvailable'), { label: t('reload'), run: () => void updateServiceWorker(true) })
+      showToast(t('updateAvailable'), {
+        label: t('reload'),
+        run: () => {
+          reloadRequested = true
+          void updateServiceWorker(true)
+        },
+      })
+    },
+    // The new version took over. That also happens when "Reload" was pressed in another window
+    // of the app, so only reload here if this window asked for it or isn't playing.
+    onNeedReload() {
+      if (reloadRequested || !isPlaying()) {
+        window.location.reload()
+      } else {
+        showToast(t('updateAvailable'), { label: t('reload'), run: () => window.location.reload() })
+      }
     },
     onOfflineReady() {
       showToast(t('offlineReady'))

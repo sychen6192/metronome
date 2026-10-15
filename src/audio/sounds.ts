@@ -38,11 +38,12 @@ const VOICES: Record<SoundId, Voice> = {
       attack(t, 0.0005) *
       (decay(t, 0.025) * sine(t, f) + decay(t, 0.012) * 0.5 * sine(t, f * 2.76) + decay(t, 0.002) * 0.5 * noise()),
   },
-  // Digital beep with a flat sustain.
+  // Digital beep with a flat sustain. Kept shorter than the closest clicks (sixteenths at
+  // 300 BPM are 50 ms apart) so consecutive beeps never overlap.
   beep: {
-    duration: 0.07,
+    duration: 0.045,
     pitch: { accent: 1760, normal: 880, sub: 660 },
-    sample: (t, f) => attack(t, 0.002) * Math.min(1, (0.07 - t) / 0.01) * sine(t, f),
+    sample: (t, f) => attack(t, 0.002) * Math.min(1, (0.045 - t) / 0.01) * sine(t, f),
   },
   // TR-808 style cowbell: two detuned square waves with a two-stage decay.
   cowbell: {
@@ -55,6 +56,9 @@ const VOICES: Record<SoundId, Voice> = {
       0.5,
   },
 }
+
+/** Peak level of every rendered click: headroom for overlapping clicks at fast tempos. */
+export const CLICK_PEAK = 0.8
 
 /** Deterministic noise so every render sounds identical. */
 function noiseSource(seed = 0x2f6b4d1): () => number {
@@ -78,7 +82,7 @@ function render(ctx: BaseAudioContext, voice: Voice, freq: number): AudioBuffer 
     peak = Math.max(peak, Math.abs(value))
   }
   // Normalise so every voice has the same peak; the engine sets the relative level per kind.
-  const gain = peak > 0 ? 0.9 / peak : 0
+  const gain = peak > 0 ? CLICK_PEAK / peak : 0
   // Short fade-out so the buffer never ends on a non-zero sample.
   const fade = Math.min(length, Math.round(ctx.sampleRate * 0.004))
   for (let i = 0; i < length; i++) {

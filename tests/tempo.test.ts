@@ -59,6 +59,26 @@ describe('TapTempo', () => {
     expect(tapper.tap(2000)).toBe(120)
   })
 
+  it('can measure the slowest tempo, 20 BPM', () => {
+    const tapper = new TapTempo()
+    tapper.tap(0)
+    expect(tapper.tap(3000)).toBe(20)
+  })
+
+  it('starts over when the player switches to a very different tempo', () => {
+    const tapper = new TapTempo()
+    for (const time of [0, 500, 1000]) tapper.tap(time)
+    // 200 ms is less than half the 500 ms average: measure from the previous tap only.
+    expect(tapper.tap(1200)).toBe(300)
+  })
+
+  it('starts over after a pause longer than the slowest beat', () => {
+    const tapper = new TapTempo()
+    tapper.tap(0)
+    tapper.tap(1000)
+    expect(tapper.tap(5000)).toBeNull()
+  })
+
   it('starts over after a long pause', () => {
     const tapper = new TapTempo(6, 2000)
     tapper.tap(0)

@@ -24,6 +24,7 @@ export class Sequencer {
   private pulse: Pulse = DOWNBEAT
   private nextTime = 0
   private barsSinceRamp = 0
+  private trainerEnabled = false
 
   constructor(
     private readonly getSettings: () => Settings,
@@ -36,6 +37,7 @@ export class Sequencer {
     this.pulse = DOWNBEAT
     this.nextTime = time
     this.barsSinceRamp = 0
+    this.trainerEnabled = this.getSettings().trainer.enabled
   }
 
   /** Time of the next click that has not been scheduled yet. */
@@ -44,11 +46,13 @@ export class Sequencer {
   }
 
   /**
-   * If the scheduler fell far behind (e.g. a throttled background tab), skip ahead instead of
-   * firing every missed click at once. Keeps the bar position.
+   * If the scheduler fell behind (e.g. a stalled main thread or throttled tab), skip the clicks
+   * that are more than `tolerance` seconds late instead of firing them all at once. Whole pulses
+   * are skipped, so the beat grid and bar position stay where they were; a click that is only
+   * slightly late is kept and plays immediately.
    */
-  catchUp(now: number, margin: number): void {
-    if (this.nextTime < now) this.nextTime = now + margin
+  catchUp(now: number, tolerance: number): void {
+    while (this.nextTime < now - tolerance) this.advance()
   }
 
   /** Return every click that starts before `until`, advancing the sequencer past them. */
@@ -77,6 +81,11 @@ export class Sequencer {
     this.nextTime += beats * beatDuration(settings.bpm)
     this.pulse = pulse
 
+    if (settings.trainer.enabled !== this.trainerEnabled) {
+      this.trainerEnabled = settings.trainer.enabled
+      // Only whole bars played with the trainer on count; the bar in progress doesn't.
+      this.barsSinceRamp = -1
+    }
     if (pulse.beat === 0 && pulse.sub === 0) this.onNewBar(settings)
   }
 

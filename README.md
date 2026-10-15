@@ -27,7 +27,7 @@
 | 視覺同步 | Web Audio `getOutputTimestamp()` / `outputLatency` | 排程的拍子先進佇列，`requestAnimationFrame` 依「目前喇叭正在播放的時間」取出，畫面不會比聲音早。 |
 | 換拍不跳拍 | — | 時間以「與上一拍的間隔」累加，改速度、拍數、細分拍都從下一拍生效且時間永遠遞增。 |
 | PWA | [vite-plugin-pwa](https://github.com/vite-pwa/vite-plugin-pwa) + Google [Workbox](https://github.com/GoogleChrome/workbox) | 建置時自動產生帶 revision 的 precache 清單，舊快取自動清除；`registerType: 'prompt'` 讓使用者決定何時更新；每小時檢查新版本。 |
-| 圖示 | [@vite-pwa/assets-generator](https://github.com/vite-pwa/assets-generator)（minimal-2023 preset） | 從單一 SVG 產生 64/192/512、maskable、apple-touch-icon 與 favicon.ico。 |
+| 圖示 | web.dev〈[Maskable icons](https://web.dev/articles/maskable-icon)〉 | `scripts/generate-icons.mjs`（sharp）從 `assets/icon-source.png` 產生：去背的 64/192/512 一般圖示、主體落在 40% 安全圓內的 maskable 圖示、滿版的 apple-touch-icon，以及 16/32/48 的 favicon.ico。maskable 與 Apple 圖示的背景沿用原圖漸層向外延伸，套上系統遮罩後不會有接縫或白角。 |
 
 ## 開發
 
@@ -39,7 +39,7 @@ npm run dev        # 開發伺服器
 npm test           # 單元測試（Vitest）
 npm run build      # 型別檢查 + 正式建置到 dist/
 npm run preview    # 預覽正式版（Service Worker 只在正式版啟用）
-npm run icons      # 修改 public/favicon.svg 後重新產生圖示
+npm run icons      # 替換 assets/icon-source.png 後重新產生所有圖示
 ```
 
 > 音訊必須由使用者操作（點擊或按鍵）才能啟動，這是瀏覽器的自動播放政策。

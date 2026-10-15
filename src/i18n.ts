@@ -44,6 +44,7 @@ const zh = {
   offlineReady: '已可離線使用',
   dismiss: '關閉',
   audioError: '無法啟動音訊，請再試一次',
+  audioInterrupted: '音訊被系統中斷，已停止播放',
 } as const
 
 export type MessageKey = keyof typeof zh
@@ -94,6 +95,7 @@ const en: Record<MessageKey, string> = {
   offlineReady: 'Ready to work offline',
   dismiss: 'Dismiss',
   audioError: 'Could not start audio. Please try again.',
+  audioInterrupted: 'Audio was interrupted, so playback stopped.',
 }
 
 const useChinese = (navigator.languages?.[0] ?? navigator.language ?? '').toLowerCase().startsWith('zh')
