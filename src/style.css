@@ -405,7 +405,7 @@ button svg {
 .hint {
   margin: 16px 0 0;
   color: var(--ink-3);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   text-align: center;
 }
 
@@ -525,7 +525,7 @@ button svg {
 /* Volume: a plain filled track. */
 .slider::-webkit-slider-runnable-track {
   height: 4px;
-  border-radius: 2px;
+  border-radius: 999px;
   background: linear-gradient(
     to right,
     var(--ink) calc(var(--thumb-w) / 2 + (100% - var(--thumb-w)) * var(--p)),
@@ -535,7 +535,7 @@ button svg {
 
 .slider::-moz-range-track {
   height: 4px;
-  border-radius: 2px;
+  border-radius: 999px;
   background: linear-gradient(
     to right,
     var(--ink) calc(var(--thumb-w) / 2 + (100% - var(--thumb-w)) * var(--p)),
@@ -660,7 +660,7 @@ button svg {
   min-width: min(148px, 32vw);
   height: 64px;
   padding: 0 clamp(16px, 5vw, 28px);
-  border-radius: 32px;
+  border-radius: 999px;
   background: var(--yellow);
   color: var(--on-yellow);
   font-size: 1.125rem;
@@ -702,7 +702,7 @@ button svg {
   height: 52px;
   padding: 0 clamp(8px, 3vw, 14px);
   border: 1.5px solid var(--rule);
-  border-radius: 26px;
+  border-radius: 999px;
   color: var(--ink);
   font-size: 0.9375rem;
   font-weight: 600;
@@ -1035,7 +1035,7 @@ button svg {
     gap: 2px;
     height: 64px;
     padding: 0 10px;
-    border-radius: 22px;
+    border-radius: 20px;
     font-size: 0.8125rem;
   }
 }
