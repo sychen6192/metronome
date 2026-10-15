@@ -50,8 +50,9 @@ const TAP_RESET_MS = Math.ceil((60_000 / MIN_BPM) * 1.2)
 
 /**
  * Tap tempo: averages the intervals between the most recent taps.
- * A pause longer than `resetAfterMs` starts a new measurement, and so does an interval less than
- * half or more than double the current average (the player switched to a different tempo).
+ * An interval more than double the average (a pause, a missed tap, or a much slower tempo) or
+ * longer than `resetAfterMs` starts a new measurement; one less than half the average (a much
+ * faster tempo) restarts from the previous tap.
  */
 export class TapTempo {
   private taps: number[] = []
@@ -67,9 +68,9 @@ export class TapTempo {
     if (last !== undefined) {
       const interval = timeMs - last
       const average = this.taps.length >= 2 ? (last - this.taps[0]!) / (this.taps.length - 1) : interval
-      if (interval <= 0 || interval > this.resetAfterMs) {
+      if (interval <= 0 || interval > this.resetAfterMs || interval > average * 2) {
         this.taps = []
-      } else if (interval < average / 2 || interval > average * 2) {
+      } else if (interval < average / 2) {
         this.taps = [last]
       }
     }

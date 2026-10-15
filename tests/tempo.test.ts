@@ -72,6 +72,20 @@ describe('TapTempo', () => {
     expect(tapper.tap(1200)).toBe(300)
   })
 
+  it('does not turn a pause before re-tapping into a slow tempo', () => {
+    const tapper = new TapTempo()
+    for (const time of [0, 500, 1000, 1500]) tapper.tap(time)
+    expect(tapper.tap(4000)).toBeNull()
+    expect(tapper.tap(4500)).toBe(120)
+  })
+
+  it('does not halve the tempo for one missed tap', () => {
+    const tapper = new TapTempo()
+    for (const time of [0, 500, 1000, 1500]) tapper.tap(time)
+    expect(tapper.tap(2520)).toBeNull()
+    expect(tapper.tap(3020)).toBe(120)
+  })
+
   it('starts over after a pause longer than the slowest beat', () => {
     const tapper = new TapTempo()
     tapper.tap(0)

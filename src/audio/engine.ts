@@ -11,8 +11,11 @@ const LOOKAHEAD = 0.1
 const HIDDEN_LOOKAHEAD = 1.5
 /** Gap before the first click, so it is never scheduled in the past. */
 const START_DELAY = 0.06
-/** Clicks later than this (scheduler stalled) are skipped rather than played in a burst. */
-const LATE_TOLERANCE = 0.05
+/**
+ * Clicks later than this (scheduler stalled) are skipped rather than played late. Kept to about
+ * one render quantum: a later click would land on top of the next one at fast subdivisions.
+ */
+const LATE_TOLERANCE = 0.005
 /** Let the audio device sleep this long after stopping (saves battery on phones). */
 const SUSPEND_AFTER_MS = 1500
 const LEVEL_GAIN: Record<ClickKind, number> = { accent: 1, normal: 0.7, sub: 0.4 }
@@ -20,6 +23,12 @@ const MAX_PENDING_VISUALS = 64
 
 /** Perceived loudness is roughly logarithmic; squaring makes the slider feel even. */
 const volumeToGain = (volume: number) => volume * volume
+
+/**
+ * Playback changed without the page asking: `interrupted` (phone call, Siri) or `paused` from
+ * outside (lock screen, headphones, media keys) stop it; `resumed` restarts it from outside.
+ */
+export type ExternalChange = 'interrupted' | 'paused' | 'resumed'
 
 /**
  * Web Audio metronome using the lookahead pattern from "A Tale of Two Clocks" (web.dev) and
@@ -42,14 +51,16 @@ export class MetronomeEngine {
   private running = false
   /** True once start() has resumed the context and begun scheduling. */
   private scheduling = false
+  /** Paused from the lock screen / headphones, so their Play button may resume us. */
+  private pausedExternally = false
   /** Bumped by every start/stop so a start() still awaiting resume() can tell it is stale. */
   private generation = 0
 
   constructor(
     private readonly getSettings: () => Settings,
     onTempoChange: (bpm: number) => void,
-    /** Called when the browser or OS stops the audio while playing (e.g. a phone call on iOS). */
-    private readonly onInterrupted: () => void = () => {},
+    /** Called when the browser or OS starts or stops the audio, see ExternalChange. */
+    private readonly onExternalChange: (change: ExternalChange) => void = () => {},
   ) {
     this.sequencer = new Sequencer(getSettings, onTempoChange)
   }
@@ -62,6 +73,7 @@ export class MetronomeEngine {
   async start(): Promise<void> {
     if (this.running) return
     this.running = true
+    this.pausedExternally = false
     const generation = ++this.generation
     let ctx: AudioContext
     try {
@@ -84,6 +96,11 @@ export class MetronomeEngine {
   }
 
   stop(): void {
+    this.halt(true)
+  }
+
+  /** Stop scheduling; `sleep` lets the audio device suspend once idle. */
+  private halt(sleep: boolean): void {
     if (!this.running) return
     this.running = false
     this.scheduling = false
@@ -96,7 +113,7 @@ export class MetronomeEngine {
       // Clicks already sounding ring out naturally; cutting them would itself click.
       if (startTime > now) source.stop()
     }
-    this.scheduleSuspend()
+    if (sleep) this.scheduleSuspend()
   }
 
   setVolume(volume: number): void {
@@ -147,12 +164,26 @@ export class MetronomeEngine {
     this.ctx = ctx
     this.master = master
 
-    // The OS can take the audio away while playing (iOS phone call, Siri, another app grabbing
-    // the audio session). Stop and report it rather than showing "playing" while silent.
+    // The OS can take the audio away while playing; report it rather than showing "playing"
+    // while silent. The page only suspends the context itself when stopped, so a suspend while
+    // scheduling came from outside.
     ctx.addEventListener('statechange', () => {
-      if (this.scheduling && ctx.state !== 'running') {
-        this.stop()
-        this.onInterrupted()
+      const state: string = ctx.state
+      if (this.scheduling && state === 'suspended') {
+        // Paused from the lock screen, headphones or media keys: a user's choice, not an error.
+        // Skip the idle suspend() so the system's Play button can still resume this context.
+        this.halt(false)
+        this.pausedExternally = true
+        this.onExternalChange('paused')
+      } else if (this.scheduling && state !== 'running') {
+        // 'interrupted' (phone call, Siri) or 'closed'.
+        this.halt(true)
+        this.onExternalChange('interrupted')
+      } else if (state === 'running' && this.pausedExternally && !this.running) {
+        this.start().then(
+          () => this.onExternalChange('resumed'),
+          () => {},
+        )
       }
     })
 

@@ -15,7 +15,7 @@ import { t, translatePage } from './i18n'
 import { setupPwa } from './platform/pwa'
 import { ScreenWakeLock } from './platform/wakeLock'
 import { subdivisionIcon } from './ui/notation'
-import { showToast } from './ui/toast'
+import { dismissToast, showToast } from './ui/toast'
 
 const byId = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T
 
@@ -61,14 +61,35 @@ let settings: Settings = loadSettings(storage())
 const engine = new MetronomeEngine(
   () => settings,
   (bpm) => update({ bpm }),
-  () => {
-    // The OS took the audio away (e.g. a phone call): reflect that the metronome stopped.
-    void wakeLock.release()
-    clearActiveBeat()
+  (change) => {
+    if (change === 'resumed') {
+      // Played again from the lock screen or headphones.
+      requestAnimationFrame(frame)
+      void wakeLock.request()
+    } else {
+      void wakeLock.release()
+      clearActiveBeat()
+      if (change === 'interrupted') showInterruptedNotice()
+    }
     renderPlayState()
-    showToast(t('audioInterrupted'))
   },
 )
+
+/**
+ * A phone call or Siri stopped playback. Say so once the page is visible again (the user is
+ * usually away when it happens), and keep the notice until they act, with Start right there.
+ */
+function showInterruptedNotice(): void {
+  const show = () => {
+    if (!engine.playing) showToast(t('audioInterrupted'), { label: t('play'), run: () => void togglePlay() })
+  }
+  if (document.visibilityState === 'visible') return show()
+  document.addEventListener('visibilitychange', function onVisible() {
+    if (document.visibilityState !== 'visible') return
+    document.removeEventListener('visibilitychange', onVisible)
+    show()
+  })
+}
 const wakeLock = new ScreenWakeLock()
 const tapTempo = new TapTempo()
 
@@ -208,6 +229,7 @@ async function togglePlay(): Promise<void> {
     return
   }
   const starting = engine.start()
+  dismissToast(t('audioInterrupted'))
   renderPlayState()
   try {
     await starting
@@ -230,10 +252,15 @@ function tap(timeStamp: number): void {
 function holdToRepeat(button: HTMLButtonElement, action: () => void): void {
   let delay: number | undefined
   let repeat: number | undefined
+  /** The pointer whose press drives the repeat; other fingers neither stop nor block it. */
+  let owner: number | undefined
   const stop = () => {
     clearTimeout(delay)
     clearInterval(repeat)
-    delay = repeat = undefined
+    delay = repeat = owner = undefined
+  }
+  const release = (event: PointerEvent) => {
+    if (event.pointerId === owner) stop()
   }
   // The action disables the button at the tempo limit, after which some browsers stop
   // delivering pointer events to it, so the repeat also ends itself there.
@@ -242,18 +269,19 @@ function holdToRepeat(button: HTMLButtonElement, action: () => void): void {
     if (button.disabled) stop()
   }
   button.addEventListener('pointerdown', (event) => {
-    // Ignore extra fingers, and never leave an earlier repeat running.
-    if (event.button !== 0 || !event.isPrimary) return
+    if (event.button !== 0) return
+    // A new press, from any finger, takes over; an earlier repeat never keeps running.
     stop()
+    owner = event.pointerId
     tick()
-    if (!button.disabled) delay = window.setTimeout(() => (repeat = window.setInterval(tick, 70)), 400)
+    if (owner !== undefined) delay = window.setTimeout(() => (repeat = window.setInterval(tick, 70)), 400)
   })
-  for (const type of ['pointerup', 'pointerleave', 'pointercancel', 'blur'] as const) {
-    button.addEventListener(type, stop)
-  }
-  // Releasing outside the button (or on a now-disabled one) still ends the repeat.
-  window.addEventListener('pointerup', stop)
-  window.addEventListener('pointercancel', stop)
+  button.addEventListener('pointerleave', release)
+  // Leaving the app ends it; the button's own blur doesn't (another finger's tap moves focus).
+  window.addEventListener('blur', stop)
+  // Releasing anywhere (or on a now-disabled button) ends the repeat, for the finger that started it.
+  window.addEventListener('pointerup', release)
+  window.addEventListener('pointercancel', release)
   // Keyboard activation (Enter/Space on the focused button) arrives as a click with detail 0.
   button.addEventListener('click', (event) => {
     if (event.detail === 0) action()

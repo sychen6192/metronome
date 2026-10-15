@@ -117,9 +117,29 @@ describe('Sequencer', () => {
     sequencer.scheduleUntil(5.5)
     setTrainer({ enabled: true })
     sequencer.scheduleUntil(12.5)
-    // Re-enabled while the bar starting at 6 was already scheduled: it doesn't count, and the
-    // step comes after four whole bars (at 11), not one bar later as a stale count would give.
-    expect(changes).toEqual([[11, 65]])
+    // Re-enabled before the downbeat at 6 was scheduled, so the bars from 6 on are whole: the step
+    // comes after four of them (at 10), not one bar after re-enabling as a stale count would give.
+    expect(changes).toEqual([[10, 65]])
+  })
+
+  it('speed trainer ignores the partly played bar it was switched on in', () => {
+    const { sequencer, changes, setTrainer } = trainerSetup(60, 4, { enabled: false, step: 5, everyBars: 1, target: 100 })
+    sequencer.start(0)
+    sequencer.scheduleUntil(1.5) // beats 0 and 1 of the first bar
+    setTrainer({ enabled: true })
+    sequencer.scheduleUntil(8.5)
+    // The bar from 0 was partly played without the trainer; the bar from 4 is the first whole one.
+    expect(changes).toEqual([[8, 65]])
+  })
+
+  it('skipping late clicks does not step the speed trainer', () => {
+    const { sequencer, changes } = trainerSetup(120, 4, { enabled: true, step: 5, everyBars: 1, target: 200 })
+    sequencer.start(0)
+    sequencer.scheduleUntil(0.1)
+    sequencer.catchUp(20.002, 0.005) // ten unheard bars
+    expect(changes).toEqual([])
+    // Still on the original grid and bar position.
+    expect(sequencer.scheduleUntil(20.1).map((e) => [e.time, e.level])).toEqual([[20, 'accent']])
   })
 
   it('speed trainer does nothing when disabled', () => {
