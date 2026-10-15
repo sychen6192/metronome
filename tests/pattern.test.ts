@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest'
+import { SUBDIVISION_OFFSETS } from '../src/core/rhythm'
 import {
   PATTERN_BOX,
   arrowhead,
+  drawPattern,
+  triangleClears,
   batonProgress,
   patternGeometry,
   pointOnSegment,
@@ -212,5 +215,66 @@ describe('stroke drawing', () => {
     const square = [{ x: 0, y: 0 }, { x: 0, y: 10 }, { x: 10, y: 10 }, { x: 10, y: 0 }]
     const [one, two] = shapesPath([square, [...square].reverse()]).split(' M ')
     expect(Math.sign(area(one!))).toBe(Math.sign(area(`M ${two}`)))
+  })
+})
+
+describe('drawn pattern', () => {
+  const WIDTHS = [288, 358, 520, 720]
+  const STRUCK_NUMERAL = 22 * 1.14
+
+  it('keeps every arrowhead clear of the numerals, the struck marks and the ticks, and pointing down its fall', () => {
+    for (const width of WIDTHS) {
+      const scale = width / PATTERN_BOX.width
+      for (let beats = 1; beats <= 16; beats++) {
+        const geometry = patternGeometry(beats)
+        for (const offsets of Object.values(SUBDIVISION_OFFSETS)) {
+          const { shapes, marks, arrows } = drawPattern(geometry, scale, offsets)
+          const heads = shapes.slice(geometry.segments.length)
+          expect(heads).toHaveLength(arrows)
+          if (geometry.labelsOnIctus) expect(arrows).toBe(0)
+          for (const head of heads) {
+            const where = `${beats} beats at ${width}px`
+            for (const label of geometry.labels) {
+              expect(triangleClears(head, { a: label, b: label, r: (STRUCK_NUMERAL + 1) / scale }), where).toBe(true)
+            }
+            for (const { a, b } of marks) {
+              expect(triangleClears(head, { a, b, r: 1.5 / scale }), where).toBe(true)
+            }
+            // Tip below the middle of the base: the arrow points down the fall.
+            const [tip, left, right] = head
+            expect(tip!.y, where).toBeGreaterThan((left!.y + right!.y) / 2)
+          }
+        }
+      }
+    }
+  })
+
+  it('gives every stroke an arrowhead once the figure is wide enough', () => {
+    for (let beats = 1; beats <= 8; beats++) {
+      for (const offsets of Object.values(SUBDIVISION_OFFSETS)) {
+        expect(drawPattern(patternGeometry(beats), 520 / PATTERN_BOX.width, offsets).arrows, `${beats} beats`).toBe(beats)
+      }
+    }
+  })
+
+  it('keeps the ictus marks clear of their numerals, also when both are struck', () => {
+    const scale = 288 / PATTERN_BOX.width
+    for (let beats = 2; beats <= 8; beats++) {
+      const geometry = patternGeometry(beats)
+      const { marks } = drawPattern(geometry, scale, [0])
+      marks.forEach((mark, beat) => {
+        const label = geometry.labels[beat]!
+        const ictus = geometry.ictus[beat]!
+        if (mark.upbeat) {
+          // Runs left from the ictus; its numeral sits to the right.
+          expect(mark.b.x).toBe(ictus.x)
+          expect(mark.a.x).toBeLessThan(ictus.x)
+          expect((label.x - ictus.x) * scale - STRUCK_NUMERAL).toBeGreaterThanOrEqual(1.5)
+        } else {
+          expect((mark.a.x + mark.b.x) / 2).toBeCloseTo(ictus.x)
+          expect((label.y - ictus.y) * scale - STRUCK_NUMERAL).toBeGreaterThanOrEqual(1.5)
+        }
+      })
+    }
   })
 })

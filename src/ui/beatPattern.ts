@@ -1,12 +1,11 @@
 import {
   PATTERN_BOX,
-  arrowhead,
+  TICK_RADIUS,
   batonProgress,
+  drawPattern,
   patternGeometry,
   pointOnSegment,
   shapesPath,
-  strokeOutline,
-  strokeWidth,
   type PatternGeometry,
   type Point,
 } from '../core/pattern'
@@ -23,16 +22,6 @@ function svg<K extends keyof SVGElementTagNameMap>(tag: K, attributes: Record<st
 
 /** Baton radius on screen: 12 px on a phone, growing with the figure up to 16 px. */
 const batonRadius = (figureWidth: number) => Math.min(16, Math.max(12, figureWidth / 30))
-
-/**
- * Pen widths on screen, in px: light through each rebound, pressing into the ictus, heaviest on
- * the fall into the downbeat, as a conducting textbook draws the pattern.
- */
-const PEN = { thin: 1.5, heavy: 3.4, downbeat: 4.8 }
-/** Where on each stroke its arrowhead sits: on the fall, clear of the subdivision ticks. */
-const ARROW_AT = 0.8
-/** Length of the printed mark at each ictus, in px: the plane the baton strikes. */
-const ICTUS_MARK = 16
 
 const percent = (point: Point) => ({
   left: `${(point.x / PATTERN_BOX.width) * 100}%`,
@@ -94,17 +83,17 @@ export class BeatPattern {
       this.clearStrike()
       this.geometry = patternGeometry(beats)
       this.marks.replaceChildren(...this.geometry.ictus.map(() => svg('line', { class: 'ictus' })))
-      this.drawStrokes()
       this.ripples.replaceChildren(
         ...this.geometry.ictus.map((point) => svg('circle', { class: 'ripple', cx: point.x, cy: point.y, r: 22 })),
       )
       this.layoutButtons(beats)
       if (this.resting) this.placeBaton(this.geometry.rest)
     }
-    // Ticks sit on the segments, so a new meter needs them redrawn as well.
+    // Ticks sit on the segments, so a new meter needs them redrawn as well; arrows avoid them.
     if (rebuild || offsets !== this.offsets) {
       this.offsets = offsets
       this.drawTicks()
+      this.drawStrokes()
     }
     accents.forEach((accent, beat) => {
       const button = this.buttons.children[beat] as HTMLElement
@@ -164,28 +153,15 @@ export class BeatPattern {
 
   /** The pattern's strokes, arrowheads and ictus marks at the current on-screen scale. */
   private drawStrokes(): void {
-    const unit = (px: number) => px / this.scale
-    const { segments, labelsOnIctus } = this.geometry
-    const shapes = segments.map((segment, k) => {
-      const heavy = k === segments.length - 1 ? PEN.downbeat : PEN.heavy
-      return strokeOutline(segment, unit(PEN.thin), unit(heavy))
-    })
-    // Crowded bars have no room for arrows; the numerals' order carries the direction.
-    if (!labelsOnIctus) {
-      segments.forEach((segment, k) => {
-        const heavy = k === segments.length - 1 ? PEN.downbeat : PEN.heavy
-        const halfWidth = Math.max(4, strokeWidth(ARROW_AT, PEN.thin, heavy) * 1.1)
-        shapes.push(arrowhead(segment, ARROW_AT, unit(halfWidth * 2.4), unit(halfWidth)))
-      })
-    }
+    const { shapes, marks } = drawPattern(this.geometry, this.scale, this.offsets)
     this.path.setAttribute('d', shapesPath(shapes))
-    const half = unit(ICTUS_MARK / 2)
-    this.geometry.ictus.forEach((point, beat) => {
+    marks.forEach(({ a, b, upbeat }, beat) => {
       const mark = this.marks.children[beat]
-      mark?.setAttribute('x1', (point.x - half).toFixed(2))
-      mark?.setAttribute('x2', (point.x + half).toFixed(2))
-      mark?.setAttribute('y1', point.y.toFixed(2))
-      mark?.setAttribute('y2', point.y.toFixed(2))
+      mark?.setAttribute('x1', a.x.toFixed(2))
+      mark?.setAttribute('x2', b.x.toFixed(2))
+      mark?.setAttribute('y1', a.y.toFixed(2))
+      mark?.setAttribute('y2', b.y.toFixed(2))
+      mark?.classList.toggle('upbeat', upbeat)
     })
   }
 
@@ -218,7 +194,7 @@ export class BeatPattern {
       this.offsets.forEach((offset, sub) => {
         if (sub === 0) return
         const point = pointOnSegment(segment, batonProgress(offset))
-        ticks.push(svg('circle', { class: 'tick', cx: point.x, cy: point.y, r: 3.2, 'data-beat': beat, 'data-sub': sub }))
+        ticks.push(svg('circle', { class: 'tick', cx: point.x, cy: point.y, r: TICK_RADIUS, 'data-beat': beat, 'data-sub': sub }))
       })
     })
     this.ticks.replaceChildren(...ticks)

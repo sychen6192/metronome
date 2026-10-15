@@ -269,7 +269,7 @@ button svg {
 .pattern {
   position: relative;
   width: min(100%, 520px);
-  width: min(100%, clamp(320px, (100svh - 456px) * 20 / 13, 720px));
+  width: min(100%, clamp(320px, (100svh - 460px) * 20 / 13, 720px));
   aspect-ratio: 20 / 13;
   margin: 8px auto 0;
 }
@@ -305,6 +305,11 @@ button svg {
 
 .ictus.active {
   transform: scaleX(1.5);
+}
+
+/* The upbeat's mark runs left from its ictus, away from the numeral beside it. */
+.ictus.upbeat {
+  transform-origin: 100% 50%;
 }
 
 .ripple {
@@ -420,7 +425,7 @@ button svg {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  margin: 16px 0 0;
+  margin: 20px 0 0;
 }
 
 .caption-meter {
@@ -436,6 +441,7 @@ button svg {
 .hint {
   color: var(--ink-3);
   font-size: 0.8125rem;
+  text-wrap: balance;
 }
 
 /* Tempo set the way a score prints it: "Allegro  ♩ = 120", with − and + level with the numerals. */
