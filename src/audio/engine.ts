@@ -136,6 +136,11 @@ export class MetronomeEngine {
     }
   }
 
+  /** Audio-clock time of what is coming out of the speakers now (0 before audio starts). */
+  audibleNow(): number {
+    return this.ctx ? this.audibleTime(this.ctx) : 0
+  }
+
   /** Clicks that have reached the speakers since the last call, oldest first. */
   takeAudibleClicks(): ClickEvent[] {
     if (!this.ctx || this.pending.length === 0) return []

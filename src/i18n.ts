@@ -1,15 +1,20 @@
+import type { LanguagePreference } from './core/settings'
+
 const zh = {
   appTitle: '節拍器',
   install: '安裝 App',
+  language: '語言',
+  pattern: '拍式圖：指揮棒依拍子移動',
   play: '開始',
   stop: '停止',
   tap: '打拍',
   tapTitle: '依點擊節奏設定速度（T）',
   tempo: '速度',
+  tempoValue: '速度 {bpm} BPM，{marking}',
   slower: '減慢',
   faster: '加快',
   beatsGroup: '小節拍點',
-  accentHint: '點拍點切換：重音 → 一般 → 靜音',
+  accentHint: '點數字切換：重音 → 一般 → 靜音',
   beatLabel: '第 {n} 拍：{state}',
   'accent.accent': '重音',
   'accent.normal': '一般',
@@ -52,15 +57,18 @@ export type MessageKey = keyof typeof zh
 const en: Record<MessageKey, string> = {
   appTitle: 'Metronome',
   install: 'Install app',
+  language: 'Language',
+  pattern: 'Beat pattern: the baton moves with the beat',
   play: 'Start',
   stop: 'Stop',
   tap: 'Tap',
   tapTitle: 'Set the tempo by tapping (T)',
   tempo: 'Tempo',
+  tempoValue: 'Tempo {bpm} BPM, {marking}',
   slower: 'Slower',
   faster: 'Faster',
   beatsGroup: 'Beats in the bar',
-  accentHint: 'Tap a beat to cycle: accent → normal → mute',
+  accentHint: 'Tap a number to cycle: accent → normal → mute',
   beatLabel: 'Beat {n}: {state}',
   'accent.accent': 'accent',
   'accent.normal': 'normal',
@@ -98,9 +106,32 @@ const en: Record<MessageKey, string> = {
   audioInterrupted: 'Audio was interrupted, so playback stopped.',
 }
 
-const useChinese = (navigator.languages?.[0] ?? navigator.language ?? '').toLowerCase().startsWith('zh')
-const messages: Record<MessageKey, string> = useChinese ? zh : en
-export const lang = useChinese ? 'zh-Hant' : 'en'
+export const LANGUAGES = ['zh-Hant', 'en'] as const
+export type Language = (typeof LANGUAGES)[number]
+
+const MESSAGES: Record<Language, Record<MessageKey, string>> = { 'zh-Hant': zh, en }
+
+/** The browser's first preference decides: any Chinese locale gets Traditional Chinese. */
+export function detectLanguage(preferred: readonly string[]): Language {
+  return (preferred[0] ?? '').toLowerCase().startsWith('zh') ? 'zh-Hant' : 'en'
+}
+
+export function resolveLanguage(preference: LanguagePreference): Language {
+  if (preference !== 'auto') return preference
+  return detectLanguage(navigator.languages?.length ? navigator.languages : [navigator.language ?? ''])
+}
+
+let current: Language = resolveLanguage('auto')
+let messages: Record<MessageKey, string> = MESSAGES[current]
+
+export function setLanguage(language: Language): void {
+  current = language
+  messages = MESSAGES[language]
+}
+
+export function currentLanguage(): Language {
+  return current
+}
 
 export function t(key: MessageKey, vars: Record<string, string | number> = {}): string {
   return messages[key].replace(/\{(\w+)\}/g, (_, name: string) => String(vars[name] ?? `{${name}}`))
@@ -111,8 +142,8 @@ export function t(key: MessageKey, vars: Record<string, string | number> = {}): 
  * `data-i18n-title` the tooltip.
  */
 export function translatePage(root: ParentNode = document): void {
-  document.documentElement.lang = lang
-  document.title = `${t('appTitle')}${useChinese ? ' Metronome' : ''}`
+  document.documentElement.lang = current
+  document.title = current === 'zh-Hant' ? `${t('appTitle')} Metronome` : t('appTitle')
   for (const el of root.querySelectorAll<HTMLElement>('[data-i18n]')) {
     el.textContent = t(el.dataset.i18n as MessageKey)
   }

@@ -33,6 +33,13 @@ describe('sanitizeSettings', () => {
     })
   })
 
+  it('accepts a known language preference and defaults to auto', () => {
+    expect(sanitizeSettings({ language: 'en' }).language).toBe('en')
+    expect(sanitizeSettings({ language: 'zh-Hant' }).language).toBe('zh-Hant')
+    expect(sanitizeSettings({ language: 'fr' }).language).toBe('auto')
+    expect(sanitizeSettings({}).language).toBe('auto')
+  })
+
   it('keeps the accent pattern in sync with the bar length', () => {
     const settings = sanitizeSettings({ beatsPerBar: 3, accents: ['mute', 'bogus'] })
     expect(settings.accents).toEqual(['mute', 'normal', 'normal'])
