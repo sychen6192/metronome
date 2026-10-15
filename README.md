@@ -44,12 +44,30 @@ npm run icons      # 替換 assets/icon-source.png 後重新產生所有圖示
 
 > 音訊必須由使用者操作（點擊或按鍵）才能啟動，這是瀏覽器的自動播放政策。
 
-## 部署到 GitHub Pages
+## 部署
 
-1. 到 repo 的 **Settings → Pages**，把 **Source** 設為 **GitHub Actions**。
-2. 推送到 `main` 分支，`.github/workflows/deploy.yml` 會自動測試、建置並發布到 `https://<帳號>.github.io/metronome/`。
+`main` 分支有新 commit 時，兩個 workflow 會各自測試、建置並發布。PWA 需要 HTTPS（`localhost` 除外）。
 
-建置時用環境變數 `BASE_PATH` 指定子路徑（例：`BASE_PATH=/metronome/ npm run build`），預設為 `/`，所以也能直接部署到 Netlify、Vercel、Cloudflare Pages 等網站根目錄。PWA 需要 HTTPS（`localhost` 除外）。
+### GitHub Pages（`.github/workflows/deploy.yml`）
+
+1. **Settings → General → Default branch** 設為 `main`。
+2. **Settings → Pages → Source** 設為 **GitHub Actions**。
+3. 網址：`https://<帳號>.github.io/metronome/`。
+
+### Cloudflare Workers（`.github/workflows/deploy-cloudflare.yml`）
+
+用 Cloudflare 建議的 [Workers static assets](https://developers.cloudflare.com/workers/static-assets/)（設定在 `wrangler.jsonc`）託管 `dist/`。沒設定 secrets 前，這個 workflow 會略過並顯示提示，不會失敗。
+
+1. Cloudflare 後台 → **My Profile → API Tokens → Create Token**，選 **Edit Cloudflare Workers** 範本建立 token。
+2. 在 Cloudflare 後台首頁（或 Workers & Pages）複製 **Account ID**。
+3. GitHub repo → **Settings → Secrets and variables → Actions**，新增 `CLOUDFLARE_API_TOKEN` 與 `CLOUDFLARE_ACCOUNT_ID`。
+4. 推送到 `main`，或在 Actions 手動執行 **Deploy to Cloudflare**。網址：`https://metronome.<你的子網域>.workers.dev`，可在 Cloudflare 後台綁定自訂網域。
+
+`public/_headers` 讓帶 hash 的 `/assets/*` 快取一年；`index.html`、`sw.js` 維持每次重新驗證，Service Worker 才能即時更新。
+
+### 其他靜態主機
+
+建置時用環境變數 `BASE_PATH` 指定子路徑（例：`BASE_PATH=/metronome/ npm run build`），預設為 `/`，所以也能直接把 `dist/` 部署到 Netlify、Vercel 等網站根目錄。
 
 ## 專案結構
 
