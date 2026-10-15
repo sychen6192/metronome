@@ -165,8 +165,6 @@ export class BeatPattern {
     this.geometry.labels.forEach((point, beat) => {
       const button = existing[beat] as HTMLElement
       Object.assign(button.style, percent(point))
-      // Crowded numerals grow their hit area away from the neighbouring tier.
-      button.dataset.reach = this.geometry.raised[beat] ? 'up' : 'down'
     })
     this.figure.classList.toggle('crowded', this.geometry.labelsOnIctus)
   }

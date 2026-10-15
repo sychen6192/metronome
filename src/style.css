@@ -351,8 +351,8 @@ button svg {
     border-color 160ms ease-out;
 }
 
-/* Crowded bars: smaller numerals sit on their ictus. Their hit areas still reach 44 px, growing
-   away from the neighbouring tier so they never overlap. */
+/* Crowded bars: smaller numerals sit on their ictus. Their hit areas still reach 44 px wide;
+   the tiers keep neighbours on the same row at least that far apart. */
 .pattern.crowded .beat {
   --size: 30px;
   border-width: 1.5px;
@@ -362,11 +362,7 @@ button svg {
 .pattern.crowded .beat::before {
   content: '';
   position: absolute;
-  inset: -1.5px -1.5px -15.5px;
-}
-
-.pattern.crowded .beat[data-reach='up']::before {
-  inset: -15.5px -1.5px -1.5px;
+  inset: -1.5px -8.5px;
 }
 
 .beat[data-level='accent'] {
@@ -417,6 +413,9 @@ button svg {
 .tempo {
   --step: 52px;
   container-type: inline-size;
+  justify-self: center;
+  /* − and + stay beside the mark on wide screens. */
+  width: min(100%, 440px);
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   grid-template-areas:
@@ -917,11 +916,15 @@ button svg {
 .shortcuts {
   display: flex;
   flex-wrap: wrap;
-  column-gap: 0.5em;
   margin: 0;
   padding: 18px 0 8px;
   color: var(--ink-3);
   font-size: 0.8125rem;
+}
+
+/* A full-width colon carries its own space; the English one needs a gap. */
+.shortcuts-label:lang(en) {
+  margin-inline-end: 0.5em;
 }
 
 .shortcut {
@@ -931,7 +934,7 @@ button svg {
 .shortcut:not(:last-child)::after {
   content: '·';
   content: '·' / '';
-  margin-inline-start: 0.5em;
+  margin-inline: 0.5em;
 }
 
 /* Keyboard shortcuts are irrelevant on touch-only devices. */

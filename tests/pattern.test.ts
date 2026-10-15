@@ -76,32 +76,45 @@ describe('patternGeometry', () => {
     }
   })
 
-  it('gives crowded numerals 44 px hit areas that never overlap', () => {
+  it('gives crowded numerals 44 px wide hit areas that never overlap', () => {
     for (let beats = 9; beats <= 16; beats++) {
-      const { labels, labelsOnIctus, raised } = patternGeometry(beats)
+      const { labels, labelsOnIctus } = patternGeometry(beats)
       expect(labelsOnIctus).toBe(true)
-      // 30 x 44 px, growing upwards on the raised tier and downwards on the plane.
-      const boxes = labels.map((label, k) => {
-        const x = label.x * SCALE
-        const y = label.y * SCALE
-        return { left: x - 15, right: x + 15, top: raised[k] ? y - 22 : y - 15, bottom: raised[k] ? y + 15 : y + 22 }
-      })
-      for (let i = 0; i < boxes.length; i++) {
-        for (let j = i + 1; j < boxes.length; j++) {
-          const a = boxes[i]!
-          const b = boxes[j]!
-          const overlap = a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom
+      // 30 px numerals whose hit areas reach 44 px wide (30 tall).
+      const centres = labels.map((label) => ({ x: label.x * SCALE, y: label.y * SCALE }))
+      for (let i = 0; i < centres.length; i++) {
+        for (let j = i + 1; j < centres.length; j++) {
+          const overlap = Math.abs(centres[i]!.x - centres[j]!.x) < 44 && Math.abs(centres[i]!.y - centres[j]!.y) < 30
           expect(overlap, `${beats} beats: hit areas ${i + 1} and ${j + 1}`).toBe(false)
         }
       }
     }
   })
 
-  it('alternates side beats between the plane and a raised tier when there are three or more', () => {
-    const { ictus, raised } = patternGeometry(8)
-    // 8 beats: 1, then 2-4 left, 5-7 right, 8 the upbeat.
-    expect(raised).toEqual([false, false, true, false, false, true, false, true])
-    expect(ictus[2]!.y).toBeLessThan(ictus[1]!.y)
+  it('leaves clear space between crowded numerals, not a chain of touching discs', () => {
+    for (let beats = 9; beats <= 16; beats++) {
+      const { labels } = patternGeometry(beats)
+      for (let i = 0; i < labels.length; i++) {
+        for (let j = i + 1; j < labels.length; j++) {
+          const gap = Math.hypot(labels[i]!.x - labels[j]!.x, labels[i]!.y - labels[j]!.y) * SCALE - 30
+          expect(gap, `${beats} beats: numerals ${i + 1} and ${j + 1}`).toBeGreaterThanOrEqual(8)
+        }
+      }
+    }
+  })
+
+  it('steps side beats up through raised tiers when a side has three or more', () => {
+    const heights = (beats: number) => patternGeometry(beats).ictus.map((point) => point.y)
+    // 8 beats: 1, then 2-4 left, 5-7 right, 8 the upbeat; the middle beat of each side is raised.
+    const eight = heights(8)
+    expect(eight[2]).toBeLessThan(eight[1]!)
+    expect(eight[3]).toBe(eight[1])
+    // 16 beats: seven a side, on three tiers in turn.
+    const left = heights(16).slice(1, 8)
+    expect(new Set(left).size).toBe(3)
+    expect(left[3]).toBe(left[0])
+    expect(left[1]).toBeLessThan(left[0]!)
+    expect(left[2]).toBeLessThan(left[1]!)
   })
 
   it('rests the baton at the top of the downbeat loop', () => {

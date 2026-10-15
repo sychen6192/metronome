@@ -25,8 +25,6 @@ export interface PatternGeometry {
   labels: Point[]
   /** Crowded bars put numerals on the ictus (smaller), so they cannot collide. */
   labelsOnIctus: boolean
-  /** Numerals of the raised tier (and the upbeat): their hit areas grow upwards, the others' downwards. */
-  raised: boolean[]
   /** Where the baton waits while stopped: raised, ready for the downbeat. */
   rest: Point
   /** segments[k] runs from beat k to the next beat (the last one back to beat 1). */
@@ -38,8 +36,8 @@ export const PATTERN_BOX = { width: 400, height: 260 } as const
 const CENTER = PATTERN_BOX.width / 2
 const DOWNBEAT: Point = { x: CENTER, y: 212 }
 const UPBEAT: Point = { x: CENTER + 34, y: 130 }
-/** Crowded bars lift the upbeat clear of the raised tier on the right. */
-const CROWDED_UPBEAT: Point = { x: CENTER + 30, y: 100 }
+/** Crowded bars lift the upbeat clear of the raised tiers on the right. */
+const CROWDED_UPBEAT: Point = { x: CENTER + 30, y: 90 }
 const PLANE_Y = 186
 const TOP_Y = -6
 const MAX_BEATS = 16
@@ -48,25 +46,27 @@ const MAX_BESIDE = 8
 const LABEL_GAP = 34
 
 /** Horizontal distance from the centre of the j-th of `count` side beats (1-based). */
-function sideOffset(j: number, count: number): number {
+function sideOffset(j: number, count: number, crowded: boolean): number {
   if (count === 1) return 122
   // Crowded sides (on-ictus numerals) use the full width.
-  const [inner, outer] = count > 3 ? [50, 184] : [60, 172]
+  const [inner, outer] = crowded ? [62, 186] : [60, 172]
   return inner + ((outer - inner) * (j - 1)) / (count - 1)
 }
 
 /**
- * Three or more beats on a side alternate between the plane and a raised tier, so neighbouring
- * numerals clear each other even in the narrowest figure (288 px wide).
+ * Three or more beats on a side step up through raised tiers in turn (two, or three for six or
+ * more crowded beats), so neighbouring numerals clear each other even in the narrowest figure
+ * (288 px wide). Returns how far the j-th beat is raised.
  */
-function stagger(count: number): number {
-  if (count > 3) return 46
-  return count === 3 ? 36 : 0
+function lift(j: number, count: number, crowded: boolean): number {
+  if (count < 3) return 0
+  if (!crowded) return j % 2 === 0 ? 36 : 0
+  const tiers = count >= 6 ? 3 : 2
+  return ((j - 1) % tiers) * (tiers === 3 ? 52 : 46)
 }
 
-function sidePoint(direction: -1 | 1, j: number, count: number): Point {
-  const lift = j % 2 === 0 ? stagger(count) : 0
-  return { x: CENTER + direction * sideOffset(j, count), y: PLANE_Y - lift }
+function sidePoint(direction: -1 | 1, j: number, count: number, crowded: boolean): Point {
+  return { x: CENTER + direction * sideOffset(j, count, crowded), y: PLANE_Y - lift(j, count, crowded) }
 }
 
 function segment(from: Point, to: Point, isDownbeat: boolean): Segment {
@@ -97,8 +97,8 @@ export function patternGeometry(beatsPerBar: number): PatternGeometry {
     const between = beats - 2
     const left = Math.floor(between / 2)
     const right = between - left
-    for (let j = 1; j <= left; j++) ictus.push(sidePoint(-1, j, left))
-    for (let j = 1; j <= right; j++) ictus.push(sidePoint(1, j, right))
+    for (let j = 1; j <= left; j++) ictus.push(sidePoint(-1, j, left, labelsOnIctus))
+    for (let j = 1; j <= right; j++) ictus.push(sidePoint(1, j, right, labelsOnIctus))
   }
   if (beats >= 2) ictus.push(labelsOnIctus ? CROWDED_UPBEAT : UPBEAT)
 
@@ -117,9 +117,7 @@ export function patternGeometry(beatsPerBar: number): PatternGeometry {
     return { x: point.x, y: point.y + LABEL_GAP }
   })
 
-  const raised = ictus.map((point) => point.y < PLANE_Y)
-
-  return { ictus, labels, labelsOnIctus, raised, rest: apex(segments.at(-1)!), segments }
+  return { ictus, labels, labelsOnIctus, rest: apex(segments.at(-1)!), segments }
 }
 
 /** Highest point of a segment: the baton's raised position before the downbeat. */
