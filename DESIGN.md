@@ -41,6 +41,16 @@ typography:
     fontWeight: 700
     lineHeight: 1
     fontFeature: "lnum"
+  title-numeral-crowded:
+    fontFamily: "'Old Standard TT', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif"
+    fontSize: "0.875rem"
+    fontWeight: 700
+    lineHeight: 1
+    fontFeature: "lnum"
+  display-signature-fallback:
+    fontFamily: "'Old Standard TT', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif"
+    fontSize: "1.5rem"
+    lineHeight: 1
   label-score:
     fontFamily: "'Old Standard TT', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif"
     fontSize: "0.8125rem"
@@ -56,10 +66,18 @@ typography:
     fontSize: "1rem"
     fontWeight: 400
     lineHeight: 1.5
+  label-strong:
+    fontFamily: "system-ui, -apple-system, 'Segoe UI', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif"
+    fontSize: "1.125rem"
+    fontWeight: 700
   label:
     fontFamily: "system-ui, -apple-system, 'Segoe UI', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif"
     fontSize: "0.9375rem"
     fontWeight: 600
+  label-note:
+    fontFamily: "system-ui, -apple-system, 'Segoe UI', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif"
+    fontSize: "0.875rem"
+    fontWeight: 400
   label-small:
     fontFamily: "system-ui, -apple-system, 'Segoe UI', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif"
     fontSize: "0.8125rem"
@@ -83,7 +101,7 @@ components:
   button-start:
     backgroundColor: "{colors.baton-yellow}"
     textColor: "{colors.slate}"
-    typography: "{typography.label}"
+    typography: "{typography.label-strong}"
     rounded: "{rounded.pill}"
     height: "64px"
     padding: "0 clamp(16px, 5vw, 28px)"
@@ -94,6 +112,10 @@ components:
     rounded: "{rounded.pill}"
     height: "52px"
     padding: "0 clamp(8px, 3vw, 14px)"
+  button-secondary-stacked:
+    rounded: "{rounded.panel}"
+    height: "64px"
+    padding: "0 10px"
   button-secondary-hover:
     backgroundColor: "{colors.slate-raised}"
   button-step:
@@ -204,17 +226,21 @@ A two-theme monochrome-navy system with exactly one chromatic accent, yellow, sh
 - **Display, metronome mark** (engraved, up to 8rem, fitted to the space between − and + via container units; line-height 0.6; tabular digits): the BPM only. The quarter-note glyph sits at 0.5em and the "=" (Old Standard, 0.34em) is raised to the middle of the digits.
 - **Display, time signature** (engraved, 3.4rem, line-height 0.56): the stacked meter in the legend.
 - **Headline, tempo marking** (Old Standard 700, 1.375rem, 1.2, +0.01em): the Italian marking above the mark.
-- **Title, beat numerals** (Old Standard 700, 1.25rem, lining figures; 0.875rem in crowded bars): the numerals on the figure.
+- **Title, beat numerals** (Old Standard 700, 1.25rem, lining figures): the numerals on the figure.
+- **Title, crowded numerals** (Old Standard 700, 0.875rem, lining figures): beat numerals in bars of more than 8 beats, sitting on their ictus.
+- **Display, signature fallback** (Old Standard, 1.5rem, line-height 1): the time signature as plain digits when the engraved face is unavailable.
 - **Label, score** (Old Standard 700, 0.8125rem): Italian markings engraved on the ruler.
 - **Title, brand** (sans 650, 1.0625rem, +0.01em): the app name beside the icon.
 - **Body** (sans 400, 1rem, 1.5): base text; long notes cap at 60ch.
-- **Label** (sans 600, 0.9375rem): row labels and secondary buttons; Start is 1.125rem 700.
-- **Label small** (sans, 0.8125rem to 0.875rem): language switch, trainer field labels, shortcuts, trainer state.
+- **Label strong** (sans 700, 1.125rem): the Start / Stop label only.
+- **Label** (sans 600, 0.9375rem): row labels and secondary buttons.
+- **Label note** (sans, 0.875rem): trainer state, the trainer note paragraph, the Install text-button label.
+- **Label small** (sans, 0.8125rem): the accent hint under the figure, language switch, trainer field labels, shortcuts, and the stacked secondary labels at 380px and below.
 
 ### Named Rules
 **The Notation Voice Rule.** Any musical quantity (tempo, meter, beat number, tempo marking) is set in the engraved face or Old Standard; any instruction or setting name is set in system sans. Never swap them.
 
-**The Engraved Fallback Rule.** If the engraved face fails to load (detected through `document.fonts.load`, e.g. iOS Lockdown Mode), the root takes a `no-engraved` class: the note and "=" are hidden, the BPM drops to plain numerals at up to 5rem with line-height 1, and the time signature becomes 1.5rem plain digits. The tight engraved metrics are never applied to a substitute face.
+**The Engraved Fallback Rule.** If the engraved face fails to load (detected through `document.fonts.load`, e.g. iOS Lockdown Mode), the root takes a `no-engraved` class: the note and "=" are hidden, the BPM drops to plain numerals at up to 5rem with line-height 1, and the time signature takes the signature-fallback step. The tight engraved metrics are never applied to a substitute face.
 
 ## Layout
 
@@ -237,14 +263,14 @@ Flat by default. Depth comes from tonal grounds (slate, raised slate for the leg
 
 ## Shapes
 
-Circles and pills. Beat numerals, step (−/+) buttons, ictus dots, the baton and slider thumbs are true circles; Start (32px), secondary buttons (26px) and the language switch (999px) are full pills. Rectangular containers use gently rounded corners: 10px for segments, the select, number fields and toast buttons; 14px for the toast; 20px for the wide-screen legend panel and the text button. The ruler's sliding weight is the one rounded rectangle (7px), a deliberate pendulum-weight silhouette. Borders are 1.5px for controls, 2px for beat rings (1.5px when crowded), 1px for hairlines. Line icons are 24-unit SVG strokes at 2px with round caps and joins, drawn at 18-24px.
+Circles and pills. Beat numerals, step (−/+) buttons, ictus dots, the baton and slider thumbs are true circles; Start, secondary buttons, the language switch and the volume track are full pills (999px); at 380px and below the stacked secondary buttons become 20px rounded panels. Rectangular containers use gently rounded corners: 10px for segments, the select, number fields and toast buttons; 14px for the toast; 20px for the wide-screen legend panel, the text button and the stacked secondary buttons. The ruler's sliding weight is the one rounded rectangle (7px), a deliberate pendulum-weight silhouette. Borders are 1.5px for controls, 2px for beat rings (1.5px when crowded), 1px for hairlines. Line icons are 24-unit SVG strokes at 2px with round caps and joins, drawn at 18-24px.
 
 ## Components
 
 ### Buttons
 Few, large, round and forgiving.
-- **Start / Stop:** Baton Yellow pill, 64px tall, min-width `min(148px, 32vw)`, slate text at 1.125rem 700 with a filled 24px play triangle or rounded stop square. Carries the Start lift; presses to scale 0.97 with the reduced shadow (100ms ease-out).
-- **Secondary (Tap, Trainer):** transparent 52px pill with a 1.5px rule border, chalk text at 0.9375rem 600 and a 20px line icon. Hover fills raised slate; press scales to 0.97. Trainer on: yellow edge and an 18% yellow tint. Tap also pulses 0.94 to 1 over 120ms when tapped.
+- **Start / Stop:** Baton Yellow pill, 64px tall, min-width `min(148px, 32vw)`, slate text in label strong with a filled 24px play triangle or rounded stop square. Carries the Start lift; presses to scale 0.97 with the reduced shadow (100ms ease-out).
+- **Secondary (Tap, Trainer):** transparent 52px full pill with a 1.5px rule border, chalk text at 0.9375rem 600 and a 20px line icon. Hover fills raised slate; press scales to 0.97. Trainer on: yellow edge and an 18% yellow tint. Tap also pulses 0.94 to 1 over 120ms when tapped. At 380px and below the icon stacks over a label-small label at Start's 64px height with a 20px radius.
 - **Step (− / +):** 52px circle with a 1.5px rule border and a 22px line glyph; 44px inside the legend, 46px at 360px and below. Hover fills raised slate; press scales to 0.94 with the raised fill. Supports hold-to-repeat.
 - **Text button (Install):** 40px tall, 20px radius, soft chalk 0.875rem 600 with an 18px icon; icon-only at 400px and below.
 - **Disabled:** 38% opacity, default cursor.
@@ -258,7 +284,7 @@ Few, large, round and forgiving.
 
 ### Inputs / Fields
 - **Select and number fields:** 46px tall, 1.5px rule border, 10px radius, ground-coloured fill (so they read as cut into the raised panel); the select draws its chevron with two gradients in soft chalk. Number fields use tabular figures at 1.0625rem.
-- **Volume slider:** 4px track filled chalk up to the thumb, rule beyond; 22px chalk thumb with a 3px ground-coloured ring.
+- **Volume slider:** 4px pill track filled chalk up to the thumb, rule beyond; 22px chalk thumb with a 3px ground-coloured ring.
 - **Tempo ruler:** an engraved scale, not a track: a tick every 20 BPM over a 1px baseline, Italian markings (Old Standard 700) alternating above and below on hairline flags so neighbours never collide, and a 26×30px Baton Yellow weight with a 3px ground (dark) or navy (light) edge.
 - **Focus:** a 2px outline in the focus colour (yellow on slate, navy on paper) at 3px offset (2px on segments and slider thumbs). Inside the chalk toast the ring turns ground-coloured.
 
@@ -269,7 +295,7 @@ Few, large, round and forgiving.
 The conductor's diagram for 1 to 16 beats, drawn in a fixed 400×260 SVG box that scales with the figure. Strokes are non-scaling.
 - **Path:** a 2.4px chalk-path stroke with round caps; the downbeat falls vertically to the bottom centre, the last beat rises to the upbeat, side beats step out along the plane, lifting into two or three tiers when a side has three or more beats.
 - **Ictus:** 5-unit chalk dots; the struck one scales to 1.5 (160ms ease-out). Subdivision ticks are 3.2-unit faint-chalk dots at 35% opacity that brighten to full and fade back over 180ms on each sub-click.
-- **Beat numerals = accent buttons:** 44px circles beside each ictus (30px and on the ictus above 8 beats, with hit areas widened to 44px). Normal: chalk-path ring on ground. Accent: yellow disc (navy-edged on paper). Mute: dashed ring, faint numeral. Struck: solid chalk fill with ground numeral at scale 1.14, landing instantly and held until the next beat; struck accent keeps a yellow ring; struck mute is a 14% chalk tint with soft-chalk ring. Hover sharpens the ring to chalk. Tapping cycles accent → normal → mute.
+- **Beat numerals = accent buttons:** 44px circles beside each ictus (30px with crowded numerals, on the ictus above 8 beats, with hit areas widened to 44px). Normal: chalk-path ring on ground. Accent: yellow disc (navy-edged on paper). Mute: dashed ring, faint numeral. Struck: solid chalk fill with ground numeral at scale 1.14, landing instantly and held until the next beat; struck accent keeps a yellow ring; struck mute is a 14% chalk tint with soft-chalk ring. Hover sharpens the ring to chalk. Tapping cycles accent → normal → mute.
 - **Baton:** a filled circle 12-16px in radius on screen (figure width / 30), yellow with a 4px slate ring on slate, navy with a yellow ring on paper. It travels each segment with the velocity profile `t + 0.72/(2π)·sin(2πt)`: fastest into the ictus, slowest at the rebound top, as a conductor's hand moves. Stopped, it rests raised above the downbeat.
 - **Ripple:** one ring per strike, expanding from 0.5 to 1.5 (accent 1.9, 3px yellow) and fading over 420ms on `cubic-bezier(0.16, 1, 0.3, 1)`. Muted beats get none.
 

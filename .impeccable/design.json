@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-15T11:55:45+00:00",
+  "generatedAt": "2026-10-15T12:00:10+00:00",
   "title": "Design System: 節拍器 Metronome",
   "extensions": {
     "colorMeta": {
@@ -284,7 +284,7 @@
       },
       "display-signature": {
         "displayName": "Time Signature",
-        "purpose": "Stacked engraved meter in the settings legend; 1.5rem plain digits under no-engraved."
+        "purpose": "Stacked engraved meter in the settings legend."
       },
       "headline": {
         "displayName": "Tempo Marking",
@@ -292,7 +292,7 @@
       },
       "title-numeral": {
         "displayName": "Beat Numeral",
-        "purpose": "Numerals on the beat-pattern figure; 0.875rem in crowded bars."
+        "purpose": "Numerals on the beat-pattern figure, up to 8 beats."
       },
       "label-score": {
         "displayName": "Ruler Marking",
@@ -308,11 +308,27 @@
       },
       "label": {
         "displayName": "Label",
-        "purpose": "Legend row labels and secondary buttons; Start uses 1.125rem 700."
+        "purpose": "Legend row labels and secondary buttons."
       },
       "label-small": {
         "displayName": "Small Label",
-        "purpose": "Language switch, trainer field labels, shortcuts."
+        "purpose": "Accent hint caption, language switch, trainer field labels, shortcuts, stacked secondary labels at 380px and below."
+      },
+      "title-numeral-crowded": {
+        "displayName": "Crowded Beat Numeral",
+        "purpose": "Beat numerals sitting on their ictus in bars of more than 8 beats."
+      },
+      "display-signature-fallback": {
+        "displayName": "Signature Fallback",
+        "purpose": "Time signature as plain digits when the engraved face is unavailable (no-engraved)."
+      },
+      "label-strong": {
+        "displayName": "Start Label",
+        "purpose": "The Start / Stop label only."
+      },
+      "label-note": {
+        "displayName": "Note",
+        "purpose": "Trainer state, trainer note paragraph, Install text-button label."
       }
     },
     "shadows": [
@@ -373,7 +389,7 @@
       {
         "name": "narrow",
         "value": "380px",
-        "purpose": "max-width: secondary buttons stack icon over label at 64px."
+        "purpose": "max-width: secondary buttons stack icon over label at 64px with a 20px radius."
       },
       {
         "name": "compact",
@@ -391,7 +407,7 @@
       "light": "prefers-color-scheme: light; paper/navy tokens. Baton navy with yellow ring; yellow shapes take a navy edge; focus navy.",
       "forcedColors": "Path/dots/ticks CanvasText; baton and ripples Highlight; accent beat CanvasText fill; struck beat, selected segment, Trainer-on and pressed language Highlight fills; control borders ButtonText; Start shadow replaced by a 2px ButtonText border.",
       "reducedMotion": "Transitions off; no beat/ictus scale; baton placed on each ictus without travel; no ripple; held strike fill remains.",
-      "noEngraved": "When Metronome Engraved fails to load: note and '=' hidden, BPM plain numerals up to 5rem at line-height 1, time signature 1.5rem plain digits."
+      "noEngraved": "When Metronome Engraved fails to load: note and '=' hidden, BPM plain numerals up to 5rem at line-height 1, time signature in display-signature-fallback (1.5rem, line-height 1)."
     }
   },
   "components": [
@@ -401,15 +417,15 @@
       "refersTo": "button-start",
       "description": "The single primary action: yellow pill, the only lifted object on the board.",
       "html": "<button class=\"ds-start\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7.5 5.2v13.6L18.6 12z\"/></svg><span>Start</span></button>",
-      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-start{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-width:148px;height:64px;padding:0 28px;border:0;border-radius:32px;background:var(--yellow);color:var(--on-yellow);font:700 1.125rem/1 var(--sans);box-shadow:0 6px 18px rgb(0 0 0 / 0.22);cursor:pointer;transition:scale 100ms ease-out,box-shadow 160ms ease-out}.ds-start svg{width:24px;height:24px;fill:currentColor}.ds-start:active{scale:.97;box-shadow:0 2px 8px rgb(0 0 0 / 0.2)}.ds-start:focus-visible{outline:2px solid var(--focus);outline-offset:3px}"
+      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-start{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-width:148px;height:64px;padding:0 28px;border:0;border-radius:999px;background:var(--yellow);color:var(--on-yellow);font:700 1.125rem/1 var(--sans);box-shadow:0 6px 18px rgb(0 0 0 / 0.22);cursor:pointer;transition:scale 100ms ease-out,box-shadow 160ms ease-out}.ds-start svg{width:24px;height:24px;fill:currentColor}.ds-start:active{scale:.97;box-shadow:0 2px 8px rgb(0 0 0 / 0.2)}.ds-start:focus-visible{outline:2px solid var(--focus);outline-offset:3px}"
     },
     {
       "name": "Secondary Button",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "Tap and Trainer flanking Start: ruled pill, line icon.",
+      "description": "Tap and Trainer flanking Start: ruled full pill, line icon; stacks into a 20px-radius panel at 380px and below.",
       "html": "<button class=\"ds-secondary\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M3.5 17.5 9 12l4 4 7.5-7.5m0 0H15m5.5 0V14\"/></svg><span>Trainer</span></button>",
-      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-secondary{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:92px;height:52px;padding:0 14px;border:1.5px solid var(--rule);border-radius:26px;background:none;color:var(--ink);font:600 .9375rem/1 var(--sans);cursor:pointer;transition:background-color 160ms ease-out,border-color 160ms ease-out,scale 100ms ease-out}.ds-secondary svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.ds-secondary:hover{background:var(--ground-2)}.ds-secondary:active{scale:.97}.ds-secondary:focus-visible{outline:2px solid var(--focus);outline-offset:3px}.ds-secondary[aria-pressed=true]{border-color:var(--yellow);background:color-mix(in srgb,var(--yellow) 18%,var(--ground))}"
+      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-secondary{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:92px;height:52px;padding:0 14px;border:1.5px solid var(--rule);border-radius:999px;background:none;color:var(--ink);font:600 .9375rem/1 var(--sans);cursor:pointer;transition:background-color 160ms ease-out,border-color 160ms ease-out,scale 100ms ease-out}.ds-secondary svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.ds-secondary:hover{background:var(--ground-2)}.ds-secondary:active{scale:.97}.ds-secondary:focus-visible{outline:2px solid var(--focus);outline-offset:3px}.ds-secondary[aria-pressed=true]{border-color:var(--yellow);background:color-mix(in srgb,var(--yellow) 18%,var(--ground))}@media (max-width:380px){.ds-secondary{flex-direction:column;gap:2px;height:64px;padding:0 10px;border-radius:20px;font-size:.8125rem}}"
     },
     {
       "name": "Step Disc",
@@ -501,7 +517,7 @@
       },
       {
         "name": "The Engraved Fallback Rule",
-        "body": "If the engraved face fails to load (detected through `document.fonts.load`, e.g. iOS Lockdown Mode), the root takes a `no-engraved` class: the note and \"=\" are hidden, the BPM drops to plain numerals at up to 5rem with line-height 1, and the time signature becomes 1.5rem plain digits. The tight engraved metrics are never applied to a substitute face.",
+        "body": "If the engraved face fails to load (detected through `document.fonts.load`, e.g. iOS Lockdown Mode), the root takes a `no-engraved` class: the note and \"=\" are hidden, the BPM drops to plain numerals at up to 5rem with line-height 1, and the time signature takes the signature-fallback step. The tight engraved metrics are never applied to a substitute face.",
         "section": "typography"
       },
       {
