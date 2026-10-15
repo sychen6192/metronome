@@ -14,7 +14,7 @@ export default defineConfig({
       // "prompt" instead of "autoUpdate": never reload the page while the metronome is playing.
       registerType: 'prompt',
       injectRegister: false,
-      includeAssets: ['favicon.svg', 'apple-touch-icon-180x180.png'],
+      includeAssets: ['favicon.ico', 'apple-touch-icon-180x180.png'],
       manifest: {
         id: base,
         name: 'Metronome 節拍器',
