@@ -1,12 +1,13 @@
-import { t } from '../i18n'
+import { t, type MessageKey } from '../i18n'
 
+/** Toasts hold message keys, not text, so they follow a language switch while shown. */
 export interface ToastAction {
-  label: string
+  label: MessageKey
   run: () => void
 }
 
 interface Toast {
-  message: string
+  message: MessageKey
   action?: ToastAction
 }
 
@@ -24,7 +25,6 @@ const persistent: Toast[] = []
 let transient: Toast | null = null
 let hideTimer: number | undefined
 
-closeButton.setAttribute('aria-label', t('dismiss'))
 closeButton.addEventListener('click', () => {
   if (transient) clearTransient()
   else persistent.pop()
@@ -36,7 +36,7 @@ actionButton.addEventListener('click', () => {
   top?.action?.run()
 })
 
-export function showToast(message: string, action?: ToastAction): void {
+export function showToast(message: MessageKey, action?: ToastAction): void {
   if (action) {
     dismissToast(message)
     persistent.push({ message, action })
@@ -52,7 +52,7 @@ export function showToast(message: string, action?: ToastAction): void {
 }
 
 /** Remove a persistent toast once it no longer applies (e.g. playback restarted). */
-export function dismissToast(message: string): void {
+export function dismissToast(message: MessageKey): void {
   const index = persistent.findIndex((item) => item.message === message)
   if (index !== -1) {
     persistent.splice(index, 1)
@@ -65,11 +65,12 @@ function clearTransient(): void {
   transient = null
 }
 
-function render(): void {
+/** Show the current toast in the current language. */
+export function render(): void {
   const current = transient ?? persistent.at(-1)
   toast.hidden = !current
   if (!current) return
-  text.textContent = current.message
+  text.textContent = t(current.message)
   actionButton.hidden = !current.action
-  actionButton.textContent = current.action?.label ?? ''
+  actionButton.textContent = current.action ? t(current.action.label) : ''
 }

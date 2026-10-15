@@ -2,7 +2,7 @@
  * Geometry of a conductor's beat pattern, as drawn in conducting textbooks: the downbeat falls
  * straight to the bottom, the last beat rises (the upbeat), and the beats between move inwards
  * then outwards along the plane of beating. 3 beats give the triangle, 4 the cross, 6 the
- * German six. Coordinates are in a fixed 400 x 300 box.
+ * German six. Coordinates are in a fixed 400 x 260 box.
  */
 
 export interface Point {
@@ -25,19 +25,23 @@ export interface PatternGeometry {
   labels: Point[]
   /** Crowded bars put numerals on the ictus (smaller), so they cannot collide. */
   labelsOnIctus: boolean
+  /** Numerals of the raised tier (and the upbeat): their hit areas grow upwards, the others' downwards. */
+  raised: boolean[]
   /** Where the baton waits while stopped: raised, ready for the downbeat. */
   rest: Point
   /** segments[k] runs from beat k to the next beat (the last one back to beat 1). */
   segments: Segment[]
 }
 
-export const PATTERN_BOX = { width: 400, height: 300 } as const
+export const PATTERN_BOX = { width: 400, height: 260 } as const
 
 const CENTER = PATTERN_BOX.width / 2
-const DOWNBEAT: Point = { x: CENTER, y: 252 }
-const UPBEAT: Point = { x: CENTER + 34, y: 170 }
-const PLANE_Y = 226
-const TOP_Y = 34
+const DOWNBEAT: Point = { x: CENTER, y: 212 }
+const UPBEAT: Point = { x: CENTER + 34, y: 130 }
+/** Crowded bars lift the upbeat clear of the raised tier on the right. */
+const CROWDED_UPBEAT: Point = { x: CENTER + 30, y: 100 }
+const PLANE_Y = 186
+const TOP_Y = -6
 const MAX_BEATS = 16
 /** Up to this many beats, numerals sit beside their ictus; more and they sit on it. */
 const MAX_BESIDE = 8
@@ -46,16 +50,23 @@ const LABEL_GAP = 34
 /** Horizontal distance from the centre of the j-th of `count` side beats (1-based). */
 function sideOffset(j: number, count: number): number {
   if (count === 1) return 122
-  const inner = 62
-  // Crowded sides (on-ictus numerals) may use the full width.
-  const outer = count > 3 ? 182 : 172
+  // Crowded sides (on-ictus numerals) use the full width.
+  const [inner, outer] = count > 3 ? [50, 184] : [60, 172]
   return inner + ((outer - inner) * (j - 1)) / (count - 1)
 }
 
+/**
+ * Three or more beats on a side alternate between the plane and a raised tier, so neighbouring
+ * numerals clear each other even in the narrowest figure (288 px wide).
+ */
+function stagger(count: number): number {
+  if (count > 3) return 46
+  return count === 3 ? 36 : 0
+}
+
 function sidePoint(direction: -1 | 1, j: number, count: number): Point {
-  // Crowded sides stagger alternate beats upwards so their numerals don't collide.
-  const stagger = count > 3 && j % 2 === 0 ? 30 : 0
-  return { x: CENTER + direction * sideOffset(j, count), y: PLANE_Y - stagger }
+  const lift = j % 2 === 0 ? stagger(count) : 0
+  return { x: CENTER + direction * sideOffset(j, count), y: PLANE_Y - lift }
 }
 
 function segment(from: Point, to: Point, isDownbeat: boolean): Segment {
@@ -63,7 +74,7 @@ function segment(from: Point, to: Point, isDownbeat: boolean): Segment {
     // Rebound up from the last beat, then the long vertical fall into beat 1.
     return {
       from,
-      c1: { x: from.x + 18, y: Math.min(from.y - 110, 70) },
+      c1: { x: from.x + 18, y: Math.min(from.y - 110, 30) },
       c2: { x: to.x, y: TOP_Y - 24 },
       to,
     }
@@ -80,6 +91,7 @@ function segment(from: Point, to: Point, isDownbeat: boolean): Segment {
 
 export function patternGeometry(beatsPerBar: number): PatternGeometry {
   const beats = Math.min(MAX_BEATS, Math.max(1, Math.round(beatsPerBar)))
+  const labelsOnIctus = beats > MAX_BESIDE
   const ictus: Point[] = [DOWNBEAT]
   if (beats >= 3) {
     const between = beats - 2
@@ -88,7 +100,7 @@ export function patternGeometry(beatsPerBar: number): PatternGeometry {
     for (let j = 1; j <= left; j++) ictus.push(sidePoint(-1, j, left))
     for (let j = 1; j <= right; j++) ictus.push(sidePoint(1, j, right))
   }
-  if (beats >= 2) ictus.push(UPBEAT)
+  if (beats >= 2) ictus.push(labelsOnIctus ? CROWDED_UPBEAT : UPBEAT)
 
   const segments =
     beats === 1
@@ -98,7 +110,6 @@ export function patternGeometry(beatsPerBar: number): PatternGeometry {
           return segment(from, ictus[next]!, next === 0)
         })
 
-  const labelsOnIctus = beats > MAX_BESIDE
   const labels = ictus.map((point, beat) => {
     if (labelsOnIctus) return point
     // Right of the upbeat (clear of the path); under every other beat.
@@ -106,7 +117,9 @@ export function patternGeometry(beatsPerBar: number): PatternGeometry {
     return { x: point.x, y: point.y + LABEL_GAP }
   })
 
-  return { ictus, labels, labelsOnIctus, rest: apex(segments.at(-1)!), segments }
+  const raised = ictus.map((point) => point.y < PLANE_Y)
+
+  return { ictus, labels, labelsOnIctus, raised, rest: apex(segments.at(-1)!), segments }
 }
 
 /** Highest point of a segment: the baton's raised position before the downbeat. */

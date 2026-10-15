@@ -35,8 +35,10 @@
 
       <main class="layout">
         <section class="stage">
-          <figure id="pattern" class="pattern">
-            <div id="beat-buttons" class="beat-buttons" role="group" data-i18n-label="beatsGroup" aria-label="小節拍點"></div>
+          <figure class="pattern-figure">
+            <div id="pattern" class="pattern">
+              <div id="beat-buttons" class="beat-buttons" role="group" data-i18n-label="beatsGroup" aria-label="小節拍點"></div>
+            </div>
             <figcaption class="hint" data-i18n="accentHint">點數字切換：重音 → 一般 → 靜音</figcaption>
           </figure>
 
@@ -50,6 +52,7 @@
                 <span class="mark-note" aria-hidden="true">&#xECA5;</span>
                 <span class="mark-equals" aria-hidden="true">=</span>
                 <output id="bpm" class="bpm" for="bpm-slider">120</output>
+                <span class="sr-only">BPM</span>
               </span>
             </p>
             <button id="faster" class="step" type="button" data-i18n-label="faster" aria-label="加快">
@@ -136,7 +139,12 @@
             <p class="note" data-i18n="trainerHint"></p>
           </details>
 
-          <p class="shortcuts" data-i18n="shortcuts"></p>
+          <p class="shortcuts">
+            <span data-i18n="shortcutsLabel">快捷鍵：</span>
+            <span class="shortcut" data-i18n="shortcutPlay">空白鍵 開始／停止</span>
+            <span class="shortcut" data-i18n="shortcutTempo">↑↓ 調整速度（Shift ±10）</span>
+            <span class="shortcut" data-i18n="shortcutTap">T 打拍</span>
+          </p>
         </section>
       </main>
     </div>
@@ -144,7 +152,7 @@
     <div id="toast" class="toast" role="status" hidden>
       <span id="toast-text"></span>
       <button id="toast-action" class="toast-action" type="button" hidden></button>
-      <button id="toast-close" class="toast-close" type="button">
+      <button id="toast-close" class="toast-close" type="button" data-i18n-label="dismiss" aria-label="關閉">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
       </button>
     </div>

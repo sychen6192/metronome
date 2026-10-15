@@ -24,9 +24,12 @@
   --ink-2: #b4bdd2;
   --ink-3: #8792ad;
   --rule: #33405f;
-  --path: rgb(236 239 246 / 0.42);
+  --path: rgb(236 239 246 / 0.6);
   --yellow: #fccf3f;
   --on-yellow: #172036;
+  /* Edge of yellow shapes: none needed on slate, ink on paper (yellow alone is 1.4:1 there). */
+  --yellow-edge: var(--yellow);
+  --thumb-edge: var(--ground);
   --baton: var(--yellow);
   --baton-ring: var(--ground);
   --focus: var(--yellow);
@@ -51,11 +54,13 @@
     --ground-3: #d9dfeb;
     --ink: #172036;
     --ink-2: #44506c;
-    --ink-3: #66718c;
+    --ink-3: #56617c;
     --rule: #c6cddc;
-    --path: rgb(23 32 54 / 0.38);
+    --path: rgb(23 32 54 / 0.6);
     --yellow: #fccf3f;
     --on-yellow: #172036;
+    --yellow-edge: #172036;
+    --thumb-edge: #172036;
     --baton: #172036;
     --baton-ring: var(--yellow);
     --focus: #172036;
@@ -151,11 +156,13 @@ button svg {
   padding: 0 16px 24px;
 }
 
+/* Wraps only on the narrowest screens (e.g. a 280 px cover display with Install shown). */
 .topbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 0 12px;
   min-height: 60px;
 }
 
@@ -167,6 +174,7 @@ button svg {
   font-size: 1.0625rem;
   font-weight: 650;
   letter-spacing: 0.01em;
+  white-space: nowrap;
 }
 
 .brand-mark {
@@ -190,6 +198,7 @@ button svg {
   color: var(--ink-2);
   font-size: 0.875rem;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .text-button svg {
@@ -212,6 +221,7 @@ button svg {
   color: var(--ink-2);
   font-size: 0.8125rem;
   font-weight: 650;
+  white-space: nowrap;
   transition:
     background-color 160ms ease-out,
     color 160ms ease-out;
@@ -226,21 +236,30 @@ button svg {
 
 .layout {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
 }
 
 .stage {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 14px;
   padding-bottom: 24px;
 }
 
 /* The beat pattern: the bar as a conductor draws it. */
+.pattern-figure {
+  margin: 0;
+}
+
+/* As large as the screen allows while the tempo, ruler and Start still fit below it (about the
+   upper half of a desktop screen); a phone's width limits it first. */
 .pattern {
   position: relative;
   width: min(100%, 520px);
-  aspect-ratio: 4 / 3;
-  margin: 0 auto 34px;
+  width: min(100%, clamp(320px, (100svh - 448px) * 20 / 13, 720px));
+  aspect-ratio: 20 / 13;
+  margin: 8px auto 0;
 }
 
 .pattern-drawing {
@@ -300,6 +319,7 @@ button svg {
   stroke: var(--baton-ring);
   stroke-width: 4px;
   paint-order: stroke;
+  vector-effect: non-scaling-stroke;
 }
 
 .beat-buttons {
@@ -331,15 +351,26 @@ button svg {
     border-color 160ms ease-out;
 }
 
-/* Crowded bars: smaller numerals sit on their ictus. */
+/* Crowded bars: smaller numerals sit on their ictus. Their hit areas still reach 44 px, growing
+   away from the neighbouring tier so they never overlap. */
 .pattern.crowded .beat {
   --size: 30px;
   border-width: 1.5px;
   font-size: 0.875rem;
 }
 
+.pattern.crowded .beat::before {
+  content: '';
+  position: absolute;
+  inset: -1.5px -1.5px -15.5px;
+}
+
+.pattern.crowded .beat[data-reach='up']::before {
+  inset: -15.5px -1.5px -1.5px;
+}
+
 .beat[data-level='accent'] {
-  border-color: var(--yellow);
+  border-color: var(--yellow-edge);
   background: var(--yellow);
   color: var(--on-yellow);
 }
@@ -349,40 +380,67 @@ button svg {
   color: var(--ink-3);
 }
 
+/* The struck beat turns solid chalk and holds until the next one: a state, not a flash. It lands
+   at once and releases with the base transition. */
+.beat:focus-visible {
+  z-index: 1;
+}
+
 .beat.active {
   scale: 1.14;
   border-color: var(--ink);
+  background: var(--ink);
+  color: var(--ground);
+  transition-duration: 0s;
 }
 
 .beat.active[data-level='accent'] {
   border-color: var(--yellow);
 }
 
+/* A muted beat is passed, not struck. */
+.beat.active[data-level='mute'] {
+  border-color: var(--ink-2);
+  background: color-mix(in srgb, var(--ink) 14%, var(--ground));
+  color: var(--ink-2);
+}
+
+/* Clear of the numerals that hang below the figure; wraps if it must. */
 .hint {
-  position: absolute;
-  inset: calc(100% + 16px) 0 auto;
-  margin: 0;
+  margin: 16px 0 0;
   color: var(--ink-3);
   font-size: 0.75rem;
   text-align: center;
-  pointer-events: none;
 }
 
-/* Tempo set the way a score prints it: "Allegro  ♩ = 120". */
+/* Tempo set the way a score prints it: "Allegro  ♩ = 120", with − and + level with the numerals. */
 .tempo {
+  --step: 52px;
+  container-type: inline-size;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    '. marking .'
+    'slower mark faster';
   align-items: center;
-  gap: 8px;
+  gap: 4px 8px;
 }
 
 .tempo-mark {
-  display: grid;
-  justify-items: center;
-  margin: 0;
+  display: contents;
+}
+
+#slower {
+  grid-area: slower;
+}
+
+#faster {
+  grid-area: faster;
 }
 
 .marking {
+  grid-area: marking;
+  justify-self: center;
   font-family: var(--score);
   font-size: 1.375rem;
   font-weight: 700;
@@ -390,18 +448,23 @@ button svg {
   letter-spacing: 0.01em;
 }
 
+/* As large as the space between − and + allows ("♩ = 300" is 2.12em wide), up to 8rem. */
 .metronome-mark {
+  grid-area: mark;
+  justify-self: center;
   display: flex;
   align-items: baseline;
   gap: 0.1em;
   font-family: var(--engraved);
-  font-size: 8rem;
+  font-size: min(8rem, calc((100cqi - 2 * var(--step) - 16px) / 2.15));
   line-height: 0.6;
-  padding-block: 0.06em 0.1em;
+  padding-block: 0.08em;
 }
 
+/* The note and "=" rise a quarter of the mark's size, to the middle of the engraved digits. */
 .mark-note {
   font-size: 0.5em;
+  translate: 0 -0.5em;
 }
 
 .mark-equals {
@@ -409,6 +472,7 @@ button svg {
   font-family: var(--score);
   font-size: 0.34em;
   font-weight: 700;
+  translate: 0 -0.735em;
 }
 
 .bpm {
@@ -418,8 +482,8 @@ button svg {
 .step {
   display: grid;
   place-items: center;
-  width: 52px;
-  height: 52px;
+  width: var(--step, 52px);
+  height: var(--step, 52px);
   border: 1.5px solid var(--rule);
   border-radius: 50%;
   color: var(--ink);
@@ -521,16 +585,13 @@ button svg {
   height: 44px;
 }
 
+/* A tick every 20 BPM across the thumb's travel (the image is 1px wider so the 300 tick shows). */
 .ruler .slider::-webkit-slider-runnable-track {
   height: 10px;
   border-radius: 0;
   background:
-    repeating-linear-gradient(
-      to right,
-      var(--ink-3) 0 1px,
-      transparent 1px calc((100% - var(--thumb-w)) / 14)
-    )
-    calc(var(--thumb-w) / 2) 0 / calc(100% - var(--thumb-w)) 100% no-repeat,
+    repeating-linear-gradient(to right, var(--ink-3) 0 1px, transparent 1px calc((100% - 1px) / 14))
+    calc(var(--thumb-w) / 2) 0 / calc(100% - var(--thumb-w) + 1px) 100% no-repeat,
     linear-gradient(var(--rule), var(--rule)) 0 100% / 100% 1px no-repeat;
 }
 
@@ -538,24 +599,20 @@ button svg {
   height: 10px;
   border-radius: 0;
   background:
-    repeating-linear-gradient(
-      to right,
-      var(--ink-3) 0 1px,
-      transparent 1px calc((100% - var(--thumb-w)) / 14)
-    )
-    calc(var(--thumb-w) / 2) 0 / calc(100% - var(--thumb-w)) 100% no-repeat,
+    repeating-linear-gradient(to right, var(--ink-3) 0 1px, transparent 1px calc((100% - 1px) / 14))
+    calc(var(--thumb-w) / 2) 0 / calc(100% - var(--thumb-w) + 1px) 100% no-repeat,
     linear-gradient(var(--rule), var(--rule)) 0 100% / 100% 1px no-repeat;
 }
 
 .ruler .slider::-webkit-slider-thumb {
   margin-top: calc((10px - var(--thumb-h)) / 2);
-  border: 3px solid var(--ground);
+  border: 3px solid var(--thumb-edge);
   border-radius: 7px;
   background: var(--yellow);
 }
 
 .ruler .slider::-moz-range-thumb {
-  border: 3px solid var(--ground);
+  border: 3px solid var(--thumb-edge);
   border-radius: 7px;
   background: var(--yellow);
 }
@@ -590,9 +647,9 @@ button svg {
 
 .transport {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  gap: 12px;
+  gap: clamp(6px, 2.4vw, 12px);
   margin-top: 4px;
 }
 
@@ -601,9 +658,9 @@ button svg {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  min-width: 148px;
+  min-width: min(148px, 32vw);
   height: 64px;
-  padding: 0 28px;
+  padding: 0 clamp(16px, 5vw, 28px);
   border-radius: 32px;
   background: var(--yellow);
   color: var(--on-yellow);
@@ -642,9 +699,9 @@ button svg {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-width: 92px;
+  min-width: min(92px, 24vw);
   height: 52px;
-  padding: 0 14px;
+  padding: 0 clamp(8px, 3vw, 14px);
   border: 1.5px solid var(--rule);
   border-radius: 26px;
   color: var(--ink);
@@ -675,7 +732,7 @@ button svg {
 }
 
 #trainer-toggle[aria-pressed='true'] {
-  border-color: var(--yellow);
+  border-color: var(--yellow-edge);
   background: color-mix(in srgb, var(--yellow) 18%, var(--ground));
 }
 
@@ -856,11 +913,25 @@ button svg {
   font-size: 0.875rem;
 }
 
+/* Each shortcut stays on one line; lines break between them. */
 .shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 0.5em;
   margin: 0;
   padding: 18px 0 8px;
   color: var(--ink-3);
   font-size: 0.8125rem;
+}
+
+.shortcut {
+  white-space: nowrap;
+}
+
+.shortcut:not(:last-child)::after {
+  content: '·';
+  content: '·' / '';
+  margin-inline-start: 0.5em;
 }
 
 /* Keyboard shortcuts are irrelevant on touch-only devices. */
@@ -944,60 +1015,68 @@ button svg {
     gap: 8px;
   }
 
-  .metronome-mark {
-    font-size: 6.5rem;
-  }
-
-  .step {
-    width: 46px;
-    height: 46px;
+  .tempo {
+    --step: 46px;
   }
 
   .trainer-grid {
     grid-template-columns: minmax(0, 1fr);
   }
+}
 
-  .transport {
-    gap: 8px;
-  }
-
+/* Narrow phones: Tap and Trainer set their label under the icon, at Start's height, so the row
+   fits with English labels too. */
+@media (max-width: 380px) {
   .secondary {
-    min-width: 0;
+    flex-direction: column;
+    gap: 2px;
+    height: 64px;
     padding: 0 10px;
-    gap: 4px;
-  }
-
-  .primary {
-    min-width: 0;
-    padding: 0 18px;
+    border-radius: 22px;
+    font-size: 0.8125rem;
   }
 }
 
+/* Narrow screens: the install button keeps its icon; its label stays for screen readers. */
+@media (max-width: 400px) {
+  .text-button {
+    justify-content: center;
+    min-width: 44px;
+  }
+
+  .text-button span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* Wide screens: the playing area keeps the first screen; the settings sit below it as a
+   two-column legend. */
 @media (min-width: 900px) {
   .app {
     padding-inline: 32px;
   }
 
-  .layout {
-    grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.85fr);
-    align-items: start;
-    gap: 40px;
-  }
-
   .stage {
-    padding-top: 12px;
-  }
-
-  .metronome-mark {
-    font-size: 9rem;
+    width: min(100%, 760px);
+    margin-inline: auto;
   }
 
   .settings {
-    position: sticky;
-    top: 16px;
-    margin: 12px 0 0;
-    padding: 8px 24px 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 48px;
+    margin: 0;
+    padding: 8px 32px 12px;
     border-radius: 20px;
+  }
+
+  .settings > .trainer,
+  .settings > .shortcuts {
+    grid-column: 1 / -1;
   }
 }
 
@@ -1008,11 +1087,32 @@ button svg {
     transition: none !important;
   }
 
-  .beat.active,
-  .ictus.active {
+  /* Separate rules: in one rule a minifier merges them and drops `scale`. */
+  .beat.active {
     scale: none;
+  }
+
+  .ictus.active {
     transform: none;
   }
+}
+
+/* Web fonts blocked (e.g. iOS Lockdown Mode): the tight metrics only suit the engraved face, and
+   the note exists only there. Plain numerals instead. */
+.no-engraved .metronome-mark {
+  font-size: min(5rem, calc((100cqi - 2 * var(--step) - 16px) / 1.9));
+  line-height: 1;
+  padding-block: 0;
+}
+
+.no-engraved .mark-note,
+.no-engraved .mark-equals {
+  display: none;
+}
+
+.no-engraved .time-signature {
+  font-size: 1.5rem;
+  line-height: 1;
 }
 
 /* Windows Contrast themes: backgrounds turn to Canvas and shadows vanish, so every state gets a
@@ -1099,6 +1199,22 @@ button svg {
     forced-color-adjust: none;
     border-color: ButtonFace;
     background: ButtonText;
+  }
+
+  .ruler .slider::-webkit-slider-thumb {
+    border-color: ButtonFace;
+    background: ButtonText;
+  }
+
+  .ruler .slider::-moz-range-thumb {
+    border-color: ButtonFace;
+    background: ButtonText;
+  }
+
+  /* The stacked numerals' line boxes overlap; a text backplate would hide the top one. */
+  .time-signature {
+    forced-color-adjust: none;
+    color: CanvasText;
   }
 
   .slider:focus-visible::-webkit-slider-thumb {

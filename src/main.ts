@@ -11,13 +11,13 @@ import {
   type Subdivision,
 } from './core/rhythm'
 import { SOUNDS, loadSettings, saveSettings, type Settings, type SoundId } from './core/settings'
-import { MAX_BPM, MIN_BPM, TapTempo, beatDuration, clampBpm, tempoMarking } from './core/tempo'
+import { MAX_BPM, MIN_BPM, TapTempo, clampBpm, tempoMarking } from './core/tempo'
 import { LANGUAGES, currentLanguage, resolveLanguage, setLanguage, t, translatePage, type Language } from './i18n'
 import { setupPwa } from './platform/pwa'
 import { ScreenWakeLock } from './platform/wakeLock'
 import { BeatPattern } from './ui/beatPattern'
 import { subdivisionIcon } from './ui/notation'
-import { dismissToast, showToast } from './ui/toast'
+import { dismissToast, render as renderToast, showToast } from './ui/toast'
 
 const byId = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T
 
@@ -62,6 +62,12 @@ function storage(): Storage | undefined {
   }
 }
 
+// Web fonts can be blocked (e.g. iOS Lockdown Mode); the tempo mark then switches to plain numerals.
+const withoutEngraved = () => document.documentElement.classList.add('no-engraved')
+document.fonts?.load('1em "Metronome Engraved"').then((faces) => {
+  if (faces.length === 0) withoutEngraved()
+}, withoutEngraved)
+
 let settings: Settings = loadSettings(storage())
 setLanguage(resolveLanguage(settings.language))
 const pattern = new BeatPattern(els.pattern, els.beatButtons)
@@ -88,7 +94,13 @@ const engine = new MetronomeEngine(
  */
 function showInterruptedNotice(): void {
   const show = () => {
-    if (!engine.playing) showToast(t('audioInterrupted'), { label: t('play'), run: () => void togglePlay() })
+    if (engine.playing) return
+    showToast('audioInterrupted', {
+      label: 'play',
+      run: () => {
+        if (!engine.playing) void togglePlay()
+      },
+    })
   }
   if (document.visibilityState === 'visible') return show()
   document.addEventListener('visibilitychange', function onVisible() {
@@ -198,7 +210,11 @@ function frame(): void {
   if (sub && sub.sub > 0) pattern.strike(sub.beat, sub.sub, sub.level, reducedMotion.matches)
 
   if (lastBeat) {
-    const elapsed = (engine.audibleNow() - lastBeat.time) / beatDuration(settings.bpm)
+    // Time the swing by when the next beat will actually sound: its scheduled time once known,
+    // until then the tempo this beat was scheduled with (a later tempo change can't move it).
+    const next = engine.nextBeatTime()
+    const length = next !== undefined && next > lastBeat.time ? next - lastBeat.time : lastBeat.beatLength
+    const elapsed = (engine.audibleNow() - lastBeat.time) / length
     pattern.moveBaton(lastBeat.beat, Math.min(1, elapsed), reducedMotion.matches)
   }
   if (engine.playing) requestAnimationFrame(frame)
@@ -221,7 +237,7 @@ async function togglePlay(): Promise<void> {
     return
   }
   const starting = engine.start()
-  dismissToast(t('audioInterrupted'))
+  dismissToast('audioInterrupted')
   renderPlayState()
   try {
     await starting
@@ -229,7 +245,7 @@ async function togglePlay(): Promise<void> {
     requestAnimationFrame(frame)
     void wakeLock.request()
   } catch {
-    showToast(t('audioError'))
+    showToast('audioError')
   }
   renderPlayState()
 }
@@ -309,6 +325,7 @@ function applyLanguage(language: Language): void {
   translatePage()
   buildControls()
   render()
+  renderToast()
 }
 
 function buildControls(): void {

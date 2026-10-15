@@ -53,24 +53,55 @@ describe('patternGeometry', () => {
     }
   })
 
-  it('keeps numerals apart and inside the box', () => {
-    // At the narrowest figure (~320 px for 400 units) a 44 px numeral needs ~49 units; on-ictus
-    // numerals in crowded bars are 30 px (~34 units).
+  // The narrowest figure: a 320 px screen minus its 16 px gutters.
+  const SCALE = 288 / PATTERN_BOX.width
+
+  it('keeps numerals apart and on screen in the narrowest figure', () => {
     for (let beats = 1; beats <= 16; beats++) {
       const { labels, labelsOnIctus } = patternGeometry(beats)
-      const need = labelsOnIctus ? 34 : 49
+      // 44 px numerals beside the ictus, 30 px on it in crowded bars; at least 2 px apart.
+      const size = labelsOnIctus ? 30 : 44
       for (const label of labels) {
-        expect(label.x).toBeGreaterThanOrEqual(need / 2)
-        expect(label.x).toBeLessThanOrEqual(PATTERN_BOX.width - need / 2)
+        // Within the side gutter, at least 4 px from the screen edge.
+        expect(label.x * SCALE - size / 2).toBeGreaterThanOrEqual(-12)
+        expect((PATTERN_BOX.width - label.x) * SCALE - size / 2).toBeGreaterThanOrEqual(-12)
         expect(label.y).toBeLessThanOrEqual(PATTERN_BOX.height)
       }
       for (let i = 0; i < labels.length; i++) {
         for (let j = i + 1; j < labels.length; j++) {
-          const distance = Math.hypot(labels[i]!.x - labels[j]!.x, labels[i]!.y - labels[j]!.y)
-          expect(distance, `${beats} beats: numerals ${i + 1} and ${j + 1}`).toBeGreaterThanOrEqual(need)
+          const distance = Math.hypot(labels[i]!.x - labels[j]!.x, labels[i]!.y - labels[j]!.y) * SCALE
+          expect(distance, `${beats} beats: numerals ${i + 1} and ${j + 1}`).toBeGreaterThanOrEqual(size + 2)
         }
       }
     }
+  })
+
+  it('gives crowded numerals 44 px hit areas that never overlap', () => {
+    for (let beats = 9; beats <= 16; beats++) {
+      const { labels, labelsOnIctus, raised } = patternGeometry(beats)
+      expect(labelsOnIctus).toBe(true)
+      // 30 x 44 px, growing upwards on the raised tier and downwards on the plane.
+      const boxes = labels.map((label, k) => {
+        const x = label.x * SCALE
+        const y = label.y * SCALE
+        return { left: x - 15, right: x + 15, top: raised[k] ? y - 22 : y - 15, bottom: raised[k] ? y + 15 : y + 22 }
+      })
+      for (let i = 0; i < boxes.length; i++) {
+        for (let j = i + 1; j < boxes.length; j++) {
+          const a = boxes[i]!
+          const b = boxes[j]!
+          const overlap = a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom
+          expect(overlap, `${beats} beats: hit areas ${i + 1} and ${j + 1}`).toBe(false)
+        }
+      }
+    }
+  })
+
+  it('alternates side beats between the plane and a raised tier when there are three or more', () => {
+    const { ictus, raised } = patternGeometry(8)
+    // 8 beats: 1, then 2-4 left, 5-7 right, 8 the upbeat.
+    expect(raised).toEqual([false, false, true, false, false, true, false, true])
+    expect(ictus[2]!.y).toBeLessThan(ictus[1]!.y)
   })
 
   it('rests the baton at the top of the downbeat loop', () => {
@@ -88,7 +119,7 @@ describe('patternGeometry', () => {
 
   it('serialises a closed path', () => {
     const path = patternPath(patternGeometry(4))
-    expect(path.startsWith('M 200.0 252.0')).toBe(true)
+    expect(path.startsWith('M 200.0 212.0')).toBe(true)
     expect(path.match(/C /g)).toHaveLength(4)
   })
 })

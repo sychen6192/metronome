@@ -141,6 +141,11 @@ export class MetronomeEngine {
     return this.ctx ? this.audibleTime(this.ctx) : 0
   }
 
+  /** When the next beat (not sub-click) will be heard, if it is already scheduled. */
+  nextBeatTime(): number | undefined {
+    return this.pending.find((click) => click.sub === 0)?.time
+  }
+
   /** Clicks that have reached the speakers since the last call, oldest first. */
   takeAudibleClicks(): ClickEvent[] {
     if (!this.ctx || this.pending.length === 0) return []

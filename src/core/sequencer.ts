@@ -10,6 +10,8 @@ export interface ClickEvent {
   beat: number
   sub: number
   level: ClickLevel
+  /** Seconds per beat at the tempo this click was scheduled with. */
+  beatLength: number
 }
 
 /**
@@ -68,8 +70,9 @@ export class Sequencer {
 
   private currentEvent(): ClickEvent {
     const { beat, sub } = this.pulse
-    const level: ClickLevel = sub === 0 ? (this.getSettings().accents[beat] ?? 'normal') : 'sub'
-    return { time: this.nextTime, beat, sub, level }
+    const settings = this.getSettings()
+    const level: ClickLevel = sub === 0 ? (settings.accents[beat] ?? 'normal') : 'sub'
+    return { time: this.nextTime, beat, sub, level, beatLength: beatDuration(settings.bpm) }
   }
 
   private advance(countBars = true): void {

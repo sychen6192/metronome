@@ -109,6 +109,21 @@ describe('Sequencer', () => {
     expect(times[2]).toBeCloseTo(2.4 + (4 * 60) / 110 + (4 * 60) / 120, 9)
   })
 
+  it('gives each beat the length it was scheduled with, also across a trainer step', () => {
+    const { sequencer } = trainerSetup(60, 2, { enabled: true, step: 60, everyBars: 1, target: 120 })
+    sequencer.start(0)
+    const beats = sequencer.scheduleUntil(3).filter((click) => click.sub === 0)
+    // Beat 2 of the first bar is scheduled at 60 BPM; the trainer jumps to 120 at the bar line
+    // while scheduling it, but the downbeat still comes a whole 60 BPM beat later.
+    expect(beats.map((b) => [b.time, b.beatLength])).toEqual([
+      [0, 1],
+      [1, 1],
+      [2, 0.5],
+      [2.5, 0.5],
+    ])
+    for (let k = 0; k + 1 < beats.length; k++) expect(beats[k]!.time + beats[k]!.beatLength).toBe(beats[k + 1]!.time)
+  })
+
   it('speed trainer counts bars afresh after being switched off and on', () => {
     const { sequencer, changes, setTrainer } = trainerSetup(60, 1, { enabled: true, step: 5, everyBars: 4, target: 100 })
     sequencer.start(0)
