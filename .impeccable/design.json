@@ -1,0 +1,530 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-15T11:55:45+00:00",
+  "title": "Design System: 節拍器 Metronome",
+  "extensions": {
+    "colorMeta": {
+      "slate": {
+        "role": "neutral",
+        "displayName": "Icon Navy Slate",
+        "canonical": "oklch(24.7% 0.044 266.3)",
+        "tonalRamp": [
+          "oklch(15% 0.044 266.3)",
+          "oklch(25% 0.044 266.3)",
+          "oklch(35% 0.044 266.3)",
+          "oklch(48% 0.044 266.3)",
+          "oklch(60% 0.044 266.3)",
+          "oklch(72% 0.044 266.3)",
+          "oklch(84% 0.044 266.3)",
+          "oklch(95% 0.044 266.3)"
+        ],
+        "theme": "dark"
+      },
+      "slate-raised": {
+        "role": "neutral",
+        "displayName": "Raised Slate",
+        "canonical": "oklch(27.8% 0.052 267.6)",
+        "tonalRamp": [
+          "oklch(15% 0.052 267.6)",
+          "oklch(25% 0.052 267.6)",
+          "oklch(35% 0.052 267.6)",
+          "oklch(48% 0.052 267.6)",
+          "oklch(60% 0.052 267.6)",
+          "oklch(72% 0.052 267.6)",
+          "oklch(84% 0.052 267.6)",
+          "oklch(95% 0.052 267.6)"
+        ],
+        "theme": "dark"
+      },
+      "slate-deep": {
+        "role": "neutral",
+        "displayName": "Deep Slate",
+        "canonical": "oklch(22.0% 0.040 264.1)",
+        "tonalRamp": [
+          "oklch(15% 0.040 264.1)",
+          "oklch(25% 0.040 264.1)",
+          "oklch(35% 0.040 264.1)",
+          "oklch(48% 0.040 264.1)",
+          "oklch(60% 0.040 264.1)",
+          "oklch(72% 0.040 264.1)",
+          "oklch(84% 0.040 264.1)",
+          "oklch(95% 0.040 264.1)"
+        ],
+        "theme": "dark"
+      },
+      "chalk": {
+        "role": "neutral",
+        "displayName": "Chalk",
+        "canonical": "oklch(95.2% 0.010 267.4)",
+        "tonalRamp": [
+          "oklch(15% 0.010 267.4)",
+          "oklch(25% 0.010 267.4)",
+          "oklch(35% 0.010 267.4)",
+          "oklch(48% 0.010 267.4)",
+          "oklch(60% 0.010 267.4)",
+          "oklch(72% 0.010 267.4)",
+          "oklch(84% 0.010 267.4)",
+          "oklch(95% 0.010 267.4)"
+        ],
+        "theme": "dark"
+      },
+      "chalk-soft": {
+        "role": "neutral",
+        "displayName": "Soft Chalk",
+        "canonical": "oklch(79.8% 0.031 267.1)",
+        "tonalRamp": [
+          "oklch(15% 0.031 267.1)",
+          "oklch(25% 0.031 267.1)",
+          "oklch(35% 0.031 267.1)",
+          "oklch(48% 0.031 267.1)",
+          "oklch(60% 0.031 267.1)",
+          "oklch(72% 0.031 267.1)",
+          "oklch(84% 0.031 267.1)",
+          "oklch(95% 0.031 267.1)"
+        ],
+        "theme": "dark"
+      },
+      "chalk-faint": {
+        "role": "neutral",
+        "displayName": "Faint Chalk",
+        "canonical": "oklch(66.0% 0.042 267.8)",
+        "tonalRamp": [
+          "oklch(15% 0.042 267.8)",
+          "oklch(25% 0.042 267.8)",
+          "oklch(35% 0.042 267.8)",
+          "oklch(48% 0.042 267.8)",
+          "oklch(60% 0.042 267.8)",
+          "oklch(72% 0.042 267.8)",
+          "oklch(84% 0.042 267.8)",
+          "oklch(95% 0.042 267.8)"
+        ],
+        "theme": "dark"
+      },
+      "slate-rule": {
+        "role": "neutral",
+        "displayName": "Slate Rule",
+        "canonical": "oklch(37.4% 0.056 266.3)",
+        "tonalRamp": [
+          "oklch(15% 0.056 266.3)",
+          "oklch(25% 0.056 266.3)",
+          "oklch(35% 0.056 266.3)",
+          "oklch(48% 0.056 266.3)",
+          "oklch(60% 0.056 266.3)",
+          "oklch(72% 0.056 266.3)",
+          "oklch(84% 0.056 266.3)",
+          "oklch(95% 0.056 266.3)"
+        ],
+        "theme": "dark"
+      },
+      "chalk-path": {
+        "role": "neutral",
+        "displayName": "Chalk Path",
+        "canonical": "oklch(95.2% 0.010 267.4 / 0.6)",
+        "tonalRamp": [
+          "oklch(15% 0.010 267.4)",
+          "oklch(25% 0.010 267.4)",
+          "oklch(35% 0.010 267.4)",
+          "oklch(48% 0.010 267.4)",
+          "oklch(60% 0.010 267.4)",
+          "oklch(72% 0.010 267.4)",
+          "oklch(84% 0.010 267.4)",
+          "oklch(95% 0.010 267.4)"
+        ],
+        "theme": "dark"
+      },
+      "baton-yellow": {
+        "role": "primary",
+        "displayName": "Baton Yellow",
+        "canonical": "oklch(87.0% 0.160 90.6)",
+        "tonalRamp": [
+          "oklch(15% 0.150 90.6)",
+          "oklch(25% 0.150 90.6)",
+          "oklch(35% 0.150 90.6)",
+          "oklch(48% 0.150 90.6)",
+          "oklch(60% 0.150 90.6)",
+          "oklch(72% 0.150 90.6)",
+          "oklch(84% 0.150 90.6)",
+          "oklch(95% 0.150 90.6)"
+        ],
+        "theme": "both"
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Cool Paper",
+        "canonical": "oklch(97.0% 0.006 264.5)",
+        "tonalRamp": [
+          "oklch(15% 0.006 264.5)",
+          "oklch(25% 0.006 264.5)",
+          "oklch(35% 0.006 264.5)",
+          "oklch(48% 0.006 264.5)",
+          "oklch(60% 0.006 264.5)",
+          "oklch(72% 0.006 264.5)",
+          "oklch(84% 0.006 264.5)",
+          "oklch(95% 0.006 264.5)"
+        ],
+        "theme": "light"
+      },
+      "paper-raised": {
+        "role": "neutral",
+        "displayName": "Raised Paper",
+        "canonical": "oklch(93.9% 0.012 264.5)",
+        "tonalRamp": [
+          "oklch(15% 0.012 264.5)",
+          "oklch(25% 0.012 264.5)",
+          "oklch(35% 0.012 264.5)",
+          "oklch(48% 0.012 264.5)",
+          "oklch(60% 0.012 264.5)",
+          "oklch(72% 0.012 264.5)",
+          "oklch(84% 0.012 264.5)",
+          "oklch(95% 0.012 264.5)"
+        ],
+        "theme": "light"
+      },
+      "paper-deep": {
+        "role": "neutral",
+        "displayName": "Deep Paper",
+        "canonical": "oklch(90.3% 0.018 264.5)",
+        "tonalRamp": [
+          "oklch(15% 0.018 264.5)",
+          "oklch(25% 0.018 264.5)",
+          "oklch(35% 0.018 264.5)",
+          "oklch(48% 0.018 264.5)",
+          "oklch(60% 0.018 264.5)",
+          "oklch(72% 0.018 264.5)",
+          "oklch(84% 0.018 264.5)",
+          "oklch(95% 0.018 264.5)"
+        ],
+        "theme": "light"
+      },
+      "navy-ink": {
+        "role": "neutral",
+        "displayName": "Navy Ink",
+        "canonical": "oklch(24.7% 0.044 266.3)",
+        "tonalRamp": [
+          "oklch(15% 0.044 266.3)",
+          "oklch(25% 0.044 266.3)",
+          "oklch(35% 0.044 266.3)",
+          "oklch(48% 0.044 266.3)",
+          "oklch(60% 0.044 266.3)",
+          "oklch(72% 0.044 266.3)",
+          "oklch(84% 0.044 266.3)",
+          "oklch(95% 0.044 266.3)"
+        ],
+        "theme": "light"
+      },
+      "navy-ink-soft": {
+        "role": "neutral",
+        "displayName": "Soft Navy",
+        "canonical": "oklch(43.3% 0.049 266.4)",
+        "tonalRamp": [
+          "oklch(15% 0.049 266.4)",
+          "oklch(25% 0.049 266.4)",
+          "oklch(35% 0.049 266.4)",
+          "oklch(48% 0.049 266.4)",
+          "oklch(60% 0.049 266.4)",
+          "oklch(72% 0.049 266.4)",
+          "oklch(84% 0.049 266.4)",
+          "oklch(95% 0.049 266.4)"
+        ],
+        "theme": "light"
+      },
+      "navy-ink-faint": {
+        "role": "neutral",
+        "displayName": "Faint Navy",
+        "canonical": "oklch(49.4% 0.046 267.5)",
+        "tonalRamp": [
+          "oklch(15% 0.046 267.5)",
+          "oklch(25% 0.046 267.5)",
+          "oklch(35% 0.046 267.5)",
+          "oklch(48% 0.046 267.5)",
+          "oklch(60% 0.046 267.5)",
+          "oklch(72% 0.046 267.5)",
+          "oklch(84% 0.046 267.5)",
+          "oklch(95% 0.046 267.5)"
+        ],
+        "theme": "light"
+      },
+      "paper-rule": {
+        "role": "neutral",
+        "displayName": "Paper Rule",
+        "canonical": "oklch(84.7% 0.022 265.7)",
+        "tonalRamp": [
+          "oklch(15% 0.022 265.7)",
+          "oklch(25% 0.022 265.7)",
+          "oklch(35% 0.022 265.7)",
+          "oklch(48% 0.022 265.7)",
+          "oklch(60% 0.022 265.7)",
+          "oklch(72% 0.022 265.7)",
+          "oklch(84% 0.022 265.7)",
+          "oklch(95% 0.022 265.7)"
+        ],
+        "theme": "light"
+      },
+      "navy-path": {
+        "role": "neutral",
+        "displayName": "Navy Path",
+        "canonical": "oklch(24.7% 0.044 266.3 / 0.6)",
+        "tonalRamp": [
+          "oklch(15% 0.044 266.3)",
+          "oklch(25% 0.044 266.3)",
+          "oklch(35% 0.044 266.3)",
+          "oklch(48% 0.044 266.3)",
+          "oklch(60% 0.044 266.3)",
+          "oklch(72% 0.044 266.3)",
+          "oklch(84% 0.044 266.3)",
+          "oklch(95% 0.044 266.3)"
+        ],
+        "theme": "light"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Metronome Mark",
+        "purpose": "The engraved BPM only; fitted between the step discs up to 8rem. Falls back to plain numerals at up to 5rem under no-engraved."
+      },
+      "display-signature": {
+        "displayName": "Time Signature",
+        "purpose": "Stacked engraved meter in the settings legend; 1.5rem plain digits under no-engraved."
+      },
+      "headline": {
+        "displayName": "Tempo Marking",
+        "purpose": "Italian tempo marking above the metronome mark."
+      },
+      "title-numeral": {
+        "displayName": "Beat Numeral",
+        "purpose": "Numerals on the beat-pattern figure; 0.875rem in crowded bars."
+      },
+      "label-score": {
+        "displayName": "Ruler Marking",
+        "purpose": "Italian markings engraved on the tempo ruler."
+      },
+      "title": {
+        "displayName": "Brand",
+        "purpose": "App name beside the icon in the top bar."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Base text; notes cap at 60ch."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Legend row labels and secondary buttons; Start uses 1.125rem 700."
+      },
+      "label-small": {
+        "displayName": "Small Label",
+        "purpose": "Language switch, trainer field labels, shortcuts."
+      }
+    },
+    "shadows": [
+      {
+        "name": "start-lift",
+        "value": "0 6px 18px rgb(0 0 0 / 0.22)",
+        "purpose": "The Start/Stop button only; presses to 0 2px 8px rgb(0 0 0 / 0.2)."
+      },
+      {
+        "name": "floating-toast",
+        "value": "0 10px 30px rgb(0 0 0 / 0.3)",
+        "purpose": "Transient status toast at the bottom of the screen."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state",
+        "value": "160ms ease-out",
+        "purpose": "Background, border and colour changes on controls; beat release; ictus scale; trainer chevron."
+      },
+      {
+        "name": "press",
+        "value": "100ms ease-out",
+        "purpose": "Press scale on Start (0.97), secondary (0.97) and step (0.94) buttons."
+      },
+      {
+        "name": "beat-scale",
+        "value": "140ms ease-out",
+        "purpose": "Beat numeral scale release; the strike itself lands with 0s."
+      },
+      {
+        "name": "sub-tick",
+        "value": "180ms ease-out",
+        "purpose": "Subdivision tick brightens to full and fades back to 35%."
+      },
+      {
+        "name": "ripple",
+        "value": "420ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "One expanding ring per strike (0.5 to 1.5, accent to 1.9); none for muted beats or under reduced motion."
+      },
+      {
+        "name": "baton-velocity",
+        "value": "t + 0.72/(2*PI) * sin(2*PI*t)",
+        "purpose": "Baton travel along each segment: fastest into the ictus, slowest at the rebound. Reduced motion places it on the ictus instead."
+      },
+      {
+        "name": "tap-pulse",
+        "value": "120ms",
+        "purpose": "Tap button scales 0.94 to 1 on each tap."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "tiny",
+        "value": "360px",
+        "purpose": "max-width: legend rows stack, step discs 46px, trainer fields single column."
+      },
+      {
+        "name": "narrow",
+        "value": "380px",
+        "purpose": "max-width: secondary buttons stack icon over label at 64px."
+      },
+      {
+        "name": "compact",
+        "value": "400px",
+        "purpose": "max-width: install button icon-only."
+      },
+      {
+        "name": "wide",
+        "value": "900px",
+        "purpose": "min-width: 32px gutters, 760px stage, two-column legend panel."
+      }
+    ],
+    "themes": {
+      "dark": "Default; slate tokens (slate, chalk, slate-rule, chalk-path). Baton yellow with slate ring; focus yellow.",
+      "light": "prefers-color-scheme: light; paper/navy tokens. Baton navy with yellow ring; yellow shapes take a navy edge; focus navy.",
+      "forcedColors": "Path/dots/ticks CanvasText; baton and ripples Highlight; accent beat CanvasText fill; struck beat, selected segment, Trainer-on and pressed language Highlight fills; control borders ButtonText; Start shadow replaced by a 2px ButtonText border.",
+      "reducedMotion": "Transitions off; no beat/ictus scale; baton placed on each ictus without travel; no ripple; held strike fill remains.",
+      "noEngraved": "When Metronome Engraved fails to load: note and '=' hidden, BPM plain numerals up to 5rem at line-height 1, time signature 1.5rem plain digits."
+    }
+  },
+  "components": [
+    {
+      "name": "Start Button",
+      "kind": "button",
+      "refersTo": "button-start",
+      "description": "The single primary action: yellow pill, the only lifted object on the board.",
+      "html": "<button class=\"ds-start\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7.5 5.2v13.6L18.6 12z\"/></svg><span>Start</span></button>",
+      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-start{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-width:148px;height:64px;padding:0 28px;border:0;border-radius:32px;background:var(--yellow);color:var(--on-yellow);font:700 1.125rem/1 var(--sans);box-shadow:0 6px 18px rgb(0 0 0 / 0.22);cursor:pointer;transition:scale 100ms ease-out,box-shadow 160ms ease-out}.ds-start svg{width:24px;height:24px;fill:currentColor}.ds-start:active{scale:.97;box-shadow:0 2px 8px rgb(0 0 0 / 0.2)}.ds-start:focus-visible{outline:2px solid var(--focus);outline-offset:3px}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Tap and Trainer flanking Start: ruled pill, line icon.",
+      "html": "<button class=\"ds-secondary\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M3.5 17.5 9 12l4 4 7.5-7.5m0 0H15m5.5 0V14\"/></svg><span>Trainer</span></button>",
+      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-secondary{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:92px;height:52px;padding:0 14px;border:1.5px solid var(--rule);border-radius:26px;background:none;color:var(--ink);font:600 .9375rem/1 var(--sans);cursor:pointer;transition:background-color 160ms ease-out,border-color 160ms ease-out,scale 100ms ease-out}.ds-secondary svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.ds-secondary:hover{background:var(--ground-2)}.ds-secondary:active{scale:.97}.ds-secondary:focus-visible{outline:2px solid var(--focus);outline-offset:3px}.ds-secondary[aria-pressed=true]{border-color:var(--yellow);background:color-mix(in srgb,var(--yellow) 18%,var(--ground))}"
+    },
+    {
+      "name": "Step Disc",
+      "kind": "button",
+      "refersTo": "button-step",
+      "description": "The − and + tempo/meter steps: ruled circle, hold to repeat.",
+      "html": "<button class=\"ds-step\" aria-label=\"Faster\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 12h14M12 5v14\"/></svg></button>",
+      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-step{display:grid;place-items:center;width:52px;height:52px;border:1.5px solid var(--rule);border-radius:50%;background:none;color:var(--ink);cursor:pointer;transition:background-color 140ms ease-out,scale 100ms ease-out}.ds-step svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}.ds-step:hover{background:var(--ground-2)}.ds-step:active{scale:.94;background:var(--ground-2)}.ds-step:focus-visible{outline:2px solid var(--focus);outline-offset:3px}"
+    },
+    {
+      "name": "Beat Numerals",
+      "kind": "custom",
+      "refersTo": "beat-numeral",
+      "description": "Accent controls on the beat-pattern figure: accent disc, normal ring, dashed mute, held struck fill.",
+      "html": "<div class=\"ds-beats\"><button class=\"ds-beat ds-accent\">1</button><button class=\"ds-beat ds-active\">2</button><button class=\"ds-beat\">3</button><button class=\"ds-beat ds-mute\">4</button></div>",
+      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-beats{display:flex;gap:16px;padding:16px;background:var(--ground)}.ds-beat{display:grid;place-items:center;width:44px;height:44px;border:2px solid var(--path);border-radius:50%;background:var(--ground);color:var(--ink);font:700 1.25rem/1 var(--score);font-variant-numeric:lining-nums;cursor:pointer;transition:scale 140ms ease-out,background-color 160ms ease-out,border-color 160ms ease-out}.ds-beat:hover{border-color:var(--ink)}.ds-beat:focus-visible{outline:2px solid var(--focus);outline-offset:3px}.ds-accent{border-color:var(--yellow);background:var(--yellow);color:var(--on-yellow)}.ds-mute{border-style:dashed;color:var(--ink-3)}.ds-active{scale:1.14;border-color:var(--ink);background:var(--ink);color:var(--ground)}"
+    },
+    {
+      "name": "Tempo Mark",
+      "kind": "custom",
+      "refersTo": "typography.display",
+      "description": "The tempo set as a score prints it: Italian marking over an engraved metronome mark.",
+      "html": "<div class=\"ds-tempo\"><span class=\"ds-marking\">Allegro</span><span class=\"ds-mark\"><svg class=\"ds-note\" viewBox=\"0 0 12 34\" fill=\"currentColor\" aria-hidden=\"true\"><ellipse cx=\"5\" cy=\"28\" rx=\"4.6\" ry=\"3.3\" transform=\"rotate(-20 5 28)\"/><rect x=\"8\" y=\"2\" width=\"1.6\" height=\"26\"/></svg><span class=\"ds-eq\">=</span><span>120</span></span></div>",
+      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-tempo{display:grid;justify-items:center;gap:4px;padding:16px;background:var(--ground);color:var(--ink)}.ds-marking{font:700 1.375rem/1.2 var(--score);letter-spacing:.01em}.ds-mark{display:flex;align-items:baseline;gap:.1em;font:700 5rem/1 var(--engraved);font-variant-numeric:tabular-nums}.ds-note{width:.22em;height:.62em;align-self:center}.ds-eq{font:700 .34em var(--score);translate:0 -.7em;margin-right:.08em}"
+    },
+    {
+      "name": "Subdivision Segments",
+      "kind": "chip",
+      "refersTo": "segment",
+      "description": "Five equal cells with drawn note groups; selected fills chalk.",
+      "html": "<div class=\"ds-seg\"><label class=\"ds-cell\"><input type=\"radio\" name=\"ds-sub\"><svg viewBox=\"0 0 44 34\" fill=\"currentColor\"><ellipse cx=\"20\" cy=\"28\" rx=\"3.7\" ry=\"2.7\" transform=\"rotate(-20 20 28)\"/><rect x=\"22.3\" y=\"11\" width=\"1.5\" height=\"17\"/></svg></label><label class=\"ds-cell\"><input type=\"radio\" name=\"ds-sub\" checked><svg viewBox=\"0 0 44 34\" fill=\"currentColor\"><ellipse cx=\"12\" cy=\"28\" rx=\"3.7\" ry=\"2.7\" transform=\"rotate(-20 12 28)\"/><ellipse cx=\"28\" cy=\"28\" rx=\"3.7\" ry=\"2.7\" transform=\"rotate(-20 28 28)\"/><rect x=\"14.3\" y=\"11\" width=\"1.5\" height=\"17\"/><rect x=\"30.3\" y=\"11\" width=\"1.5\" height=\"17\"/><rect x=\"14.3\" y=\"11\" width=\"17.5\" height=\"2.6\"/></svg></label></div>",
+      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-seg{display:grid;grid-template-columns:repeat(2,64px);gap:4px;padding:12px;background:var(--ground-2)}.ds-cell{position:relative;display:grid;place-items:center;height:48px;border:1.5px solid var(--rule);border-radius:10px;color:var(--ink-2);cursor:pointer;transition:background-color 160ms ease-out,color 160ms ease-out}.ds-cell input{position:absolute;inset:0;margin:0;opacity:0;cursor:pointer}.ds-cell svg{width:38px;height:auto;pointer-events:none}.ds-cell:hover{background:#111a2d}.ds-cell:has(input:checked){border-color:var(--ink);background:var(--ink);color:var(--ground)}.ds-cell:has(input:focus-visible){outline:2px solid var(--focus);outline-offset:2px}"
+    },
+    {
+      "name": "Select Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Sound picker: ground-filled field cut into the raised legend, drawn chevron.",
+      "html": "<select class=\"ds-select\"><option>Wood block</option><option>Click</option></select>",
+      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-select{width:240px;min-height:46px;padding:0 40px 0 14px;border:1.5px solid var(--rule);border-radius:10px;color:var(--ink);font:1rem var(--sans);background:linear-gradient(45deg,transparent 50%,var(--ink-2) 50%) right 20px center/6px 6px no-repeat,linear-gradient(-45deg,transparent 50%,var(--ink-2) 50%) right 14px center/6px 6px no-repeat,var(--ground);appearance:none;-webkit-appearance:none}.ds-select:focus-visible{outline:2px solid var(--focus);outline-offset:3px}"
+    },
+    {
+      "name": "Language Switch",
+      "kind": "nav",
+      "refersTo": "language-switch-pressed",
+      "description": "Top-bar 中文/EN pill pair; pressed fills chalk.",
+      "html": "<div class=\"ds-lang\"><button aria-pressed=\"true\">中文</button><button aria-pressed=\"false\">EN</button></div>",
+      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-lang{display:inline-flex;padding:3px;border:1px solid var(--rule);border-radius:999px;background:var(--ground)}.ds-lang button{min-width:44px;min-height:34px;padding:0 10px;border:0;border-radius:999px;background:none;color:var(--ink-2);font:650 .8125rem var(--sans);cursor:pointer;transition:background-color 160ms ease-out,color 160ms ease-out}.ds-lang button[aria-pressed=true]{background:var(--ink);color:var(--ground)}.ds-lang button:focus-visible{outline:2px solid var(--focus);outline-offset:3px}"
+    },
+    {
+      "name": "Toast",
+      "kind": "card",
+      "refersTo": "toast",
+      "description": "Bottom status message with optional yellow action; never interrupts playback.",
+      "html": "<div class=\"ds-toast\" role=\"status\"><span>Update ready</span><button class=\"ds-toast-action\">Reload</button></div>",
+      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-toast{display:inline-flex;align-items:center;gap:8px;padding:8px 8px 8px 16px;border-radius:14px;background:var(--ink);color:var(--ground);font:.9375rem var(--sans);box-shadow:0 10px 30px rgb(0 0 0 / 0.3)}.ds-toast-action{min-height:40px;padding:0 14px;border:0;border-radius:10px;background:var(--yellow);color:var(--on-yellow);font:700 .9375rem var(--sans);cursor:pointer}.ds-toast-action:focus-visible{outline:2px solid var(--ground);outline-offset:3px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Conductor's Board",
+    "overview": "The bar is drawn the way a conductor draws it in a textbook: a beat-pattern figure (downbeat falling straight, the upbeat rising, side beats on the plane of beating) traced by a single yellow baton point that strikes each ictus on the click. The world is a music-room chalkboard: icon-navy slate owns the surface, strokes and numerals are chalk, and one yellow marks the baton and the accents. In light mode the same drawing becomes a conducting-textbook page: navy ink on cool paper, with yellow kept as a highlighter fill that always carries an ink edge.\n\nMusic notation is the type voice wherever the app speaks musically. The tempo is set as a score prints it, an Italian marking over an engraved metronome mark (\"Allegro / ♩ = 120\"); the meter is a real stacked time signature; the tempo slider is an engraved metronome scale whose thumb is the pendulum's sliding weight. Everything operational (labels, buttons, settings) is quiet system sans, so the notation reads as the content and the chrome recedes.\n\nDensity is low and glance-first: the figure takes the upper half of the screen, the tempo mark sits at arm's-length size between large − and + discs, and Start is the one filled object in the transport. Settings sit beneath as a diagram's legend on a slightly raised slate. Motion exists only to show time: the baton's travel, a held strike state, one ripple per beat. Nothing flashes.",
+    "keyCharacteristics": [
+      "Navy slate (dark) or cool paper (light) surface, chalk/ink strokes, a single yellow.",
+      "The beat-pattern figure is the hero and the accent control at once.",
+      "Engraved Bravura-derived numerals and Old Standard TT for everything musical; system sans for chrome.",
+      "Round and pill forms throughout; flat surfaces with one soft lift under Start.",
+      "Strike states are held, not flashed; reduced motion keeps the information and drops the travel."
+    ],
+    "rules": [
+      {
+        "name": "The One Yellow Rule",
+        "body": "Yellow is the only hue. It marks the baton, accents and the single primary action; it never decorates, never tints a surface beyond the 18% pressed-toggle mix, and never appears as text on a light ground.",
+        "section": "colors"
+      },
+      {
+        "name": "The Ink-Edged Highlighter Rule",
+        "body": "On paper, yellow is a fill that always carries a navy edge (3px on the ruler weight, 2px on accent beats, a ring on the baton) or navy text inside it. Yellow alone never stands as a shape on the light ground.",
+        "section": "colors"
+      },
+      {
+        "name": "The Rule Is Not State Rule",
+        "body": "The rule colours (1.5:1 against their grounds) only separate and outline; no state is ever carried by a rule-coloured border alone. Selection and strike are fills (chalk/ink or yellow), muting is a dashed ring.",
+        "section": "colors"
+      },
+      {
+        "name": "The Notation Voice Rule",
+        "body": "Any musical quantity (tempo, meter, beat number, tempo marking) is set in the engraved face or Old Standard; any instruction or setting name is set in system sans. Never swap them.",
+        "section": "typography"
+      },
+      {
+        "name": "The Engraved Fallback Rule",
+        "body": "If the engraved face fails to load (detected through `document.fonts.load`, e.g. iOS Lockdown Mode), the root takes a `no-engraved` class: the note and \"=\" are hidden, the BPM drops to plain numerals at up to 5rem with line-height 1, and the time signature becomes 1.5rem plain digits. The tight engraved metrics are never applied to a substitute face.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Lifted Object Rule",
+        "body": "Only the primary action casts a shadow on the board; everything else is drawn on it.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** draw anything musical in notation: engraved numerals for tempo and meter, Old Standard TT for markings and beat numbers, drawn SVG notes for rhythmic values.",
+      "**Do** keep Baton Yellow (#fccf3f) for the baton, accents and the single primary action, and give it a navy edge on paper.",
+      "**Do** show beat state with held fills (chalk/ink for struck, yellow for accent, dashed ring for mute), landing at once and releasing with a 140-160ms ease-out.",
+      "**Do** keep touch targets at 44px or larger (52px step discs, 64px Start) and let the figure, tempo mark and Start share the first viewport.",
+      "**Do** give every state a fill or border that survives forced colours, and keep selected states as fills distinct from the focus outline.",
+      "**Do** degrade to plain numerals when the engraved face is unavailable rather than squeezing a fallback into engraved metrics."
+    ],
+    "donts": [
+      "**Don't** flash, pulse or loop decoration on the beat; motion only shows the baton's travel and one ripple per strike, and none of it may delay the click.",
+      "**Don't** introduce a second accent hue or tint surfaces with yellow.",
+      "**Don't** add shadows to anything except Start and the toast.",
+      "**Don't** fall back to the big-number-and-dot-row metronome layout; the beat pattern is the beat display.",
+      "**Don't** use Unicode music symbols (♩ ♫ ♬) as UI text; they render inconsistently, so notes are engraved glyphs or drawn SVG.",
+      "**Don't** carry state with a rule-coloured border alone."
+    ]
+  }
+}
