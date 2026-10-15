@@ -5,3 +5,13 @@ dev-dist
 .DS_Store
 coverage
 .wrangler
+
+# impeccable: machine-local state (shared config, surface briefs and design.json stay tracked)
+.impeccable/config.local.json
+.impeccable/hook.cache.json
+.impeccable/build/
+.impeccable/review/
+.impeccable/live/
+.impeccable/critique/
+.impeccable/mocks/
+.claude/settings.local.json
