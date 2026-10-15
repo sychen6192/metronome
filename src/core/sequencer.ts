@@ -10,6 +10,8 @@ export interface ClickEvent {
   beat: number
   sub: number
   level: ClickLevel
+  /** Seconds per beat at the tempo this click was scheduled with. */
+  beatLength: number
 }
 
 /**
@@ -52,7 +54,8 @@ export class Sequencer {
    * slightly late is kept and plays immediately.
    */
   catchUp(now: number, tolerance: number): void {
-    while (this.nextTime < now - tolerance) this.advance()
+    // Skipped bars were never heard, so they don't count towards the speed trainer.
+    while (this.nextTime < now - tolerance) this.advance(false)
   }
 
   /** Return every click that starts before `until`, advancing the sequencer past them. */
@@ -67,12 +70,20 @@ export class Sequencer {
 
   private currentEvent(): ClickEvent {
     const { beat, sub } = this.pulse
-    const level: ClickLevel = sub === 0 ? (this.getSettings().accents[beat] ?? 'normal') : 'sub'
-    return { time: this.nextTime, beat, sub, level }
+    const settings = this.getSettings()
+    const level: ClickLevel = sub === 0 ? (settings.accents[beat] ?? 'normal') : 'sub'
+    return { time: this.nextTime, beat, sub, level, beatLength: beatDuration(settings.bpm) }
   }
 
-  private advance(): void {
+  private advance(countBars = true): void {
     const settings = this.getSettings()
+    if (settings.trainer.enabled !== this.trainerEnabled) {
+      this.trainerEnabled = settings.trainer.enabled
+      // Only whole bars played with the trainer on count. The pulse just scheduled was played
+      // with the new setting: if it is a downbeat its whole bar counts, otherwise the bar in
+      // progress doesn't.
+      this.barsSinceRamp = this.pulse.beat === 0 && this.pulse.sub === 0 ? 0 : -1
+    }
     const { pulse, beats } = nextPulse(
       this.pulse,
       settings.beatsPerBar,
@@ -81,12 +92,7 @@ export class Sequencer {
     this.nextTime += beats * beatDuration(settings.bpm)
     this.pulse = pulse
 
-    if (settings.trainer.enabled !== this.trainerEnabled) {
-      this.trainerEnabled = settings.trainer.enabled
-      // Only whole bars played with the trainer on count; the bar in progress doesn't.
-      this.barsSinceRamp = -1
-    }
-    if (pulse.beat === 0 && pulse.sub === 0) this.onNewBar(settings)
+    if (countBars && pulse.beat === 0 && pulse.sub === 0) this.onNewBar(settings)
   }
 
   private onNewBar(settings: Settings): void {

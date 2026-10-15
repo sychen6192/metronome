@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-color",
+        "value": "rgb(0, 0, 0)",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-10-15T11:58:30.827Z",
+        "reason": "Claude: false positive. The static scan of index.html can't see the stylesheet that src/main.ts imports; the brand text renders var(--ink) (#eceff6 dark, #172036 light), as the review captures show."
+      }
+    ]
+  }
+}

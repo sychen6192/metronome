@@ -1,5 +1,4 @@
 import { registerSW } from 'virtual:pwa-register'
-import { t } from '../i18n'
 import { showToast } from '../ui/toast'
 
 /** Chromium-only event, not in the TypeScript DOM library. */
@@ -15,8 +14,8 @@ export function setupPwa(installButton: HTMLButtonElement, isPlaying: () => bool
   let reloadRequested = false
   const updateServiceWorker = registerSW({
     onNeedRefresh() {
-      showToast(t('updateAvailable'), {
-        label: t('reload'),
+      showToast('updateAvailable', {
+        label: 'reload',
         run: () => {
           reloadRequested = true
           void updateServiceWorker(true)
@@ -29,11 +28,11 @@ export function setupPwa(installButton: HTMLButtonElement, isPlaying: () => bool
       if (reloadRequested || !isPlaying()) {
         window.location.reload()
       } else {
-        showToast(t('updateAvailable'), { label: t('reload'), run: () => window.location.reload() })
+        showToast('updateAvailable', { label: 'reload', run: () => window.location.reload() })
       }
     },
     onOfflineReady() {
-      showToast(t('offlineReady'))
+      showToast('offlineReady')
     },
     onRegisteredSW(_url, registration) {
       // An installed app can stay open for days; check for new versions periodically.

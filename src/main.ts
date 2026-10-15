@@ -5,27 +5,30 @@ import {
   MAX_BEATS,
   MIN_BEATS,
   SUBDIVISIONS,
+  SUBDIVISION_OFFSETS,
   cycleAccent,
   resizeAccents,
   type Subdivision,
 } from './core/rhythm'
 import { SOUNDS, loadSettings, saveSettings, type Settings, type SoundId } from './core/settings'
 import { MAX_BPM, MIN_BPM, TapTempo, clampBpm, tempoMarking } from './core/tempo'
-import { t, translatePage } from './i18n'
+import { LANGUAGES, currentLanguage, resolveLanguage, setLanguage, t, translatePage, type Language } from './i18n'
 import { setupPwa } from './platform/pwa'
 import { ScreenWakeLock } from './platform/wakeLock'
+import { BeatPattern } from './ui/beatPattern'
 import { subdivisionIcon } from './ui/notation'
-import { showToast } from './ui/toast'
+import { dismissToast, render as renderToast, showToast } from './ui/toast'
 
 const byId = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T
 
 const els = {
-  beats: byId('beats'),
+  pattern: byId('pattern'),
+  beatButtons: byId('beat-buttons'),
   tempo: byId('tempo'),
   bpm: byId<HTMLOutputElement>('bpm'),
   marking: byId('marking'),
-  pulse: byId('pulse'),
   slider: byId<HTMLInputElement>('bpm-slider'),
+  rulerScale: byId('ruler-scale'),
   slower: byId<HTMLButtonElement>('slower'),
   faster: byId<HTMLButtonElement>('faster'),
   tap: byId<HTMLButtonElement>('tap'),
@@ -35,6 +38,7 @@ const els = {
   fewerBeats: byId<HTMLButtonElement>('fewer-beats'),
   moreBeats: byId<HTMLButtonElement>('more-beats'),
   beatsValue: byId<HTMLOutputElement>('beats-value'),
+  meterTop: byId('meter-top'),
   subdivisions: byId('subdivisions'),
   sound: byId<HTMLSelectElement>('sound'),
   volume: byId<HTMLInputElement>('volume'),
@@ -44,6 +48,7 @@ const els = {
   trainerEvery: byId<HTMLInputElement>('trainer-every'),
   trainerTarget: byId<HTMLInputElement>('trainer-target'),
   install: byId<HTMLButtonElement>('install'),
+  languageButtons: document.querySelectorAll<HTMLButtonElement>('[data-language]'),
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -57,18 +62,53 @@ function storage(): Storage | undefined {
   }
 }
 
+// Web fonts can be blocked (e.g. iOS Lockdown Mode); the tempo mark then switches to plain numerals.
+const withoutEngraved = () => document.documentElement.classList.add('no-engraved')
+document.fonts?.load('1em "Metronome Engraved"').then((faces) => {
+  if (faces.length === 0) withoutEngraved()
+}, withoutEngraved)
+
 let settings: Settings = loadSettings(storage())
+setLanguage(resolveLanguage(settings.language))
+const pattern = new BeatPattern(els.pattern, els.beatButtons)
 const engine = new MetronomeEngine(
   () => settings,
   (bpm) => update({ bpm }),
-  () => {
-    // The OS took the audio away (e.g. a phone call): reflect that the metronome stopped.
-    void wakeLock.release()
-    clearActiveBeat()
+  (change) => {
+    if (change === 'resumed') {
+      // Played again from the lock screen or headphones.
+      requestAnimationFrame(frame)
+      void wakeLock.request()
+    } else {
+      void wakeLock.release()
+      restBaton()
+      if (change === 'interrupted') showInterruptedNotice()
+    }
     renderPlayState()
-    showToast(t('audioInterrupted'))
   },
 )
+
+/**
+ * A phone call or Siri stopped playback. Say so once the page is visible again (the user is
+ * usually away when it happens), and keep the notice until they act, with Start right there.
+ */
+function showInterruptedNotice(): void {
+  const show = () => {
+    if (engine.playing) return
+    showToast('audioInterrupted', {
+      label: 'play',
+      run: () => {
+        if (!engine.playing) void togglePlay()
+      },
+    })
+  }
+  if (document.visibilityState === 'visible') return show()
+  document.addEventListener('visibilitychange', function onVisible() {
+    if (document.visibilityState !== 'visible') return
+    document.removeEventListener('visibilitychange', onVisible)
+    show()
+  })
+}
 const wakeLock = new ScreenWakeLock()
 const tapTempo = new TapTempo()
 
@@ -90,22 +130,9 @@ const changeBpm = (delta: number) => update({ bpm: clampBpm(settings.bpm + delta
 // Rendering
 
 function renderBeats(): void {
-  const dots = els.beats.children
-  while (dots.length < settings.beatsPerBar) {
-    const dot = document.createElement('button')
-    dot.type = 'button'
-    dot.className = 'beat'
-    dot.dataset.index = String(dots.length)
-    els.beats.append(dot)
-  }
-  while (dots.length > settings.beatsPerBar) els.beats.lastElementChild!.remove()
-
-  settings.accents.forEach((accent, i) => {
-    const dot = dots[i] as HTMLButtonElement
-    dot.dataset.level = accent
-    dot.setAttribute('aria-label', t('beatLabel', { n: i + 1, state: t(`accent.${accent}`) }))
-  })
-  els.beats.dataset.count = String(settings.beatsPerBar)
+  pattern.update(settings.accents, SUBDIVISION_OFFSETS[settings.subdivision], (beat, accent) =>
+    t('beatLabel', { n: beat + 1, state: t(`accent.${accent}`) }),
+  )
 }
 
 /** Custom slider styling draws the filled part of the track from --p (0–1). */
@@ -117,15 +144,17 @@ function setSlider(input: HTMLInputElement, value: number): void {
 }
 
 function render(): void {
+  const marking = tempoMarking(settings.bpm)
   els.bpm.value = String(settings.bpm)
-  els.marking.textContent = tempoMarking(settings.bpm)
+  els.marking.textContent = marking
   setSlider(els.slider, settings.bpm)
-  els.slider.setAttribute('aria-valuetext', `${settings.bpm} BPM, ${tempoMarking(settings.bpm)}`)
+  els.slider.setAttribute('aria-valuetext', t('tempoValue', { bpm: settings.bpm, marking }))
   els.slower.disabled = settings.bpm <= MIN_BPM
   els.faster.disabled = settings.bpm >= MAX_BPM
 
   renderBeats()
   els.beatsValue.value = String(settings.beatsPerBar)
+  els.meterTop.textContent = String(settings.beatsPerBar)
   els.fewerBeats.disabled = settings.beatsPerBar <= MIN_BEATS
   els.moreBeats.disabled = settings.beatsPerBar >= MAX_BEATS
 
@@ -148,6 +177,9 @@ function render(): void {
     if (document.activeElement !== input) input.value = String(value)
   }
 
+  for (const button of els.languageButtons) {
+    button.setAttribute('aria-pressed', String(button.dataset.language === currentLanguage()))
+  }
   renderPlayState()
 }
 
@@ -163,37 +195,34 @@ function renderPlayState(): void {
 // Visual beat, synchronised to what is actually heard
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
-let activeDot: Element | null = null
-
-function showClick(click: ClickEvent): void {
-  if (click.sub === 0) {
-    activeDot?.classList.remove('active')
-    activeDot = els.beats.children[click.beat] ?? null
-    activeDot?.classList.add('active')
-  }
-  if (click.level === 'mute') return
-  els.pulse.dataset.level = click.level
-  els.pulse.animate(
-    reducedMotion.matches
-      ? [{ opacity: 1 }, { opacity: 0 }]
-      : [
-          { opacity: 1, transform: 'scale(0.92)' },
-          { opacity: 0, transform: 'scale(1.08)' },
-        ],
-    { duration: click.level === 'sub' ? 140 : 260, easing: 'cubic-bezier(.2,.7,.3,1)' },
-  )
-}
+/** The last beat that reached the speakers; the baton travels from it towards the next. */
+let lastBeat: ClickEvent | null = null
 
 function frame(): void {
   const clicks = engine.takeAudibleClicks()
-  const last = clicks.at(-1)
-  if (last) showClick(last)
+  // After a hidden stretch many clicks arrive at once; only the latest beat and sub-click matter.
+  const beat = clicks.findLast((click) => click.sub === 0)
+  if (beat) {
+    lastBeat = beat
+    pattern.strike(beat.beat, 0, beat.level, reducedMotion.matches)
+  }
+  const sub = clicks.at(-1)
+  if (sub && sub.sub > 0) pattern.strike(sub.beat, sub.sub, sub.level, reducedMotion.matches)
+
+  if (lastBeat) {
+    // Time the swing by when the next beat will actually sound: its scheduled time once known,
+    // until then the tempo this beat was scheduled with (a later tempo change can't move it).
+    const next = engine.nextBeatTime()
+    const length = next !== undefined && next > lastBeat.time ? next - lastBeat.time : lastBeat.beatLength
+    const elapsed = (engine.audibleNow() - lastBeat.time) / length
+    pattern.moveBaton(lastBeat.beat, Math.min(1, elapsed), reducedMotion.matches)
+  }
   if (engine.playing) requestAnimationFrame(frame)
 }
 
-function clearActiveBeat(): void {
-  activeDot?.classList.remove('active')
-  activeDot = null
+function restBaton(): void {
+  lastBeat = null
+  pattern.rest()
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -203,11 +232,12 @@ async function togglePlay(): Promise<void> {
   if (engine.playing) {
     engine.stop()
     void wakeLock.release()
-    clearActiveBeat()
+    restBaton()
     renderPlayState()
     return
   }
   const starting = engine.start()
+  dismissToast('audioInterrupted')
   renderPlayState()
   try {
     await starting
@@ -215,7 +245,7 @@ async function togglePlay(): Promise<void> {
     requestAnimationFrame(frame)
     void wakeLock.request()
   } catch {
-    showToast(t('audioError'))
+    showToast('audioError')
   }
   renderPlayState()
 }
@@ -230,10 +260,15 @@ function tap(timeStamp: number): void {
 function holdToRepeat(button: HTMLButtonElement, action: () => void): void {
   let delay: number | undefined
   let repeat: number | undefined
+  /** The pointer whose press drives the repeat; other fingers neither stop nor block it. */
+  let owner: number | undefined
   const stop = () => {
     clearTimeout(delay)
     clearInterval(repeat)
-    delay = repeat = undefined
+    delay = repeat = owner = undefined
+  }
+  const release = (event: PointerEvent) => {
+    if (event.pointerId === owner) stop()
   }
   // The action disables the button at the tempo limit, after which some browsers stop
   // delivering pointer events to it, so the repeat also ends itself there.
@@ -242,18 +277,19 @@ function holdToRepeat(button: HTMLButtonElement, action: () => void): void {
     if (button.disabled) stop()
   }
   button.addEventListener('pointerdown', (event) => {
-    // Ignore extra fingers, and never leave an earlier repeat running.
-    if (event.button !== 0 || !event.isPrimary) return
+    if (event.button !== 0) return
+    // A new press, from any finger, takes over; an earlier repeat never keeps running.
     stop()
+    owner = event.pointerId
     tick()
-    if (!button.disabled) delay = window.setTimeout(() => (repeat = window.setInterval(tick, 70)), 400)
+    if (owner !== undefined) delay = window.setTimeout(() => (repeat = window.setInterval(tick, 70)), 400)
   })
-  for (const type of ['pointerup', 'pointerleave', 'pointercancel', 'blur'] as const) {
-    button.addEventListener(type, stop)
-  }
-  // Releasing outside the button (or on a now-disabled one) still ends the repeat.
-  window.addEventListener('pointerup', stop)
-  window.addEventListener('pointercancel', stop)
+  button.addEventListener('pointerleave', release)
+  // Leaving the app ends it; the button's own blur doesn't (another finger's tap moves focus).
+  window.addEventListener('blur', stop)
+  // Releasing anywhere (or on a now-disabled button) ends the repeat, for the finger that started it.
+  window.addEventListener('pointerup', release)
+  window.addEventListener('pointercancel', release)
   // Keyboard activation (Enter/Space on the focused button) arrives as a click with detail 0.
   button.addEventListener('click', (event) => {
     if (event.detail === 0) action()
@@ -263,6 +299,34 @@ function holdToRepeat(button: HTMLButtonElement, action: () => void): void {
 
 // ---------------------------------------------------------------------------------------------
 // Wiring
+
+/** Tempo ruler engraved like a metronome's scale: where each Italian marking begins. */
+const RULER_MARKS: ReadonlyArray<readonly [bpm: number, name: string]> = [
+  [45, 'Largo'],
+  [76, 'Andante'],
+  [120, 'Allegro'],
+  [176, 'Presto'],
+]
+
+function buildRuler(): void {
+  els.rulerScale.replaceChildren(
+    ...RULER_MARKS.map(([bpm, name]) => {
+      const mark = document.createElement('span')
+      mark.className = 'ruler-mark'
+      mark.textContent = name
+      mark.style.setProperty('--at', String((bpm - MIN_BPM) / (MAX_BPM - MIN_BPM)))
+      return mark
+    }),
+  )
+}
+
+function applyLanguage(language: Language): void {
+  setLanguage(language)
+  translatePage()
+  buildControls()
+  render()
+  renderToast()
+}
 
 function buildControls(): void {
   els.subdivisions.innerHTML = SUBDIVISIONS.map(
@@ -311,7 +375,16 @@ function bindEvents(): void {
     if (event.detail === 0) tap(event.timeStamp)
   })
 
-  els.beats.addEventListener('click', (event) => {
+  for (const button of els.languageButtons) {
+    button.addEventListener('click', () => {
+      const language = LANGUAGES.find((code) => code === button.dataset.language)
+      if (!language) return
+      update({ language })
+      applyLanguage(language)
+    })
+  }
+
+  els.beatButtons.addEventListener('click', (event) => {
     const dot = (event.target as Element).closest<HTMLElement>('.beat')
     if (!dot) return
     const index = Number(dot.dataset.index)
@@ -397,6 +470,7 @@ function onKeyDown(event: KeyboardEvent): void {
 
 translatePage()
 buildControls()
+buildRuler()
 bindEvents()
 render()
 setupPwa(els.install, () => engine.playing)

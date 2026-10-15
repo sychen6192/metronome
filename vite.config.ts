@@ -4,7 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // GitHub Pages serves the app from /<repo>/, so the deploy workflow sets BASE_PATH.
 const base = process.env.BASE_PATH ?? '/'
-const themeColor = '#0f1115'
+const themeColor = '#172036'
 
 export default defineConfig({
   base,
@@ -35,7 +35,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico,webmanifest}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,ico,webmanifest,woff2}'],
         cleanupOutdatedCaches: true,
         navigateFallback: 'index.html',
       },

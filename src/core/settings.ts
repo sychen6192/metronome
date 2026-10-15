@@ -13,6 +13,10 @@ import { DEFAULT_BPM, clampBpm } from './tempo'
 export const SOUNDS = ['click', 'wood', 'beep', 'cowbell'] as const
 export type SoundId = (typeof SOUNDS)[number]
 
+/** Interface language; "auto" follows the browser until the user picks one. */
+export const LANGUAGE_PREFERENCES = ['auto', 'zh-Hant', 'en'] as const
+export type LanguagePreference = (typeof LANGUAGE_PREFERENCES)[number]
+
 export interface TrainerSettings {
   enabled: boolean
   /** BPM added (or removed) each time the trainer steps. */
@@ -32,6 +36,7 @@ export interface Settings {
   /** Master volume, 0–1. */
   volume: number
   trainer: TrainerSettings
+  language: LanguagePreference
 }
 
 export const STORAGE_KEY = 'metronome:settings:v1'
@@ -45,6 +50,7 @@ export function defaultSettings(): Settings {
     sound: 'click',
     volume: 0.8,
     trainer: { enabled: false, step: 5, everyBars: 4, target: 160 },
+    language: 'auto',
   }
 }
 
@@ -93,6 +99,7 @@ export function sanitizeSettings(raw: unknown): Settings {
       target:
         typeof trainer.target === 'number' ? clampBpm(trainer.target) : defaults.trainer.target,
     },
+    language: oneOf(LANGUAGE_PREFERENCES, raw.language, defaults.language),
   }
 }
 
