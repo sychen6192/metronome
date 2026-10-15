@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>節拍器 Metronome</title>
+    <meta name="description" content="精準、可離線使用的節拍器：重音、細分拍、打拍測速、速度練習。A precise offline metronome." />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f4f5f8" media="(prefers-color-scheme: light)" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
+    <meta name="apple-mobile-web-app-title" content="節拍器" />
+    <script type="module" src="/src/main.ts"></script>
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <h1 class="brand">
+          <svg class="brand-mark" viewBox="0 0 512 512" aria-hidden="true">
+            <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M160 404 L352 404 L298 108 L214 108 Z" stroke="currentColor" stroke-width="34" />
+              <path d="M256 344 L338 132" stroke="var(--text)" stroke-width="28" />
+            </g>
+            <circle cx="256" cy="344" r="24" fill="currentColor" />
+          </svg>
+          <span data-i18n="appTitle">節拍器</span>
+        </h1>
+        <button id="install" class="chip" type="button" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M5 21h14" /></svg>
+          <span data-i18n="install">安裝 App</span>
+        </button>
+      </header>
+
+      <main>
+        <section class="stage">
+          <div id="beats" class="beats" role="group" data-i18n-label="beatsGroup"></div>
+          <p class="hint" data-i18n="accentHint">點拍點切換：重音 → 一般 → 靜音</p>
+
+          <div class="tempo" id="tempo">
+            <button id="slower" class="round" type="button" data-i18n-label="slower" aria-label="減慢">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /></svg>
+            </button>
+            <div class="readout">
+              <div id="pulse" class="pulse" aria-hidden="true"></div>
+              <output id="bpm" class="bpm" for="bpm-slider">120</output>
+              <span class="unit">BPM</span>
+              <span id="marking" class="marking">Moderato</span>
+            </div>
+            <button id="faster" class="round" type="button" data-i18n-label="faster" aria-label="加快">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5v14" /></svg>
+            </button>
+          </div>
+
+          <input id="bpm-slider" class="slider" type="range" min="20" max="300" step="1" value="120" data-i18n-label="tempo" aria-label="速度" />
+
+          <div class="transport">
+            <button id="tap" class="side" type="button" data-i18n-title="tapTitle">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-.5a1.5 1.5 0 0 1 3 0V11m0-.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-.6a6 6 0 0 1-4.9-2.6L4.2 15a1.6 1.6 0 0 1 2.5-2L9 15" />
+              </svg>
+              <span data-i18n="tap">打拍</span>
+            </button>
+            <button id="play" class="play" type="button" aria-pressed="false">
+              <svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" /></svg>
+              <svg class="icon-stop" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="6.5" width="11" height="11" rx="1.5" /></svg>
+              <span id="play-label" class="sr-only" data-i18n="play">開始</span>
+            </button>
+            <button id="trainer-toggle" class="side" type="button" aria-pressed="false" data-i18n-label="trainerToggle">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8m0 0h-6m6 0v6" /></svg>
+              <span data-i18n="trainerShort">練習</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="field">
+            <span id="beats-label" class="label" data-i18n="beats">拍數</span>
+            <div class="stepper" role="group" aria-labelledby="beats-label">
+              <button id="fewer-beats" type="button" data-i18n-label="fewerBeats" aria-label="減少拍數">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12" /></svg>
+              </button>
+              <output id="beats-value" aria-live="polite">4</output>
+              <button id="more-beats" type="button" data-i18n-label="moreBeats" aria-label="增加拍數">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12M12 6v12" /></svg>
+              </button>
+            </div>
+          </div>
+
+          <fieldset class="field">
+            <legend class="label" data-i18n="subdivision">細分拍</legend>
+            <div id="subdivisions" class="segmented"></div>
+          </fieldset>
+
+          <div class="field">
+            <label class="label" for="sound" data-i18n="sound">音色</label>
+            <select id="sound" class="select"></select>
+          </div>
+
+          <div class="field">
+            <label class="label" for="volume" data-i18n="volume">音量</label>
+            <input id="volume" class="slider" type="range" min="0" max="100" step="1" value="80" />
+          </div>
+
+          <details id="trainer" class="trainer">
+            <summary>
+              <span data-i18n="trainer">速度練習</span>
+              <span id="trainer-state" class="badge"></span>
+            </summary>
+            <div class="trainer-grid">
+              <label>
+                <span data-i18n="trainerStep">每次調整（BPM）</span>
+                <input id="trainer-step" type="number" inputmode="numeric" min="1" max="50" step="1" />
+              </label>
+              <label>
+                <span data-i18n="trainerEvery">每幾小節</span>
+                <input id="trainer-every" type="number" inputmode="numeric" min="1" max="64" step="1" />
+              </label>
+              <label>
+                <span data-i18n="trainerTarget">目標速度（BPM）</span>
+                <input id="trainer-target" type="number" inputmode="numeric" min="20" max="300" step="1" />
+              </label>
+            </div>
+            <p class="hint" data-i18n="trainerHint"></p>
+          </details>
+        </section>
+
+        <p class="shortcuts" data-i18n="shortcuts"></p>
+      </main>
+    </div>
+
+    <div id="toast" class="toast" role="status" hidden>
+      <span id="toast-text"></span>
+      <button id="toast-action" class="toast-action" type="button" hidden></button>
+      <button id="toast-close" class="toast-close" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+      </button>
+    </div>
+  </body>
+</html>

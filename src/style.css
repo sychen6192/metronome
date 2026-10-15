@@ -1,0 +1,784 @@
+:root {
+  color-scheme: dark;
+  --bg: #0f1115;
+  --surface: #171a21;
+  --surface-2: #1f232c;
+  --line: #2a2f3a;
+  --text: #f4f5f8;
+  --muted: #9097a8;
+  --accent: #ff8a3d;
+  --accent-ink: #1a0d03;
+  --normal: #5cc8ff;
+  --sub: #9097a8;
+  --track: #323846;
+  --focus: #ffd166;
+  --radius: 18px;
+  --shadow: 0 10px 30px rgb(0 0 0 / 0.35);
+
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    'PingFang TC',
+    'Noto Sans TC',
+    'Microsoft JhengHei',
+    sans-serif;
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+    --bg: #f4f5f8;
+    --surface: #ffffff;
+    --surface-2: #eceef3;
+    --line: #dde0e8;
+    --text: #151821;
+    --muted: #5d6475;
+    --accent: #e8630a;
+    --accent-ink: #ffffff;
+    --normal: #0a84c6;
+    --sub: #8a90a0;
+    --track: #d9dce4;
+    --focus: #b25e00;
+    --shadow: 0 10px 30px rgb(20 24 33 / 0.1);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  min-height: 100dvh;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: 0;
+  background: none;
+  /* No double-tap zoom: essential for the tap-tempo button on iOS. */
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+button:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+svg {
+  display: block;
+}
+
+button svg,
+.chip svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------- layout */
+
+.app {
+  width: min(100%, 520px);
+  margin: 0 auto;
+  padding: 12px 16px 32px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.brand-mark {
+  width: 28px;
+  height: 28px;
+  color: var(--accent);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.chip svg {
+  width: 18px;
+  height: 18px;
+}
+
+main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+.stage,
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.stage {
+  display: grid;
+  gap: 18px;
+  padding: 22px 18px 24px;
+}
+
+.hint {
+  margin: -8px 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------- beats */
+
+.beats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.beat {
+  --size: 40px;
+  position: relative;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  transition:
+    transform 0.08s,
+    background-color 0.12s,
+    box-shadow 0.12s;
+}
+
+.beats[data-count='9'] .beat,
+.beats[data-count='10'] .beat,
+.beats[data-count='11'] .beat,
+.beats[data-count='12'] .beat {
+  --size: 34px;
+}
+
+.beats[data-count='13'] .beat,
+.beats[data-count='14'] .beat,
+.beats[data-count='15'] .beat,
+.beats[data-count='16'] .beat {
+  --size: 30px;
+}
+
+/* Inner disc shows the accent level; the button itself keeps a large hit area. */
+.beat::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  transition: inherit;
+}
+
+.beat[data-level='accent']::before {
+  background: var(--accent);
+}
+
+.beat[data-level='normal']::before {
+  inset: 18%;
+  background: var(--normal);
+  opacity: 0.85;
+}
+
+.beat[data-level='mute']::before {
+  inset: 22%;
+  border: 2px dashed var(--muted);
+  opacity: 0.8;
+}
+
+.beat.active {
+  transform: scale(1.15);
+}
+
+.beat.active[data-level='accent']::before {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 35%, transparent),
+    0 0 24px var(--accent);
+}
+
+.beat.active[data-level='normal']::before {
+  opacity: 1;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--normal) 35%, transparent),
+    0 0 20px var(--normal);
+}
+
+.beat.active[data-level='mute']::before {
+  border-color: var(--text);
+}
+
+/* ---------------------------------------------------------------- tempo */
+
+.tempo {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.round {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--surface-2);
+}
+
+.round:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.readout {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  padding: 8px 0;
+  isolation: isolate;
+}
+
+.pulse {
+  position: absolute;
+  inset: -18px -4px;
+  z-index: -1;
+  border-radius: 28px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pulse[data-level='accent'] {
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 70%, transparent), transparent);
+}
+
+.pulse[data-level='normal'] {
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--normal) 55%, transparent), transparent);
+}
+
+.pulse[data-level='sub'] {
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--sub) 35%, transparent), transparent);
+}
+
+.bpm {
+  font-size: clamp(4.5rem, 24vw, 6.5rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.unit {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+}
+
+.marking {
+  margin-top: 4px;
+  color: var(--accent);
+  font-size: 0.95rem;
+  font-style: italic;
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------- sliders */
+
+/* --p (0–1) is set from JS; the fill ends at the thumb's centre. */
+.slider {
+  --p: 0.5;
+  --thumb: 26px;
+  --fill: linear-gradient(
+    to right,
+    var(--accent) calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--p)),
+    var(--track) 0
+  );
+  width: 100%;
+  height: 36px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  /* Horizontal drags move the slider, vertical swipes still scroll the page. */
+  touch-action: pan-y;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.slider::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--fill);
+}
+
+.slider::-moz-range-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--fill);
+}
+
+.slider::-webkit-slider-thumb {
+  width: var(--thumb);
+  height: var(--thumb);
+  margin-top: calc((8px - var(--thumb)) / 2);
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--accent) 45%, transparent),
+    0 2px 6px rgb(0 0 0 / 0.35);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.slider::-moz-range-thumb {
+  width: var(--thumb);
+  height: var(--thumb);
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--accent) 45%, transparent),
+    0 2px 6px rgb(0 0 0 / 0.35);
+}
+
+.slider:focus-visible {
+  outline: none;
+}
+
+.slider:focus-visible::-webkit-slider-thumb {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.slider:focus-visible::-moz-range-thumb {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+/* ---------------------------------------------------------------- transport */
+
+.transport {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  justify-items: center;
+  gap: 12px;
+}
+
+.side {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  width: 76px;
+  padding: 10px 0 8px;
+  border-radius: 16px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.side:active {
+  transform: scale(0.96);
+}
+
+#trainer-toggle[aria-pressed='true'] {
+  background: color-mix(in srgb, var(--accent) 22%, var(--surface-2));
+  color: var(--accent);
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.play {
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 40%, transparent);
+  transition: transform 0.1s;
+}
+
+.play:active {
+  transform: scale(0.96);
+}
+
+.play svg {
+  width: 40px;
+  height: 40px;
+  fill: currentColor;
+  stroke: none;
+}
+
+.play .icon-stop,
+.play.playing .icon-play {
+  display: none;
+}
+
+.play.playing .icon-stop {
+  display: block;
+}
+
+/* ---------------------------------------------------------------- settings panel */
+
+.panel {
+  display: grid;
+  padding: 6px 18px;
+}
+
+.field {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  padding: 14px 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  min-inline-size: 0;
+}
+
+fieldset.field {
+  display: grid;
+}
+
+/* Legends don't participate in grid layout, so float it into the first column. */
+fieldset.field legend {
+  float: left;
+  padding: 0;
+}
+
+.label {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-self: start;
+  gap: 4px;
+  border-radius: 999px;
+  background: var(--surface-2);
+}
+
+.stepper button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+}
+
+.stepper output {
+  min-width: 2ch;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--surface-2);
+}
+
+.segment {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  height: 46px;
+  padding: 0 3px;
+  border-radius: 10px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.segment input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.segment svg {
+  width: 100%;
+  max-width: 40px;
+  height: auto;
+  pointer-events: none;
+}
+
+.segment:has(input:checked) {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.25);
+}
+
+.segment:has(input:focus-visible) {
+  outline: 3px solid var(--focus);
+  outline-offset: 1px;
+}
+
+.select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+
+.trainer {
+  padding: 14px 0;
+}
+
+.trainer summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.badge {
+  padding: 1px 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.badge.on {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  color: var(--accent);
+}
+
+.trainer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.trainer-grid label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.trainer-grid input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-2);
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.trainer .hint {
+  margin: 12px 0 0;
+  text-align: start;
+}
+
+.shortcuts {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+/* Keyboard shortcuts are irrelevant on touch-only devices. */
+@media (hover: none) and (pointer: coarse) {
+  .shortcuts {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------- toast */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  padding: 8px 8px 8px 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface-2);
+  box-shadow: var(--shadow);
+  font-size: 0.9rem;
+  transform: translateX(-50%);
+}
+
+.toast-action {
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 700;
+}
+
+.toast-close {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  color: var(--muted);
+}
+
+.toast-close svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ---------------------------------------------------------------- small screens */
+
+@media (max-width: 360px) {
+  .field {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  fieldset.field legend {
+    float: none;
+  }
+
+  .trainer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .side {
+    width: 64px;
+  }
+
+  .round {
+    width: 48px;
+    height: 48px;
+  }
+
+  .bpm {
+    font-size: 3.75rem;
+  }
+
+  .play {
+    width: 84px;
+    height: 84px;
+  }
+}
+
+@media (min-width: 900px) {
+  .app {
+    width: min(100%, 1000px);
+    padding-top: 24px;
+  }
+
+  main {
+    grid-template-columns: 1.15fr 1fr;
+    align-items: start;
+    gap: 24px;
+  }
+
+  .shortcuts {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+  }
+
+  .beat.active {
+    transform: none;
+  }
+}
