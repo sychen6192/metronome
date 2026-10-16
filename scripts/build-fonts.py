@@ -12,11 +12,10 @@ text in CSS.
 Bravura's Reserved Font Name means a modified version must not be called "Bravura", so the subset
 is renamed "Metronome Engraved". Its licence is in src/fonts/LICENSE-Bravura.txt.
 
-src/fonts/metronome-wordmark.woff2, from Noto Serif TC Bold (SIL OFL 1.1, Google / Adobe): the
-Chinese the page sets in the score voice, a Ming serif that matches the score face: the app name
-節拍器 (the wordmark) and the guide heading 使用說明, their glyphs only. Renamed "Metronome
-Wordmark"; licence in src/fonts/LICENSE-NotoSerifTC.txt. The stylesheet's unicode-range for it
-lists the same characters (tests/fonts.test.ts checks it against the text).
+src/fonts/metronome-wordmark.woff2, from Noto Serif TC Bold (SIL OFL 1.1, Google / Adobe): only
+the three glyphs of the Chinese app name, 節拍器, so the wordmark is set in a Ming serif that
+matches the score face. Renamed "Metronome Wordmark"; licence in src/fonts/LICENSE-NotoSerifTC.txt.
+The stylesheet's unicode-range for it lists the same characters (tests/fonts.test.ts checks them).
 
 src/fonts/metronome-sans-tc.woff2, from Noto Sans TC (SIL OFL 1.1, Google / Adobe): the interface
 text, Chinese and Latin, so it looks the same on every device instead of each system's own fonts.
@@ -55,8 +54,8 @@ FONTS = ROOT / 'src' / 'fonts'
 OUT = FONTS / 'metronome-engraved.woff2'
 WORDMARK_FAMILY = 'Metronome Wordmark'
 WORDMARK_OUT = FONTS / 'metronome-wordmark.woff2'
-# The app name and the guide heading (zh-Hant appTitle and guideTitle in src/i18n.ts).
-WORDMARK_TEXT = '節拍器使用說明'
+# The Chinese app name (zh-Hant appTitle in src/i18n.ts).
+WORDMARK_TEXT = '節拍器'
 WORDMARK_WEIGHT = 700
 SANS_FAMILY = 'Metronome Sans TC'
 SANS_OUT = FONTS / 'metronome-sans-tc.woff2'

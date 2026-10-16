@@ -300,7 +300,7 @@
       },
       "body": {
         "displayName": "Body",
-        "purpose": "Base text; notes cap at 60ch. Metronome Sans TC (bundled variable Noto Sans TC 2.004 subset, wght 400-700, ~78 KB, interface characters only) leads --sans for Chinese and Latin; ± is left out so it falls to the system face. English takes proportional quotes and ellipsis via :lang(en) { font-variant-east-asian: proportional-width }. Weights in use: 400, 500, 600, 650, 700."
+        "purpose": "Base text; notes cap at 60ch. Metronome Sans TC (bundled variable Noto Sans TC 2.004 subset, wght 400-700, ~54 KB, interface characters only) leads --sans for Chinese and Latin; ± is left out so it falls to the system face. English takes proportional quotes and ellipsis via :lang(en) { font-variant-east-asian: proportional-width }. Weights in use: 400, 500, 600, 650, 700."
       },
       "label": {
         "displayName": "Label",
@@ -328,7 +328,7 @@
       },
       "title-wordmark": {
         "displayName": "Wordmark",
-        "purpose": "The app name beside the icon, in the score voice: Old Standard TT for Latin, Metronome Wordmark (Noto Serif TC Bold subset holding 節拍器 and 使用說明, unicode-range limited) for the Chinese."
+        "purpose": "The app name beside the icon, in the score voice: Old Standard TT for Latin, Metronome Wordmark (Noto Serif TC Bold subset holding only 節拍器, unicode-range limited) for the Chinese."
       },
       "display-signature-caption": {
         "displayName": "Caption Signature",
@@ -337,18 +337,6 @@
       "label-field": {
         "displayName": "Field Value",
         "purpose": "Trainer number-field values, tabular figures."
-      },
-      "headline-guide": {
-        "displayName": "Guide Heading",
-        "purpose": "The guide's h2 (使用說明 / How to use) in the score voice, an appendix heading."
-      },
-      "label-faq": {
-        "displayName": "FAQ Question",
-        "purpose": "Guide question summaries: soft chalk, full chalk when open or hovered."
-      },
-      "body-guide": {
-        "displayName": "Guide Answer",
-        "purpose": "Guide answers and the shortcut list: line-height 1.7, one 34em measure for both scripts."
       }
     },
     "shadows": [
@@ -532,19 +520,11 @@
       "description": "Bottom status message with optional yellow action; never interrupts playback; data-nosnippet keeps it out of search snippets.",
       "html": "<div class=\"ds-toast\" role=\"status\" data-nosnippet><span>Update ready</span><button class=\"ds-toast-action\">Reload</button></div>",
       "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:'Metronome Sans TC',system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-toast{display:inline-flex;align-items:center;gap:8px;padding:8px 8px 8px 16px;border-radius:14px;background:var(--ink);color:var(--ground);font:.9375rem var(--sans);box-shadow:0 10px 30px rgb(0 0 0 / 0.3)}.ds-toast-action{min-height:40px;padding:0 14px;border:0;border-radius:10px;background:var(--yellow);color:var(--on-yellow);font:700 .9375rem var(--sans);cursor:pointer}.ds-toast-action:focus-visible{outline:2px solid var(--ground);outline-offset:3px}"
-    },
-    {
-      "name": "Guide",
-      "kind": "custom",
-      "refersTo": "guide",
-      "description": "使用說明 / How to use: a quiet appendix below the settings. Score-voice heading, balanced intro, eight details.faq questions with rules between them and the trainer's chevron; answers at 1.7 in a 34em measure. The keyboard shortcuts live in the last answer.",
-      "html": "<section class=\"ds-guide\"><h2>How to use</h2><p class=\"ds-intro\">A free online metronome that works as soon as it opens.</p><details class=\"ds-faq\" open><summary>How do I read the beat pattern?</summary><p>The dot is the baton. It travels the bar the way a conductor draws it; the click sounds as it lands on each beat.</p></details><details class=\"ds-faq\"><summary>Are there keyboard shortcuts?</summary><ul class=\"ds-keys\"><li>Space Start / stop</li><li>↑↓ Change tempo (Shift ±10)</li><li>T Tap tempo</li></ul></details></section>",
-      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:'Metronome Sans TC',system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-guide{width:min(100%,36rem);margin:0 auto;padding:40px 0 32px;background:var(--ground);color:var(--ink);font:400 1rem/1.5 var(--sans)}.ds-guide h2{margin:0 0 8px;font:700 1.25rem var(--score);letter-spacing:.01em}.ds-intro{margin:0 0 20px;max-width:34em;color:var(--ink-2);font-size:.9375rem;text-wrap:balance;word-break:keep-all}.ds-faq{border-top:1px solid var(--rule)}.ds-faq:last-of-type{border-bottom:1px solid var(--rule)}.ds-faq summary{display:flex;align-items:center;gap:12px;min-height:52px;padding-block:8px;color:var(--ink-2);font-size:.9375rem;font-weight:500;cursor:pointer;list-style:none}.ds-faq summary::-webkit-details-marker{display:none}.ds-faq summary::after{content:'';flex:none;width:8px;height:8px;margin-inline:auto 6px;border-right:2px solid var(--ink-2);border-bottom:2px solid var(--ink-2);transform:translateY(-2px) rotate(45deg);transition:transform 160ms ease-out}.ds-faq[open] summary::after{transform:translateY(2px) rotate(-135deg)}.ds-faq[open] summary,.ds-faq summary:hover{color:var(--ink)}.ds-faq summary:focus-visible{outline:2px solid var(--focus);outline-offset:3px}.ds-faq p,.ds-keys{max-width:34em;margin:0 0 16px;color:var(--ink-2);font-size:.9375rem;line-height:1.7;text-wrap:pretty}.ds-keys{padding-inline-start:1.25em}"
     }
   ],
   "narrative": {
     "northStar": "The Conductor's Board",
-    "overview": "The bar is drawn the way a conductor draws it in a textbook: a beat-pattern figure (downbeat falling straight, the upbeat rising, side beats on the plane of beating) traced by a single yellow baton point that strikes each ictus on the click. The world is a music-room chalkboard: icon-navy slate owns the surface, strokes and numerals are chalk, and one yellow marks the baton and the accents. In light mode the same drawing becomes a conducting-textbook page: navy ink on cool paper, with yellow kept as a highlighter fill that always carries an ink edge.\n\nMusic notation is the type voice wherever the app speaks musically. The tempo is set as a score prints it, an Italian marking over an engraved metronome mark (\"Allegro / ♩ = 120\"); the meter is a real stacked time signature, in the legend and again in the figure's caption; the app's own name is set in the score voice; the tempo slider is an engraved metronome scale whose thumb is the pendulum's sliding weight. Everything operational (labels, buttons, settings, the guide) is a quiet sans, bundled so every device sets it the same way, so the notation reads as the content and the chrome recedes.\n\nDensity is low and glance-first: the figure takes the upper half of the screen, the tempo mark sits at arm's-length size between large − and + discs, and Start is the one filled object in the transport. Settings sit beneath as a diagram's legend on a slightly raised slate, and a short guide closes the page as a quiet appendix: the instructions live there, not in small print around the instrument. Motion exists only to show time: the baton's travel, a held strike state, one ripple per beat. Nothing flashes. The figure itself is drawn as a pen draws it, light through each rebound and pressing into each ictus, with one arrowhead on each fall and a short printed bar where the baton strikes.",
+    "overview": "The bar is drawn the way a conductor draws it in a textbook: a beat-pattern figure (downbeat falling straight, the upbeat rising, side beats on the plane of beating) traced by a single yellow baton point that strikes each ictus on the click. The world is a music-room chalkboard: icon-navy slate owns the surface, strokes and numerals are chalk, and one yellow marks the baton and the accents. In light mode the same drawing becomes a conducting-textbook page: navy ink on cool paper, with yellow kept as a highlighter fill that always carries an ink edge.\n\nMusic notation is the type voice wherever the app speaks musically. The tempo is set as a score prints it, an Italian marking over an engraved metronome mark (\"Allegro / ♩ = 120\"); the meter is a real stacked time signature, in the legend and again in the figure's caption; the app's own name is set in the score voice; the tempo slider is an engraved metronome scale whose thumb is the pendulum's sliding weight. Everything operational (labels, buttons, settings) is a quiet sans, bundled so every device sets it the same way, so the notation reads as the content and the chrome recedes.\n\nDensity is low and glance-first: the figure takes the upper half of the screen, the tempo mark sits at arm's-length size between large − and + discs, and Start is the one filled object in the transport. Settings sit beneath as a diagram's legend on a slightly raised slate and close the page; the instrument explains itself, not small print around it. Motion exists only to show time: the baton's travel, a held strike state, one ripple per beat. Nothing flashes. The figure itself is drawn as a pen draws it, light through each rebound and pressing into each ictus, with one arrowhead on each fall and a short printed bar where the baton strikes.",
     "keyCharacteristics": [
       "Navy slate (dark) or cool paper (light) surface, chalk/ink strokes, a single yellow.",
       "The beat-pattern figure is the hero and the accent control at once.",
@@ -571,7 +551,7 @@
       },
       {
         "name": "The Notation Voice Rule",
-        "body": "Any musical quantity (tempo, meter, beat number, tuplet number, tempo marking) and the app's wordmark are set in the engraved face or the score serif; any instruction or setting name is set in the sans. The guide's heading is the one prose element in the score voice, as an appendix title. Never swap them.",
+        "body": "Any musical quantity (tempo, meter, beat number, tuplet number, tempo marking) and the app's wordmark are set in the engraved face or the score serif; any instruction or setting name is set in the sans. Never swap them.",
         "section": "typography"
       },
       {
@@ -608,7 +588,7 @@
       "**Do** give every state a fill or border that survives forced colours, and keep selected states as fills distinct from the focus outline.",
       "**Do** draw the pattern with pen weight (1.5px rebound, 3.4px ictus, 4.8px downbeat) and printed 16px ictus bars, sized in screen px.",
       "**Do** degrade to plain numerals when the engraved face is unavailable rather than squeezing a fallback into engraved metrics.",
-      "**Do** put instructions in the guide, not in small text around the instrument; small text that teaches retires once it has been used.",
+      "**Do** keep small text around the instrument minimal; small text that teaches retires once it has been used, and keyboard shortcuts live in aria-keyshortcuts and tooltips, not on the page.",
       "**Do** add any new interface character to the Metronome Sans TC subset (scripts/build-fonts.py), and any new score-voice Chinese to Metronome Wordmark, rather than letting it fall through to a system face."
     ],
     "donts": [

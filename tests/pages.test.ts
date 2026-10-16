@@ -50,8 +50,8 @@ describe.each([PROJECT_SITE, ROOT_SITE])('renderPage on $url', (site) => {
       expect(html).toContain(`<html lang="${language}"`)
       expect(html).toContain(`<title>${messages.pageTitle}</title>`)
       expect(html).toContain(`<meta name="description" content="${messages.pageDescription}" />`)
-      expect(html).toContain(`data-i18n="guideTitle">${messages.guideTitle}</h2>`)
-      expect(html).toContain(`data-i18n="faqPatternA">${messages.faqPatternA}</p>`)
+      expect(html).toContain(`data-i18n="beats">${messages.beats}</span>`)
+      expect(html).toContain(`data-i18n="accentHint">${messages.accentHint}</span>`)
     }
   })
 
@@ -99,7 +99,7 @@ describe.each([PROJECT_SITE, ROOT_SITE])('renderPage on $url', (site) => {
 
 describe('renderPage', () => {
   it('rejects a message key the dictionary lacks', () => {
-    const broken = template.replace('data-i18n="guideTitle"', 'data-i18n="noSuchKey"')
+    const broken = template.replace('data-i18n="beats"', 'data-i18n="noSuchKey"')
     expect(() => renderPage(broken, 'en', ROOT_SITE)).toThrow(/noSuchKey/)
   })
 })
