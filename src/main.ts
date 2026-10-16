@@ -136,7 +136,15 @@ function update(patch: Partial<Settings>): void {
   if (patch.volume !== undefined) engine.setVolume(settings.volume)
   render()
   clearTimeout(saveTimer)
-  saveTimer = window.setTimeout(() => saveSettings(storage(), settings), 300)
+  saveTimer = window.setTimeout(saveNow, 300)
+}
+
+/** Write pending changes now (the debounced save, or the page going away with one pending). */
+function saveNow(): void {
+  if (saveTimer === undefined) return
+  clearTimeout(saveTimer)
+  saveTimer = undefined
+  saveSettings(storage(), settings)
 }
 
 const changeBpm = (delta: number) => update({ bpm: clampBpm(settings.bpm + delta) })
@@ -507,8 +515,9 @@ function bindEvents(): void {
     if (event.code === 'Space' && !isTextEntry(event.target)) event.preventDefault()
   })
 
-  // Persist immediately when the page goes away (the debounced save might not have run yet).
-  window.addEventListener('pagehide', () => saveSettings(storage(), settings))
+  // Persist a pending change when the page goes away. Only a pending one: rewriting everything
+  // would overwrite what another tab saved since (say, the other language opened there).
+  window.addEventListener('pagehide', saveNow)
 }
 
 function isTextEntry(target: EventTarget | null): boolean {
