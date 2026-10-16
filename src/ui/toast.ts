@@ -11,8 +11,6 @@ export interface ToastOptions {
   dismissed?: () => void
   /** Language of the message and action when it isn't the page's (an offer of the other language). */
   lang?: string
-  /** Under the header instead of over the transport: for an offer made as the page opens. */
-  top?: boolean
   /** Stays until closed even without an action (steps to follow at leisure). */
   sticky?: boolean
 }
@@ -76,6 +74,14 @@ export function dismissToast(message: MessageKey): void {
   }
 }
 
+/** Remove a persistent toast the user has passed over, as if they had closed it. */
+export function declineToast(message: MessageKey): void {
+  const declined = persistent.find((item) => item.message === message)
+  if (!declined) return
+  dismissToast(message)
+  declined.dismissed?.()
+}
+
 function clearTransient(): void {
   clearTimeout(hideTimer)
   transient = null
@@ -93,5 +99,4 @@ export function render(): void {
     if (current.lang) part.lang = current.lang
     else part.removeAttribute('lang')
   }
-  toast.classList.toggle('top', Boolean(current.top))
 }

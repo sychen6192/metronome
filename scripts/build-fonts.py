@@ -17,19 +17,31 @@ the three glyphs of the Chinese app name, 節拍器, so the wordmark is set in a
 matches the score face. Renamed "Metronome Wordmark"; licence in src/fonts/LICENSE-NotoSerifTC.txt.
 The stylesheet's unicode-range for it lists the same characters (tests/fonts.test.ts checks them).
 
+src/fonts/metronome-score-italic.woff2, from Old Standard TT Italic (SIL OFL 1.1, the Old Standard
+Project Authors): only the letters of the tempo changes the speed trainer writes on the stage,
+"accel." and "rit." (TEMPO_CHANGES in src/core/tempo.ts), set in the score's italic as a score sets
+them. Renamed "Metronome Score Italic" like the other subsets; licence in
+src/fonts/LICENSE-OldStandardTT.txt. The stylesheet's unicode-range for it lists the same characters
+(tests/fonts.test.ts checks them).
+
 src/fonts/metronome-sans-tc.woff2, from Noto Sans TC (SIL OFL 1.1, Google / Adobe): the interface
 text, Chinese and Latin, so it looks the same on every device instead of each system's own fonts.
 A variable font kept to weights 400-700 (one file for every weight the stylesheet uses). Only the
 characters the interface can show are kept: printable ASCII, plus every character of index.html and
-the TypeScript sources (the strings live there) that is Latin-1, general punctuation, an arrow, CJK
-or a full-width form, except ± (full-width only in this font; the next font in the stack sets it).
+the TypeScript sources (the strings live there) that is Latin-1, general punctuation, an arrow, the
+minus sign, CJK or a full-width form, except ± (full-width only in this font; the next font in the
+stack sets it).
 They are listed in src/fonts/metronome-sans-tc.txt, which a test compares with the sources
 (tests/fonts.test.ts). Renamed "Metronome Sans TC"; licence in
 src/fonts/LICENSE-NotoSansTC.txt. Re-run after adding text with new characters.
 
 Usage (needs fonttools and brotli; build what you pass):
     python3 scripts/build-fonts.py [--bravura Bravura.woff2] [--serif NOTO_SERIF_TC] [--sans NOTO_SANS_TC]
+                                   [--italic OLD_STANDARD_ITALIC]
 Bravura: https://github.com/steinbergmedia/bravura (redist/woff/Bravura.woff2)
+Old Standard TT Italic, from Google Fonts,
+https://raw.githubusercontent.com/google/fonts/1d0e46c7933245c8180fe83e47917961c913bbdb/ofl/oldstandardtt/OldStandard-Italic.ttf
+(sha256 4b9522f4711317fc06e2413a58b4662c249cb707df193d682b9d640e365ef564)
 Noto Serif TC: the variable font from Google Fonts, version 2.003 (instanced at weight 700),
 https://raw.githubusercontent.com/google/fonts/1d0e46c7933245c8180fe83e47917961c913bbdb/ofl/notoseriftc/NotoSerifTC%5Bwght%5D.ttf
 (sha256 0077e18f57c6908f4a000969880940bdb0dad057c0e8d98b49dc364c3d1b09c6)
@@ -57,6 +69,10 @@ WORDMARK_OUT = FONTS / 'metronome-wordmark.woff2'
 # The Chinese app name (zh-Hant appTitle in src/i18n.ts).
 WORDMARK_TEXT = '節拍器'
 WORDMARK_WEIGHT = 700
+ITALIC_FAMILY = 'Metronome Score Italic'
+ITALIC_OUT = FONTS / 'metronome-score-italic.woff2'
+# The letters of "accel." and "rit." (TEMPO_CHANGES in src/core/tempo.ts).
+ITALIC_TEXT = 'accel.rit'
 SANS_FAMILY = 'Metronome Sans TC'
 SANS_OUT = FONTS / 'metronome-sans-tc.woff2'
 SANS_CHARS = FONTS / 'metronome-sans-tc.txt'
@@ -65,9 +81,10 @@ SANS_WEIGHTS = (400, 400, 700)
 # Where the interface's text lives.
 TEXT_SOURCES = ('index.html', 'src/**/*.ts')
 # Ranges of the characters the interface font covers (tests/fonts.test.ts has the same list):
-# printable ASCII, Latin-1, general punctuation, arrows, CJK punctuation, ideographs, full-width forms.
-SANS_RANGES = ((0x20, 0x7E), (0xA0, 0xFF), (0x2000, 0x206F), (0x2190, 0x21FF), (0x3000, 0x303F),
-               (0x3400, 0x9FFF), (0xFF00, 0xFFEF))
+# printable ASCII, Latin-1, general punctuation, arrows, the minus sign, CJK punctuation, ideographs,
+# full-width forms.
+SANS_RANGES = ((0x20, 0x7E), (0xA0, 0xFF), (0x2000, 0x206F), (0x2190, 0x21FF), (0x2212, 0x2212),
+               (0x3000, 0x303F), (0x3400, 0x9FFF), (0xFF00, 0xFFEF))
 # Left to the next font in the stack: Noto Sans TC has only a full-width ± (no proportional form),
 # and here it always sits next to Latin digits ("Shift ±10").
 SANS_SKIP = '±'
@@ -186,6 +203,24 @@ def build_wordmark(source: str) -> None:
     save(font, WORDMARK_OUT)
 
 
+def build_italic(source: str) -> None:
+    font = TTFont(source)
+    missing = [c for c in ITALIC_TEXT if ord(c) not in font.getBestCmap()]
+    if missing:
+        sys.exit(f'{source} lacks {"".join(missing)}')
+    options = subset.Options()
+    options.layout_features = ['kern']
+    options.name_IDs = [0, 1, 2, 3, 4, 5, 6, 13, 14]
+    options.notdef_outline = True
+    subsetter = subset.Subsetter(options)
+    subsetter.populate(text=ITALIC_TEXT)
+    subsetter.subset(font)
+    rename(font, ITALIC_FAMILY, 'MetronomeScoreItalic-Italic', 'Old Standard TT Italic by the Old Standard Project Authors',
+           '(only the letters of accel. and rit.). Not the original Old Standard TT.')
+    set_style(font, 'Italic')
+    save(font, ITALIC_OUT)
+
+
 def in_sans(char: str) -> bool:
     code = ord(char)
     return char not in SANS_SKIP and any(low <= code <= high for low, high in SANS_RANGES)
@@ -235,12 +270,15 @@ if __name__ == '__main__':
     parser.add_argument('--bravura', help='Bravura.woff2, for metronome-engraved.woff2')
     parser.add_argument('--serif', help='Noto Serif TC (variable, or a bold build), for metronome-wordmark.woff2')
     parser.add_argument('--sans', help='Noto Sans TC variable font, for metronome-sans-tc.woff2')
+    parser.add_argument('--italic', help='Old Standard TT Italic, for metronome-score-italic.woff2')
     args = parser.parse_args()
-    if not (args.bravura or args.serif or args.sans):
-        parser.error('nothing to build: pass --bravura, --serif and/or --sans')
+    if not (args.bravura or args.serif or args.sans or args.italic):
+        parser.error('nothing to build: pass --bravura, --serif, --sans and/or --italic')
     if args.bravura:
         main(args.bravura)
     if args.serif:
         build_wordmark(args.serif)
     if args.sans:
         build_sans(args.sans)
+    if args.italic:
+        build_italic(args.italic)

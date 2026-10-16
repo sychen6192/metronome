@@ -34,6 +34,16 @@ export function tempoMarking(bpm: number): string {
   return 'Prestissimo'
 }
 
+/** How a score writes a gradual tempo change: accelerando (faster) or ritardando (slower). */
+export const TEMPO_CHANGES = { faster: 'accel.', slower: 'rit.' } as const
+
+/** The tempo change from `bpm` on the way to `target`, or null when already there. */
+export function tempoChange(bpm: number, target: number): string | null {
+  if (target > bpm) return TEMPO_CHANGES.faster
+  if (target < bpm) return TEMPO_CHANGES.slower
+  return null
+}
+
 /**
  * Move `bpm` one `step` towards `target` without overshooting.
  * Used by the speed trainer, which can ramp either up or down.

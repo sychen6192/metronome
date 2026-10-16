@@ -41,17 +41,38 @@
               <div id="beat-buttons" class="beat-buttons" role="group" data-i18n-label="beatsGroup" aria-label="小節拍點"></div>
             </div>
             <figcaption class="caption">
-              <span class="caption-meter" aria-hidden="true"><span id="caption-beats">4</span><span>4</span></span>
+              <span class="meter" role="group" data-i18n-label="beats" aria-label="拍數">
+                <button id="fewer-beats" class="step small" type="button" data-i18n-label="fewerBeats" aria-label="減少拍數">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12" /></svg>
+                </button>
+                <span class="time-signature" aria-hidden="true"><span id="caption-beats">4</span><span>4</span></span>
+                <output id="beats-value" class="sr-only" aria-live="polite">4</output>
+                <button id="more-beats" class="step small" type="button" data-i18n-label="moreBeats" aria-label="增加拍數">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12M12 6v12" /></svg>
+                </button>
+              </span>
               <span id="hint" class="hint" data-i18n="accentHint">點數字切換：重音 → 一般 → 靜音</span>
             </figcaption>
           </figure>
 
           <div id="tempo" class="tempo">
-            <button id="slower" class="step" type="button" data-i18n-label="slower" aria-label="減慢" aria-keyshortcuts="ArrowDown Shift+ArrowDown">
+            <button id="slower" class="step" type="button" data-i18n-label="slower" data-i18n-title="slowerTitle" aria-label="減慢" aria-keyshortcuts="ArrowDown Shift+ArrowDown">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /></svg>
             </button>
             <p class="tempo-mark">
-              <span id="marking" class="marking">Allegro</span>
+              <span class="marking">
+                <span id="marking">Allegro</span>
+                <!-- While the speed trainer is on: where it is taking the tempo, as a score marks it. -->
+                <span id="direction" class="direction" hidden>
+                  <span class="direction-line" aria-hidden="true">
+                    <span id="direction-change" class="direction-change">accel.</span>
+                    <span class="direction-arrow">→</span>
+                    <span class="direction-mark"><span class="mark-note">&#xECA5;</span><span class="mark-equals">=</span><span id="direction-target">160</span></span>
+                    <span id="direction-rule" class="direction-rule"></span>
+                  </span>
+                  <span id="direction-text" class="sr-only"></span>
+                </span>
+              </span>
               <span class="metronome-mark">
                 <span class="mark-note" aria-hidden="true">&#xECA5;</span>
                 <span class="mark-equals" aria-hidden="true">=</span>
@@ -59,7 +80,7 @@
                 <span class="sr-only">BPM</span>
               </span>
             </p>
-            <button id="faster" class="step" type="button" data-i18n-label="faster" aria-label="加快" aria-keyshortcuts="ArrowUp Shift+ArrowUp">
+            <button id="faster" class="step" type="button" data-i18n-label="faster" data-i18n-title="fasterTitle" aria-label="加快" aria-keyshortcuts="ArrowUp Shift+ArrowUp">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5v14" /></svg>
             </button>
           </div>
@@ -67,6 +88,8 @@
           <div class="ruler">
             <input id="bpm-slider" class="slider" type="range" min="20" max="300" step="1" value="120" data-i18n-label="tempo" aria-label="速度" />
             <div id="ruler-scale" class="ruler-scale" aria-hidden="true"></div>
+            <!-- The speed trainer's target, pencilled on the scale where the weight is heading. -->
+            <div class="ruler-track" aria-hidden="true"><span id="ruler-target" class="ruler-target" hidden></span></div>
           </div>
 
           <div class="transport">
@@ -76,36 +99,19 @@
               </svg>
               <span data-i18n="tap">打拍</span>
             </button>
-            <button id="play" class="primary" type="button" aria-keyshortcuts="Space">
+            <button id="play" class="primary" type="button" data-i18n-title="playTitle" aria-keyshortcuts="Space">
               <svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 5.2v13.6L18.6 12z" /></svg>
               <svg class="icon-stop" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="1.6" /></svg>
               <span id="play-label" data-i18n="play">開始</span>
             </button>
             <button id="trainer-toggle" class="secondary" type="button" aria-pressed="false" data-i18n-label="trainerToggle">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 17.5 9 12l4 4 7.5-7.5m0 0H15m5.5 0V14" /></svg>
-              <span data-i18n="trainerShort">練習</span>
+              <span data-i18n="trainerShort">加速</span>
             </button>
           </div>
         </section>
 
         <section class="settings">
-          <div class="row">
-            <span id="beats-label" class="label" data-i18n="beats">拍數</span>
-            <div class="meter" role="group" aria-labelledby="beats-label">
-              <button id="fewer-beats" class="step small" type="button" data-i18n-label="fewerBeats" aria-label="減少拍數">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12" /></svg>
-              </button>
-              <span class="time-signature" aria-hidden="true">
-                <span id="meter-top">4</span>
-                <span>4</span>
-              </span>
-              <output id="beats-value" class="sr-only" aria-live="polite">4</output>
-              <button id="more-beats" class="step small" type="button" data-i18n-label="moreBeats" aria-label="增加拍數">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12M12 6v12" /></svg>
-              </button>
-            </div>
-          </div>
-
           <div class="row">
             <span id="subdivision-label" class="label" data-i18n="subdivision">細分拍</span>
             <div id="subdivisions" class="segmented" role="radiogroup" aria-labelledby="subdivision-label"></div>
@@ -121,11 +127,11 @@
             <input id="volume" class="slider" type="range" min="0" max="100" step="1" value="80" />
           </div>
 
-          <details id="trainer" class="trainer">
-            <summary>
-              <span class="label" data-i18n="trainer">速度練習</span>
-              <span id="trainer-state" class="state"></span>
-            </summary>
+          <div class="trainer" role="group" aria-labelledby="trainer-label">
+            <div class="trainer-head">
+              <span id="trainer-label" class="label" data-i18n="trainer">加速練習</span>
+              <button id="trainer-switch" class="switch" type="button" role="switch" aria-checked="false" aria-labelledby="trainer-label"></button>
+            </div>
             <div class="trainer-grid">
               <label>
                 <span data-i18n="trainerStep">每次調整（BPM）</span>
@@ -141,7 +147,7 @@
               </label>
             </div>
             <p class="note" data-i18n="trainerHint"></p>
-          </details>
+          </div>
 
           <p class="support">
             <a href="https://buymeacoffee.com/sychen6192" target="_blank" rel="noopener">
