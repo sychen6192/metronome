@@ -14,6 +14,15 @@
   font-display: swap;
 }
 
+/* The Chinese app name in a Ming serif that matches the score face (three glyphs only). */
+@font-face {
+  font-family: 'Metronome Wordmark';
+  font-weight: 700;
+  src: url('./fonts/metronome-wordmark.woff2') format('woff2');
+  font-display: swap;
+  unicode-range: U+5668, U+62CD, U+7BC0;
+}
+
 :root {
   color-scheme: dark;
   /* Slate: the icon's navy owns the surface. */
@@ -37,6 +46,7 @@
   --sans: system-ui, -apple-system, 'Segoe UI', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
   --score: 'Old Standard TT', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
   --engraved: 'Metronome Engraved', var(--score);
+  --wordmark: 'Old Standard TT', 'Metronome Wordmark', var(--score);
 
   font-family: var(--sans);
   font-size: 100%;
@@ -166,14 +176,16 @@ button svg {
   min-height: 60px;
 }
 
+/* The wordmark speaks in the score voice, like the tempo mark. */
 .brand {
   display: flex;
   align-items: center;
   gap: 10px;
   margin: 0;
-  font-size: 1.0625rem;
-  font-weight: 650;
-  letter-spacing: 0.01em;
+  font-family: var(--wordmark);
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   white-space: nowrap;
 }
 
@@ -257,7 +269,7 @@ button svg {
 .pattern {
   position: relative;
   width: min(100%, 520px);
-  width: min(100%, clamp(320px, (100svh - 448px) * 20 / 13, 720px));
+  width: min(100%, clamp(320px, (100svh - 460px) * 20 / 13, 720px));
   aspect-ratio: 20 / 13;
   margin: 8px auto 0;
 }
@@ -270,13 +282,9 @@ button svg {
   overflow: visible;
 }
 
+/* Pen strokes drawn as filled outlines: light on the rebound, pressing into each ictus. */
 .pattern-path {
-  fill: none;
-  stroke: var(--path);
-  stroke-width: 2.4px;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  vector-effect: non-scaling-stroke;
+  fill: var(--path);
 }
 
 .tick {
@@ -284,15 +292,24 @@ button svg {
   opacity: 0.35;
 }
 
+/* Each ictus is printed as a short bar: the plane the baton strikes. */
 .ictus {
-  fill: var(--ink);
+  stroke: var(--ink);
+  stroke-width: 3px;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
   transition: transform 160ms ease-out;
   transform-box: fill-box;
   transform-origin: center;
 }
 
 .ictus.active {
-  transform: scale(1.5);
+  transform: scaleX(1.5);
+}
+
+/* The upbeat's mark runs left from its ictus, away from the numeral beside it. */
+.ictus.upbeat {
+  transform-origin: 100% 50%;
 }
 
 .ripple {
@@ -401,12 +418,30 @@ button svg {
   color: var(--ink-2);
 }
 
-/* Clear of the numerals that hang below the figure; wraps if it must. */
+/* Captioned as a textbook captions its diagram: the metre, then how to use the numerals. Clear of
+   the numerals that hang below the figure; the hint wraps if it must. */
+.caption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 20px 0 0;
+}
+
+.caption-meter {
+  display: grid;
+  flex: none;
+  justify-items: center;
+  color: var(--ink-2);
+  font-family: var(--engraved);
+  font-size: 1.5rem;
+  line-height: 0.56;
+}
+
 .hint {
-  margin: 16px 0 0;
   color: var(--ink-3);
   font-size: 0.8125rem;
-  text-align: center;
+  text-wrap: balance;
 }
 
 /* Tempo set the way a score prints it: "Allegro  ♩ = 120", with − and + level with the numerals. */
@@ -1118,17 +1153,32 @@ button svg {
   line-height: 1;
 }
 
+.no-engraved .caption-meter {
+  font-size: 0.8125rem;
+  line-height: 1;
+}
+
+/* The tuplet 3 of the subdivision icons comes from the engraved face too. */
+.tuplet-plain,
+.no-engraved .tuplet {
+  display: none;
+}
+
+.no-engraved .tuplet-plain {
+  display: inline;
+}
+
 /* Windows Contrast themes: backgrounds turn to Canvas and shadows vanish, so every state gets a
    border or a system-colour fill. Selected/active states are fills, never outlines, so they
    cannot be mistaken for the focus ring. Vendor pseudo-elements stay in separate rules. */
 @media (forced-colors: active) {
-  .pattern-path {
-    stroke: CanvasText;
+  .pattern-path,
+  .tick {
+    fill: CanvasText;
   }
 
-  .tick,
   .ictus {
-    fill: CanvasText;
+    stroke: CanvasText;
   }
 
   .baton {

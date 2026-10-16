@@ -1,9 +1,11 @@
 import {
   PATTERN_BOX,
+  TICK_RADIUS,
   batonProgress,
+  drawPattern,
   patternGeometry,
-  patternPath,
   pointOnSegment,
+  shapesPath,
   type PatternGeometry,
   type Point,
 } from '../core/pattern'
@@ -42,6 +44,8 @@ export class BeatPattern {
   private struck: HTMLElement | null = null
   /** Stopped: the baton waits at the top and follows the pattern when the meter changes. */
   private resting = true
+  /** Screen px per drawing unit. */
+  private scale = 1
 
   constructor(
     private readonly figure: HTMLElement,
@@ -60,10 +64,13 @@ export class BeatPattern {
     this.baton = svg('circle', { class: 'baton', r: 13 })
     drawing.append(this.path, this.ticks, this.marks, this.ripples, this.baton)
     figure.prepend(drawing)
-    // The drawing scales with the figure; the baton keeps a steady size on screen.
+    // The drawing scales with the figure; pen widths, marks and the baton keep their size on screen.
     new ResizeObserver(([entry]) => {
       const width = entry?.contentRect.width ?? 0
-      if (width > 0) this.baton.setAttribute('r', ((batonRadius(width) * PATTERN_BOX.width) / width).toFixed(2))
+      if (width <= 0) return
+      this.scale = width / PATTERN_BOX.width
+      this.baton.setAttribute('r', (batonRadius(width) / this.scale).toFixed(2))
+      this.drawStrokes()
     }).observe(figure)
     this.rest()
   }
@@ -75,20 +82,18 @@ export class BeatPattern {
     if (rebuild) {
       this.clearStrike()
       this.geometry = patternGeometry(beats)
-      this.path.setAttribute('d', patternPath(this.geometry))
-      this.marks.replaceChildren(
-        ...this.geometry.ictus.map((point) => svg('circle', { class: 'ictus', cx: point.x, cy: point.y, r: 5 })),
-      )
+      this.marks.replaceChildren(...this.geometry.ictus.map(() => svg('line', { class: 'ictus' })))
       this.ripples.replaceChildren(
         ...this.geometry.ictus.map((point) => svg('circle', { class: 'ripple', cx: point.x, cy: point.y, r: 22 })),
       )
       this.layoutButtons(beats)
       if (this.resting) this.placeBaton(this.geometry.rest)
     }
-    // Ticks sit on the segments, so a new meter needs them redrawn as well.
+    // Ticks sit on the segments, so a new meter needs them redrawn as well; arrows avoid them.
     if (rebuild || offsets !== this.offsets) {
       this.offsets = offsets
       this.drawTicks()
+      this.drawStrokes()
     }
     accents.forEach((accent, beat) => {
       const button = this.buttons.children[beat] as HTMLElement
@@ -146,6 +151,20 @@ export class BeatPattern {
     this.marks.querySelector('.active')?.classList.remove('active')
   }
 
+  /** The pattern's strokes, arrowheads and ictus marks at the current on-screen scale. */
+  private drawStrokes(): void {
+    const { shapes, marks } = drawPattern(this.geometry, this.scale, this.offsets)
+    this.path.setAttribute('d', shapesPath(shapes))
+    marks.forEach(({ a, b, upbeat }, beat) => {
+      const mark = this.marks.children[beat]
+      mark?.setAttribute('x1', a.x.toFixed(2))
+      mark?.setAttribute('x2', b.x.toFixed(2))
+      mark?.setAttribute('y1', a.y.toFixed(2))
+      mark?.setAttribute('y2', b.y.toFixed(2))
+      mark?.classList.toggle('upbeat', upbeat)
+    })
+  }
+
   private placeBaton(point: Point): void {
     this.baton.setAttribute('cx', point.x.toFixed(1))
     this.baton.setAttribute('cy', point.y.toFixed(1))
@@ -175,7 +194,7 @@ export class BeatPattern {
       this.offsets.forEach((offset, sub) => {
         if (sub === 0) return
         const point = pointOnSegment(segment, batonProgress(offset))
-        ticks.push(svg('circle', { class: 'tick', cx: point.x, cy: point.y, r: 3.2, 'data-beat': beat, 'data-sub': sub }))
+        ticks.push(svg('circle', { class: 'tick', cx: point.x, cy: point.y, r: TICK_RADIUS, 'data-beat': beat, 'data-sub': sub }))
       })
     })
     this.ticks.replaceChildren(...ticks)

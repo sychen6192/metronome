@@ -47,6 +47,10 @@ typography:
     fontWeight: 700
     lineHeight: 1
     fontFeature: "lnum"
+  display-signature-caption:
+    fontFamily: "'Metronome Engraved', 'Old Standard TT', Georgia, serif"
+    fontSize: "1.5rem"
+    lineHeight: 0.56
   display-signature-fallback:
     fontFamily: "'Old Standard TT', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif"
     fontSize: "1.5rem"
@@ -56,16 +60,21 @@ typography:
     fontSize: "0.8125rem"
     fontWeight: 700
     lineHeight: 1
-  title:
-    fontFamily: "system-ui, -apple-system, 'Segoe UI', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif"
-    fontSize: "1.0625rem"
-    fontWeight: 650
-    letterSpacing: "0.01em"
+  title-wordmark:
+    fontFamily: "'Old Standard TT', 'Metronome Wordmark', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif"
+    fontSize: "1.125rem"
+    fontWeight: 700
+    letterSpacing: "0.02em"
   body:
     fontFamily: "system-ui, -apple-system, 'Segoe UI', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif"
     fontSize: "1rem"
     fontWeight: 400
     lineHeight: 1.5
+  label-field:
+    fontFamily: "system-ui, -apple-system, 'Segoe UI', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif"
+    fontSize: "1.0625rem"
+    fontWeight: 400
+    fontFeature: "tnum"
   label-strong:
     fontFamily: "system-ui, -apple-system, 'Segoe UI', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif"
     fontSize: "1.125rem"
@@ -173,14 +182,15 @@ components:
 
 The bar is drawn the way a conductor draws it in a textbook: a beat-pattern figure (downbeat falling straight, the upbeat rising, side beats on the plane of beating) traced by a single yellow baton point that strikes each ictus on the click. The world is a music-room chalkboard: icon-navy slate owns the surface, strokes and numerals are chalk, and one yellow marks the baton and the accents. In light mode the same drawing becomes a conducting-textbook page: navy ink on cool paper, with yellow kept as a highlighter fill that always carries an ink edge.
 
-Music notation is the type voice wherever the app speaks musically. The tempo is set as a score prints it, an Italian marking over an engraved metronome mark ("Allegro / ♩ = 120"); the meter is a real stacked time signature; the tempo slider is an engraved metronome scale whose thumb is the pendulum's sliding weight. Everything operational (labels, buttons, settings) is quiet system sans, so the notation reads as the content and the chrome recedes.
+Music notation is the type voice wherever the app speaks musically. The tempo is set as a score prints it, an Italian marking over an engraved metronome mark ("Allegro / ♩ = 120"); the meter is a real stacked time signature, in the legend and again in the figure's caption; the app's own name is set in the score voice; the tempo slider is an engraved metronome scale whose thumb is the pendulum's sliding weight. Everything operational (labels, buttons, settings) is quiet system sans, so the notation reads as the content and the chrome recedes.
 
-Density is low and glance-first: the figure takes the upper half of the screen, the tempo mark sits at arm's-length size between large − and + discs, and Start is the one filled object in the transport. Settings sit beneath as a diagram's legend on a slightly raised slate. Motion exists only to show time: the baton's travel, a held strike state, one ripple per beat. Nothing flashes.
+Density is low and glance-first: the figure takes the upper half of the screen, the tempo mark sits at arm's-length size between large − and + discs, and Start is the one filled object in the transport. Settings sit beneath as a diagram's legend on a slightly raised slate. Motion exists only to show time: the baton's travel, a held strike state, one ripple per beat. Nothing flashes. The figure itself is drawn as a pen draws it, light through each rebound and pressing into each ictus, with one arrowhead on each fall and a short printed bar where the baton strikes.
 
 **Key Characteristics:**
 - Navy slate (dark) or cool paper (light) surface, chalk/ink strokes, a single yellow.
 - The beat-pattern figure is the hero and the accent control at once.
-- Engraved Bravura-derived numerals and Old Standard TT for everything musical; system sans for chrome.
+- Engraved Bravura-derived numerals and Old Standard TT for everything musical and for the wordmark; system sans for chrome.
+- Pen-weighted strokes, arrowheads and ictus bars hold their on-screen size at every figure size.
 - Round and pill forms throughout; flat surfaces with one soft lift under Start.
 - Strike states are held, not flashed; reduced motion keeps the information and drops the travel.
 
@@ -195,11 +205,11 @@ A two-theme monochrome-navy system with exactly one chromatic accent, yellow, sh
 - **Icon Navy Slate** (#172036): The page ground, taken from the app icon tile. Also the text colour on yellow and on chalk fills.
 - **Raised Slate** (#1d2742): The settings legend panel and hover fill for stage controls.
 - **Deep Slate** (#111a2d): Hover fill for controls inside the raised settings panel.
-- **Chalk** (#eceff6): Primary text, numerals, ictus dots, the struck-beat fill, selected segment and pressed language fill, the toast surface.
-- **Soft Chalk** (#b4bdd2): Row labels, ruler markings, unselected segment icons, the language buttons, the select chevron.
+- **Chalk** (#eceff6): Primary text, numerals, ictus bars, the struck-beat fill, selected segment and pressed language fill, the toast surface.
+- **Soft Chalk** (#b4bdd2): Row labels, the figure caption's time signature, ruler markings, unselected segment icons, the language buttons, the select chevron.
 - **Faint Chalk** (#8792ad): Hints, shortcut list, muted-beat numerals, subdivision ticks, ruler tick marks (5.2:1 on slate).
 - **Slate Rule** (#33405f): Hairlines between legend rows and the borders of step, secondary, segment and field controls. Decorative only.
-- **Chalk Path** (chalk at 60%): The drawn beat-pattern stroke and the ring of a normal beat numeral.
+- **Chalk Path** (chalk at 60%): The beat-pattern pen strokes and their arrowheads (one evenly filled path) and the ring of a normal beat numeral.
 
 ### Neutral (light: the textbook page)
 - **Cool Paper** (#f3f5f9), **Raised Paper** (#e7ebf3), **Deep Paper** (#d9dfeb): the same three ground roles as the slate set.
@@ -216,8 +226,9 @@ A two-theme monochrome-navy system with exactly one chromatic accent, yellow, sh
 
 ## Typography
 
-**Display Font:** Metronome Engraved (a subset of Bravura: SMuFL time-signature digits mapped to ASCII 0-9 and the metronome-mark note glyphs), falling back to Old Standard TT and the serif stack
+**Display Font:** Metronome Engraved (a subset of Bravura: SMuFL time-signature digits mapped to ASCII 0-9, the metronome-mark note glyphs and the tuplet 3, U+E883), falling back to Old Standard TT and the serif stack
 **Score Font:** Old Standard TT Bold (with Iowan Old Style, Palatino, Georgia)
+**Wordmark Font:** Old Standard TT for Latin, with Metronome Wordmark for 節拍器 (a three-glyph subset of Noto Serif TC Bold, SIL OFL 1.1, limited by `unicode-range` to those three characters), then the score stack
 **Body Font:** system-ui with PingFang TC / Noto Sans TC / Microsoft JhengHei for Traditional Chinese
 
 **Character:** Engraved music numerals and a Didone-flavoured score serif carry every musical value; a neutral system sans carries every instruction, so the two never compete.
@@ -228,23 +239,25 @@ A two-theme monochrome-navy system with exactly one chromatic accent, yellow, sh
 - **Headline, tempo marking** (Old Standard 700, 1.375rem, 1.2, +0.01em): the Italian marking above the mark.
 - **Title, beat numerals** (Old Standard 700, 1.25rem, lining figures): the numerals on the figure.
 - **Title, crowded numerals** (Old Standard 700, 0.875rem, lining figures): beat numerals in bars of more than 8 beats, sitting on their ictus.
-- **Display, signature fallback** (Old Standard, 1.5rem, line-height 1): the time signature as plain digits when the engraved face is unavailable.
+- **Display, caption signature** (engraved, 1.5rem, line-height 0.56, soft chalk): the stacked meter that opens the figure's caption; decorative (`aria-hidden`) because the legend carries the real value.
+- **Display, signature fallback** (Old Standard, 1.5rem, line-height 1): the legend's time signature as plain digits when the engraved face is unavailable. The caption signature falls back to 0.8125rem at line-height 1.
 - **Label, score** (Old Standard 700, 0.8125rem): Italian markings engraved on the ruler.
-- **Title, brand** (sans 650, 1.0625rem, +0.01em): the app name beside the icon.
+- **Title, wordmark** (Old Standard / Metronome Wordmark 700, 1.125rem, +0.02em): the app name beside the icon, in the score voice like the tempo marking.
 - **Body** (sans 400, 1rem, 1.5): base text; long notes cap at 60ch.
+- **Label field** (sans 400, 1.0625rem, tabular figures): values typed into the trainer's number fields.
 - **Label strong** (sans 700, 1.125rem): the Start / Stop label only.
 - **Label** (sans 600, 0.9375rem): row labels and secondary buttons.
 - **Label note** (sans, 0.875rem): trainer state, the trainer note paragraph, the Install text-button label.
-- **Label small** (sans, 0.8125rem): the accent hint under the figure, language switch, trainer field labels, shortcuts, and the stacked secondary labels at 380px and below.
+- **Label small** (sans, 0.8125rem, balanced wrapping): the accent hint beside the caption signature, language switch, trainer field labels, shortcuts, and the stacked secondary labels at 380px and below.
 
 ### Named Rules
-**The Notation Voice Rule.** Any musical quantity (tempo, meter, beat number, tempo marking) is set in the engraved face or Old Standard; any instruction or setting name is set in system sans. Never swap them.
+**The Notation Voice Rule.** Any musical quantity (tempo, meter, beat number, tuplet number, tempo marking) and the app's wordmark are set in the engraved face or the score serif; any instruction or setting name is set in system sans. Never swap them.
 
-**The Engraved Fallback Rule.** If the engraved face fails to load (detected through `document.fonts.load`, e.g. iOS Lockdown Mode), the root takes a `no-engraved` class: the note and "=" are hidden, the BPM drops to plain numerals at up to 5rem with line-height 1, and the time signature takes the signature-fallback step. The tight engraved metrics are never applied to a substitute face.
+**The Engraved Fallback Rule.** If the engraved face fails to load (detected through `document.fonts.load`, e.g. iOS Lockdown Mode), the root takes a `no-engraved` class: the note and "=" are hidden, the BPM drops to plain numerals at up to 5rem with line-height 1, the time signatures take their fallback sizes, and the subdivision icons' tuplet 3 becomes a plain Old Standard digit. The tight engraved metrics are never applied to a substitute face.
 
 ## Layout
 
-A single column, centred, max 1080px wide with 16px side padding (32px from 900px). The playing stage comes first and fills the first viewport: the pattern figure (aspect 20:13, sized `min(100%, clamp(320px, (100svh - 448px) * 20/13, 720px))` so the tempo, ruler and Start still fit beneath), then the tempo block (max 440px, a three-column grid of − / mark / +), the ruler, and the transport (a 1fr / auto / 1fr grid with Start centred between Tap and Trainer). From 900px the stage narrows to 760px and the settings become a two-column legend panel (48px column gap) with the trainer and shortcuts spanning both.
+A single column, centred, max 1080px wide with 16px side padding (32px from 900px). The playing stage comes first and fills the first viewport: the pattern figure (aspect 20:13, sized `min(100%, clamp(320px, (100svh - 460px) * 20/13, 720px))` so the caption, tempo, ruler and Start still fit beneath), its caption row 20px below, then the tempo block (max 440px, a three-column grid of − / mark / +), the ruler, and the transport (a 1fr / auto / 1fr grid with Start centred between Tap and Trainer). From 900px the stage narrows to 760px and the settings become a two-column legend panel (48px column gap) with the trainer and shortcuts spanning both.
 
 Spacing runs on a 4px base: 4 / 8 / 12 / 16 / 24 / 32 / 48, with 14px as the stage's internal gap and the meter gap. Legend rows are at least 64px tall with a hairline beneath.
 
@@ -263,7 +276,7 @@ Flat by default. Depth comes from tonal grounds (slate, raised slate for the leg
 
 ## Shapes
 
-Circles and pills. Beat numerals, step (−/+) buttons, ictus dots, the baton and slider thumbs are true circles; Start, secondary buttons, the language switch and the volume track are full pills (999px); at 380px and below the stacked secondary buttons become 20px rounded panels. Rectangular containers use gently rounded corners: 10px for segments, the select, number fields and toast buttons; 14px for the toast; 20px for the wide-screen legend panel, the text button and the stacked secondary buttons. The ruler's sliding weight is the one rounded rectangle (7px), a deliberate pendulum-weight silhouette. Borders are 1.5px for controls, 2px for beat rings (1.5px when crowded), 1px for hairlines. Line icons are 24-unit SVG strokes at 2px with round caps and joins, drawn at 18-24px.
+Circles and pills. Beat numerals, step (−/+) buttons, the baton and slider thumbs are true circles; Start, secondary buttons, the language switch and the volume track are full pills (999px); at 380px and below the stacked secondary buttons become 20px rounded panels. Rectangular containers use gently rounded corners: 10px for segments, the select, number fields and toast buttons; 14px for the toast; 20px for the wide-screen legend panel, the text button and the stacked secondary buttons. The ruler's sliding weight is the one rounded rectangle (7px), a deliberate pendulum-weight silhouette. Borders are 1.5px for controls, 2px for beat rings (1.5px when crowded), 1px for hairlines. The figure's pen strokes are filled outlines with round ends that swell from 1.5px to 3.4px (4.8px into the downbeat); ictus marks are 3px round-capped bars; arrowheads are plain filled triangles. Line icons are 24-unit SVG strokes at 2px with round caps and joins, drawn at 18-24px.
 
 ## Components
 
@@ -277,7 +290,7 @@ Few, large, round and forgiving.
 
 ### Chips / Segmented control
 - **Language switch:** a 1px-ruled pill holding two 34px pills; the pressed language fills chalk (ink in light) with ground-coloured text.
-- **Subdivision segments:** five equal 48px cells, 10px radius, 1.5px rule border, each holding a drawn SVG note group (quarter, beamed eighths, triplet, sixteenths, swing). Selected fills chalk with ground-coloured notes; native radio inputs sit invisibly on top.
+- **Subdivision segments:** five equal 48px cells, 10px radius, 1.5px rule border, each holding a drawn SVG note group (quarter, beamed eighths, triplet, sixteenths, swing); the triplet and swing groups carry Bravura's engraved tuplet 3. Selected fills chalk with ground-coloured notes; native radio inputs sit invisibly on top.
 
 ### Cards / Containers
 - **Settings legend:** raised slate (raised paper) panel; full-bleed on narrow screens, 20px radius and 8px 32px 12px padding from 900px. No shadow. Rows separated by 1px rules.
@@ -289,15 +302,22 @@ Few, large, round and forgiving.
 - **Focus:** a 2px outline in the focus colour (yellow on slate, navy on paper) at 3px offset (2px on segments and slider thumbs). Inside the chalk toast the ring turns ground-coloured.
 
 ### Navigation
-- **Top bar:** 60px minimum, the 28px app icon beside the name in sans 650, the install button and language switch at the right; wraps only on the narrowest screens.
+- **Top bar:** 60px minimum, the 28px app icon beside the wordmark (title-wordmark), the install button and language switch at the right; wraps only on the narrowest screens.
 
 ### Beat-Pattern Figure (signature)
-The conductor's diagram for 1 to 16 beats, drawn in a fixed 400×260 SVG box that scales with the figure. Strokes are non-scaling.
-- **Path:** a 2.4px chalk-path stroke with round caps; the downbeat falls vertically to the bottom centre, the last beat rises to the upbeat, side beats step out along the plane, lifting into two or three tiers when a side has three or more beats.
-- **Ictus:** 5-unit chalk dots; the struck one scales to 1.5 (160ms ease-out). Subdivision ticks are 3.2-unit faint-chalk dots at 35% opacity that brighten to full and fade back over 180ms on each sub-click.
-- **Beat numerals = accent buttons:** 44px circles beside each ictus (30px with crowded numerals, on the ictus above 8 beats, with hit areas widened to 44px). Normal: chalk-path ring on ground. Accent: yellow disc (navy-edged on paper). Mute: dashed ring, faint numeral. Struck: solid chalk fill with ground numeral at scale 1.14, landing instantly and held until the next beat; struck accent keeps a yellow ring; struck mute is a 14% chalk tint with soft-chalk ring. Hover sharpens the ring to chalk. Tapping cycles accent → normal → mute.
+The conductor's diagram for 1 to 16 beats, drawn in a fixed 400×260 SVG box that scales with the figure. Pen widths, arrowheads, ictus marks and the baton are computed in screen px, so they keep their size at every figure size.
+- **Path:** the downbeat falls vertically to the bottom centre, the last beat rises to the upbeat, side beats step out along the plane, lifting into two or three tiers when a side has three or more beats.
+- **Pen strokes:** each segment is a filled outline in chalk path, all in one path wound the same way so overlapping 60% ink stays even. Width runs 1.5px through the rebound and presses to 3.4px into each ictus (4.8px on the fall into the downbeat), a smoothstep from u = 0.3 along the segment.
+- **Arrowheads:** at most one per stroke, on the fall, placed from the top of the rebound at the first spot clear of the numerals (at struck size), the struck ictus bars, the ticks, the resting baton and the other strokes. Half-width max(4px, 1.4 × local pen width), length max(10px, 2.2 × half-width), in the same fill as the strokes. Crowded bars (9+ beats) carry none; the numerals' order gives the direction.
+- **Ictus:** printed 16px bars, 3px with round caps, in chalk (ink in light), centred on the ictus; the upbeat's bar runs left from its ictus, away from the numeral beside it. The struck bar widens 1.5× horizontally (160ms ease-out). Subdivision ticks are 3.2-unit faint-chalk dots at 35% opacity that brighten to full and fade back over 180ms on each sub-click.
+- **Beat numerals = accent buttons:** 44px circles 38 units below each ictus (beside it for the upbeat; 30px with crowded numerals, on the ictus above 8 beats, with hit areas widened to 44px). Normal: chalk-path ring on ground. Accent: yellow disc (navy-edged on paper). Mute: dashed ring, faint numeral. Struck: solid chalk fill with ground numeral at scale 1.14, landing instantly and held until the next beat; struck accent keeps a yellow ring; struck mute is a 14% chalk tint with soft-chalk ring. Hover sharpens the ring to chalk. Tapping cycles accent → normal → mute.
 - **Baton:** a filled circle 12-16px in radius on screen (figure width / 30), yellow with a 4px slate ring on slate, navy with a yellow ring on paper. It travels each segment with the velocity profile `t + 0.72/(2π)·sin(2πt)`: fastest into the ictus, slowest at the rebound top, as a conductor's hand moves. Stopped, it rests raised above the downbeat.
 - **Ripple:** one ring per strike, expanding from 0.5 to 1.5 (accent 1.9, 3px yellow) and fading over 420ms on `cubic-bezier(0.16, 1, 0.3, 1)`. Muted beats get none.
+- **Caption:** a centred row 20px below the figure, captioned as a textbook captions its diagram: the stacked caption signature (soft chalk, following the bar's beat count), a 12px gap, then the accent hint in label small (faint chalk, balanced wrapping).
+
+**The Pen Rule.** The pattern is drawn, not stroked: light on the rebound, heavy into the ictus, heaviest into the downbeat, at fixed screen widths. Never draw it as a uniform line.
+
+**The Clear Arrow Rule.** An arrowhead appears only where it is clear of every numeral, mark, tick, the baton and the other strokes; where nothing is clear, the stroke goes without. Better no arrow than one hidden or misread.
 
 ### Tempo Mark (signature)
 "Marking over ♩ = BPM" between the step discs; the engraved BPM scales with its container to fill the space between − and + up to 8rem, with tabular digits so the width holds as the tempo changes.
@@ -307,17 +327,18 @@ Chalk (ink in light) rounded box at the bottom centre, 0.9375rem text, an option
 
 ### Theme, motion and access modes
 - **Light/dark:** follows `prefers-color-scheme`; both themes share every token role, and `theme-color` matches the ground.
-- **Reduced motion:** all transitions off; the struck beat and ictus do not scale; the baton jumps to each ictus instead of travelling; no ripple. The held strike fill still shows the beat.
-- **Forced colours:** path, dots and ticks become CanvasText; the baton and ripples Highlight; normal beats get CanvasText rings, accent beats a CanvasText fill, struck beats a Highlight fill; every control border becomes ButtonText; selected segment, Trainer-on and pressed language become Highlight fills, never outlines, so they cannot be mistaken for focus; slider thumbs become ButtonText on ButtonFace; Start loses its shadow for a 2px border.
+- **Reduced motion:** all transitions off; the struck beat does not scale and the struck ictus bar does not widen; the baton jumps to each ictus instead of travelling; no ripple. The held strike fill still shows the beat.
+- **Forced colours:** the pen strokes, arrowheads and ticks fill CanvasText and the ictus bars stroke it; the baton and ripples Highlight; normal beats get CanvasText rings, accent beats a CanvasText fill, struck beats a Highlight fill; every control border becomes ButtonText; selected segment, Trainer-on and pressed language become Highlight fills, never outlines, so they cannot be mistaken for focus; slider thumbs become ButtonText on ButtonFace; Start loses its shadow for a 2px border.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** draw anything musical in notation: engraved numerals for tempo and meter, Old Standard TT for markings and beat numbers, drawn SVG notes for rhythmic values.
+- **Do** draw anything musical in notation: engraved numerals for tempo and meter, Old Standard TT for markings, beat numbers and the wordmark, drawn SVG notes with the engraved tuplet 3 for rhythmic values.
 - **Do** keep Baton Yellow (#fccf3f) for the baton, accents and the single primary action, and give it a navy edge on paper.
 - **Do** show beat state with held fills (chalk/ink for struck, yellow for accent, dashed ring for mute), landing at once and releasing with a 140-160ms ease-out.
 - **Do** keep touch targets at 44px or larger (52px step discs, 64px Start) and let the figure, tempo mark and Start share the first viewport.
 - **Do** give every state a fill or border that survives forced colours, and keep selected states as fills distinct from the focus outline.
+- **Do** draw the pattern with pen weight (1.5px rebound, 3.4px ictus, 4.8px downbeat) and printed 16px ictus bars, sized in screen px.
 - **Do** degrade to plain numerals when the engraved face is unavailable rather than squeezing a fallback into engraved metrics.
 
 ### Don't:

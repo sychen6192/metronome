@@ -1,9 +1,10 @@
-"""Builds src/fonts/metronome-engraved.woff2 from Bravura (SIL OFL 1.1, Steinberg).
+"""Builds the app's two font subsets.
 
-The app sets its tempo and time signature in engraved music numerals. This keeps only the glyphs
-it uses from Bravura: the SMuFL time-signature digits (U+E080-E089, also mapped to ASCII 0-9 so
-the page text stays plain digits) and the metronome-mark notes (U+ECA5 quarter, U+ECA7 eighth,
-U+ECB7 dot). Bravura centres the digits on a staff line; here they are raised to sit on the
+src/fonts/metronome-engraved.woff2, from Bravura (SIL OFL 1.1, Steinberg): the app sets its tempo,
+time signature and tuplet numerals in engraved music type. This keeps only the glyphs it uses:
+the SMuFL time-signature digits (U+E080-E089, also mapped to ASCII 0-9 so the page text stays
+plain digits), the metronome-mark notes (U+ECA5 quarter, U+ECA7 eighth, U+ECB7 dot) and the
+tuplet 3 (U+E883). Bravura centres the digits on a staff line; here they are raised to sit on the
 baseline and given one width (tabular, so the tempo doesn't shift as it changes), and the
 music-sized vertical metrics are replaced with text-like ones, so the font lays out like ordinary
 text in CSS.
@@ -11,9 +12,16 @@ text in CSS.
 Bravura's Reserved Font Name means a modified version must not be called "Bravura", so the subset
 is renamed "Metronome Engraved". Its licence is in src/fonts/LICENSE-Bravura.txt.
 
+src/fonts/metronome-wordmark.woff2, from Noto Serif TC Bold (SIL OFL 1.1, Google / Adobe): only
+the three glyphs of the Chinese app name, 節拍器, so the wordmark is set in a Ming serif that
+matches the score face. Renamed "Metronome Wordmark"; licence in
+src/fonts/LICENSE-NotoSerifTC.txt.
+
 Usage (needs fonttools and brotli):
-    python3 scripts/build-fonts.py path/to/Bravura.woff2
+    python3 scripts/build-fonts.py path/to/Bravura.woff2 [path/to/NotoSerifTC-Bold font]
 Bravura: https://github.com/steinbergmedia/bravura (redist/woff/Bravura.woff2)
+Noto Serif TC Bold: any build containing 節拍器, e.g. @fontsource/noto-serif-tc 5.3.0,
+files/noto-serif-tc-121-700-normal.woff2
 """
 
 import sys
@@ -25,12 +33,17 @@ from fontTools.pens.transformPen import TransformPen
 from fontTools.ttLib import TTFont
 
 FAMILY = 'Metronome Engraved'
-OUT = Path(__file__).resolve().parent.parent / 'src' / 'fonts' / 'metronome-engraved.woff2'
+FONTS = Path(__file__).resolve().parent.parent / 'src' / 'fonts'
+OUT = FONTS / 'metronome-engraved.woff2'
+WORDMARK_FAMILY = 'Metronome Wordmark'
+WORDMARK_OUT = FONTS / 'metronome-wordmark.woff2'
+WORDMARK_TEXT = '節拍器'
 
 TIME_SIG_DIGITS = [0xE080 + i for i in range(10)]
 # Bravura's digits span -250..250 (centred on the staff line); this puts them on 0..500.
 STAFF_TO_BASELINE = 250
 METRONOME_MARKS = [0xECA5, 0xECA7, 0xECB7]
+TUPLET_THREE = 0xE883
 
 
 def retune_digits(font: TTFont, names: list[str]) -> None:
@@ -55,7 +68,8 @@ def retune_digits(font: TTFont, names: list[str]) -> None:
 def main(source: str) -> None:
     font = TTFont(source)
     cmap = font.getBestCmap()
-    glyphs = [cmap[cp] for cp in TIME_SIG_DIGITS + METRONOME_MARKS]
+    codepoints = TIME_SIG_DIGITS + METRONOME_MARKS + [TUPLET_THREE]
+    glyphs = [cmap[cp] for cp in codepoints]
 
     options = subset.Options()
     options.layout_features = []
@@ -63,7 +77,7 @@ def main(source: str) -> None:
     options.notdef_outline = True
     options.flavor = 'woff2'
     subsetter = subset.Subsetter(options)
-    subsetter.populate(glyphs=glyphs, unicodes=TIME_SIG_DIGITS + METRONOME_MARKS)
+    subsetter.populate(glyphs=glyphs, unicodes=codepoints)
     subsetter.subset(font)
 
     retune_digits(font, [cmap[cp] for cp in TIME_SIG_DIGITS])
@@ -82,25 +96,52 @@ def main(source: str) -> None:
     os2.usWinAscent, os2.usWinDescent = ascent, -descent
     os2.fsSelection |= 1 << 7  # USE_TYPO_METRICS
 
+    rename(font, FAMILY, 'MetronomeEngraved-Regular', 'Bravura by Steinberg Media Technologies GmbH',
+           '(glyph subset, ASCII digit mapping, digits on the baseline at one width, vertical metrics). '
+           'Not the original Bravura.')
+
+    save(font, OUT)
+
+
+def rename(font: TTFont, family: str, postscript: str, origin: str, changes: str) -> None:
+    """A modified OFL font must not keep its Reserved Font Name: give the subset its own."""
     name = font['name']
     for record in list(name.names):
         if record.nameID in (1, 4, 16, 21):
-            name.setName(FAMILY, record.nameID, record.platformID, record.platEncID, record.langID)
+            name.setName(family, record.nameID, record.platformID, record.platEncID, record.langID)
         elif record.nameID == 6:
-            name.setName('MetronomeEngraved-Regular', 6, record.platformID, record.platEncID, record.langID)
+            name.setName(postscript, 6, record.platformID, record.platEncID, record.langID)
         elif record.nameID == 3:
-            name.setName(f'{FAMILY} (subset of Bravura)', 3, record.platformID, record.platEncID, record.langID)
-    name.setName(
-        'Subset of Bravura by Steinberg Media Technologies GmbH, modified for the Metronome app '
-        '(glyph subset, ASCII digit mapping, vertical metrics). Not the original Bravura.',
-        5, 3, 1, 0x409,
-    )
+            name.setName(f'{family} (subset)', 3, record.platformID, record.platEncID, record.langID)
+    name.setName(f'Subset of {origin}, modified for the Metronome app {changes}', 5, 3, 1, 0x409)
 
-    OUT.parent.mkdir(parents=True, exist_ok=True)
+
+def save(font: TTFont, out: Path) -> None:
+    out.parent.mkdir(parents=True, exist_ok=True)
     font.flavor = 'woff2'
-    font.save(OUT)
-    print(f'{OUT.relative_to(OUT.parents[2])}: {OUT.stat().st_size} bytes, {len(font.getGlyphOrder())} glyphs')
+    font.save(out)
+    print(f'{out.relative_to(out.parents[2])}: {out.stat().st_size} bytes, {len(font.getGlyphOrder())} glyphs')
+
+
+def build_wordmark(source: str) -> None:
+    font = TTFont(source)
+    options = subset.Options()
+    options.layout_features = []
+    options.name_IDs = [0, 1, 2, 3, 4, 5, 6, 13, 14]
+    options.notdef_outline = True
+    options.flavor = 'woff2'
+    subsetter = subset.Subsetter(options)
+    subsetter.populate(text=WORDMARK_TEXT)
+    subsetter.subset(font)
+    missing = [c for c in WORDMARK_TEXT if ord(c) not in font.getBestCmap()]
+    if missing:
+        sys.exit(f'{source} lacks {"".join(missing)}')
+    rename(font, WORDMARK_FAMILY, 'MetronomeWordmark-Bold', 'Noto Serif TC Bold by Google and Adobe',
+           f'(only the glyphs of {WORDMARK_TEXT}). Not the original Noto Serif TC.')
+    save(font, WORDMARK_OUT)
 
 
 if __name__ == '__main__':
     main(sys.argv[1] if len(sys.argv) > 1 else 'Bravura.woff2')
+    if len(sys.argv) > 2:
+        build_wordmark(sys.argv[2])

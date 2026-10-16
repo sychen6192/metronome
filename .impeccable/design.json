@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-15T12:00:10+00:00",
+  "generatedAt": "2026-10-15T17:26:34+00:00",
   "title": "Design System: 節拍器 Metronome",
   "extensions": {
     "colorMeta": {
@@ -298,10 +298,6 @@
         "displayName": "Ruler Marking",
         "purpose": "Italian markings engraved on the tempo ruler."
       },
-      "title": {
-        "displayName": "Brand",
-        "purpose": "App name beside the icon in the top bar."
-      },
       "body": {
         "displayName": "Body",
         "purpose": "Base text; notes cap at 60ch."
@@ -312,7 +308,7 @@
       },
       "label-small": {
         "displayName": "Small Label",
-        "purpose": "Accent hint caption, language switch, trainer field labels, shortcuts, stacked secondary labels at 380px and below."
+        "purpose": "Accent hint beside the caption signature (balanced wrapping), language switch, trainer field labels, shortcuts, stacked secondary labels at 380px and below."
       },
       "title-numeral-crowded": {
         "displayName": "Crowded Beat Numeral",
@@ -329,6 +325,18 @@
       "label-note": {
         "displayName": "Note",
         "purpose": "Trainer state, trainer note paragraph, Install text-button label."
+      },
+      "title-wordmark": {
+        "displayName": "Wordmark",
+        "purpose": "The app name beside the icon, in the score voice: Old Standard TT for Latin, Metronome Wordmark (3-glyph Noto Serif TC Bold subset, unicode-range limited) for 節拍器."
+      },
+      "display-signature-caption": {
+        "displayName": "Caption Signature",
+        "purpose": "Stacked engraved meter opening the figure's caption, soft chalk, aria-hidden; 0.8125rem at line-height 1 under no-engraved."
+      },
+      "label-field": {
+        "displayName": "Field Value",
+        "purpose": "Trainer number-field values, tabular figures."
       }
     },
     "shadows": [
@@ -347,7 +355,7 @@
       {
         "name": "state",
         "value": "160ms ease-out",
-        "purpose": "Background, border and colour changes on controls; beat release; ictus scale; trainer chevron."
+        "purpose": "Background, border and colour changes on controls; beat release; struck ictus bar widening (scaleX 1.5); trainer chevron."
       },
       {
         "name": "press",
@@ -405,9 +413,31 @@
     "themes": {
       "dark": "Default; slate tokens (slate, chalk, slate-rule, chalk-path). Baton yellow with slate ring; focus yellow.",
       "light": "prefers-color-scheme: light; paper/navy tokens. Baton navy with yellow ring; yellow shapes take a navy edge; focus navy.",
-      "forcedColors": "Path/dots/ticks CanvasText; baton and ripples Highlight; accent beat CanvasText fill; struck beat, selected segment, Trainer-on and pressed language Highlight fills; control borders ButtonText; Start shadow replaced by a 2px ButtonText border.",
-      "reducedMotion": "Transitions off; no beat/ictus scale; baton placed on each ictus without travel; no ripple; held strike fill remains.",
-      "noEngraved": "When Metronome Engraved fails to load: note and '=' hidden, BPM plain numerals up to 5rem at line-height 1, time signature in display-signature-fallback (1.5rem, line-height 1)."
+      "forcedColors": "Pen strokes, arrowheads and ticks fill CanvasText; ictus bars stroke CanvasText; baton and ripples Highlight; accent beat CanvasText fill; struck beat, selected segment, Trainer-on and pressed language Highlight fills; control borders ButtonText; Start shadow replaced by a 2px ButtonText border.",
+      "reducedMotion": "Transitions off; no beat scale and no ictus bar widening; baton placed on each ictus without travel; no ripple; held strike fill remains.",
+      "noEngraved": "When Metronome Engraved fails to load: note and '=' hidden, BPM plain numerals up to 5rem at line-height 1, legend time signature in display-signature-fallback (1.5rem, line-height 1), caption signature at 0.8125rem line-height 1, subdivision tuplet 3 as a plain Old Standard digit."
+    },
+    "figure": {
+      "pen": {
+        "thin": "1.5px",
+        "heavy": "3.4px",
+        "downbeat": "4.8px",
+        "profile": "smoothstep from u=0.3 to the ictus",
+        "fill": "chalk-path / navy-path, one path, uniform winding"
+      },
+      "arrowhead": {
+        "halfWidth": "max(4px, 1.4 × local pen width)",
+        "length": "max(10px, 2.2 × half-width)",
+        "placement": "one per stroke on the fall, first clear spot from the rebound top; omitted where none is clear and in bars of 9+ beats"
+      },
+      "ictusMark": {
+        "length": "16px",
+        "width": "3px",
+        "cap": "round",
+        "struck": "scaleX(1.5)",
+        "upbeat": "runs left from its ictus"
+      },
+      "labelGap": "38 units (400×260 drawing box)"
     }
   },
   "components": [
@@ -452,6 +482,14 @@
       "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-tempo{display:grid;justify-items:center;gap:4px;padding:16px;background:var(--ground);color:var(--ink)}.ds-marking{font:700 1.375rem/1.2 var(--score);letter-spacing:.01em}.ds-mark{display:flex;align-items:baseline;gap:.1em;font:700 5rem/1 var(--engraved);font-variant-numeric:tabular-nums}.ds-note{width:.22em;height:.62em;align-self:center}.ds-eq{font:700 .34em var(--score);translate:0 -.7em;margin-right:.08em}"
     },
     {
+      "name": "Figure Caption",
+      "kind": "custom",
+      "refersTo": "typography.display-signature-caption",
+      "description": "The beat-pattern figure's caption: engraved stacked metre, then the accent hint, 20px below the figure.",
+      "html": "<figcaption class=\"ds-caption\"><span class=\"ds-caption-meter\" aria-hidden=\"true\"><span>4</span><span>4</span></span><span class=\"ds-hint\">Tap a numeral: accent → normal → mute</span></figcaption>",
+      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-caption{display:flex;align-items:center;justify-content:center;gap:12px;margin:20px 0 0;padding:16px;background:var(--ground)}.ds-caption-meter{display:grid;flex:none;justify-items:center;color:var(--ink-2);font-family:var(--engraved);font-size:1.5rem;line-height:.56}.ds-hint{color:var(--ink-3);font:.8125rem var(--sans);text-wrap:balance}"
+    },
+    {
       "name": "Subdivision Segments",
       "kind": "chip",
       "refersTo": "segment",
@@ -486,11 +524,12 @@
   ],
   "narrative": {
     "northStar": "The Conductor's Board",
-    "overview": "The bar is drawn the way a conductor draws it in a textbook: a beat-pattern figure (downbeat falling straight, the upbeat rising, side beats on the plane of beating) traced by a single yellow baton point that strikes each ictus on the click. The world is a music-room chalkboard: icon-navy slate owns the surface, strokes and numerals are chalk, and one yellow marks the baton and the accents. In light mode the same drawing becomes a conducting-textbook page: navy ink on cool paper, with yellow kept as a highlighter fill that always carries an ink edge.\n\nMusic notation is the type voice wherever the app speaks musically. The tempo is set as a score prints it, an Italian marking over an engraved metronome mark (\"Allegro / ♩ = 120\"); the meter is a real stacked time signature; the tempo slider is an engraved metronome scale whose thumb is the pendulum's sliding weight. Everything operational (labels, buttons, settings) is quiet system sans, so the notation reads as the content and the chrome recedes.\n\nDensity is low and glance-first: the figure takes the upper half of the screen, the tempo mark sits at arm's-length size between large − and + discs, and Start is the one filled object in the transport. Settings sit beneath as a diagram's legend on a slightly raised slate. Motion exists only to show time: the baton's travel, a held strike state, one ripple per beat. Nothing flashes.",
+    "overview": "The bar is drawn the way a conductor draws it in a textbook: a beat-pattern figure (downbeat falling straight, the upbeat rising, side beats on the plane of beating) traced by a single yellow baton point that strikes each ictus on the click. The world is a music-room chalkboard: icon-navy slate owns the surface, strokes and numerals are chalk, and one yellow marks the baton and the accents. In light mode the same drawing becomes a conducting-textbook page: navy ink on cool paper, with yellow kept as a highlighter fill that always carries an ink edge.\n\nMusic notation is the type voice wherever the app speaks musically. The tempo is set as a score prints it, an Italian marking over an engraved metronome mark (\"Allegro / ♩ = 120\"); the meter is a real stacked time signature, in the legend and again in the figure's caption; the app's own name is set in the score voice; the tempo slider is an engraved metronome scale whose thumb is the pendulum's sliding weight. Everything operational (labels, buttons, settings) is quiet system sans, so the notation reads as the content and the chrome recedes.\n\nDensity is low and glance-first: the figure takes the upper half of the screen, the tempo mark sits at arm's-length size between large − and + discs, and Start is the one filled object in the transport. Settings sit beneath as a diagram's legend on a slightly raised slate. Motion exists only to show time: the baton's travel, a held strike state, one ripple per beat. Nothing flashes. The figure itself is drawn as a pen draws it, light through each rebound and pressing into each ictus, with one arrowhead on each fall and a short printed bar where the baton strikes.",
     "keyCharacteristics": [
       "Navy slate (dark) or cool paper (light) surface, chalk/ink strokes, a single yellow.",
       "The beat-pattern figure is the hero and the accent control at once.",
-      "Engraved Bravura-derived numerals and Old Standard TT for everything musical; system sans for chrome.",
+      "Engraved Bravura-derived numerals and Old Standard TT for everything musical and for the wordmark; system sans for chrome.",
+      "Pen-weighted strokes, arrowheads and ictus bars hold their on-screen size at every figure size.",
       "Round and pill forms throughout; flat surfaces with one soft lift under Start.",
       "Strike states are held, not flashed; reduced motion keeps the information and drops the travel."
     ],
@@ -512,26 +551,37 @@
       },
       {
         "name": "The Notation Voice Rule",
-        "body": "Any musical quantity (tempo, meter, beat number, tempo marking) is set in the engraved face or Old Standard; any instruction or setting name is set in system sans. Never swap them.",
+        "body": "Any musical quantity (tempo, meter, beat number, tuplet number, tempo marking) and the app's wordmark are set in the engraved face or the score serif; any instruction or setting name is set in system sans. Never swap them.",
         "section": "typography"
       },
       {
         "name": "The Engraved Fallback Rule",
-        "body": "If the engraved face fails to load (detected through `document.fonts.load`, e.g. iOS Lockdown Mode), the root takes a `no-engraved` class: the note and \"=\" are hidden, the BPM drops to plain numerals at up to 5rem with line-height 1, and the time signature takes the signature-fallback step. The tight engraved metrics are never applied to a substitute face.",
+        "body": "If the engraved face fails to load (detected through `document.fonts.load`, e.g. iOS Lockdown Mode), the root takes a `no-engraved` class: the note and \"=\" are hidden, the BPM drops to plain numerals at up to 5rem with line-height 1, the time signatures take their fallback sizes, and the subdivision icons' tuplet 3 becomes a plain Old Standard digit. The tight engraved metrics are never applied to a substitute face.",
         "section": "typography"
       },
       {
         "name": "The One Lifted Object Rule",
         "body": "Only the primary action casts a shadow on the board; everything else is drawn on it.",
         "section": "elevation"
+      },
+      {
+        "name": "The Pen Rule",
+        "body": "The pattern is drawn, not stroked: light on the rebound, heavy into the ictus, heaviest into the downbeat, at fixed screen widths. Never draw it as a uniform line.",
+        "section": "components"
+      },
+      {
+        "name": "The Clear Arrow Rule",
+        "body": "An arrowhead appears only where it is clear of every numeral, mark, tick, the baton and the other strokes; where nothing is clear, the stroke goes without. Better no arrow than one hidden or misread.",
+        "section": "components"
       }
     ],
     "dos": [
-      "**Do** draw anything musical in notation: engraved numerals for tempo and meter, Old Standard TT for markings and beat numbers, drawn SVG notes for rhythmic values.",
+      "**Do** draw anything musical in notation: engraved numerals for tempo and meter, Old Standard TT for markings, beat numbers and the wordmark, drawn SVG notes with the engraved tuplet 3 for rhythmic values.",
       "**Do** keep Baton Yellow (#fccf3f) for the baton, accents and the single primary action, and give it a navy edge on paper.",
       "**Do** show beat state with held fills (chalk/ink for struck, yellow for accent, dashed ring for mute), landing at once and releasing with a 140-160ms ease-out.",
       "**Do** keep touch targets at 44px or larger (52px step discs, 64px Start) and let the figure, tempo mark and Start share the first viewport.",
       "**Do** give every state a fill or border that survives forced colours, and keep selected states as fills distinct from the focus outline.",
+      "**Do** draw the pattern with pen weight (1.5px rebound, 3.4px ictus, 4.8px downbeat) and printed 16px ictus bars, sized in screen px.",
       "**Do** degrade to plain numerals when the engraved face is unavailable rather than squeezing a fallback into engraved metrics."
     ],
     "donts": [

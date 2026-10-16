@@ -39,6 +39,7 @@ const els = {
   moreBeats: byId<HTMLButtonElement>('more-beats'),
   beatsValue: byId<HTMLOutputElement>('beats-value'),
   meterTop: byId('meter-top'),
+  captionBeats: byId('caption-beats'),
   subdivisions: byId('subdivisions'),
   sound: byId<HTMLSelectElement>('sound'),
   volume: byId<HTMLInputElement>('volume'),
@@ -155,6 +156,7 @@ function render(): void {
   renderBeats()
   els.beatsValue.value = String(settings.beatsPerBar)
   els.meterTop.textContent = String(settings.beatsPerBar)
+  els.captionBeats.textContent = String(settings.beatsPerBar)
   els.fewerBeats.disabled = settings.beatsPerBar <= MIN_BEATS
   els.moreBeats.disabled = settings.beatsPerBar >= MAX_BEATS
 
