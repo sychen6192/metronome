@@ -3,6 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "description": "A precise, offline-capable PWA metronome built on the Web Audio API.",
+  "homepage": "https://sychen6192.github.io/metronome/",
   "type": "module",
   "scripts": {
     "dev": "vite",

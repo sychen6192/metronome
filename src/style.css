@@ -225,7 +225,10 @@ button svg {
   border-radius: 999px;
 }
 
-.language button {
+/* Links between the two language pages; the current one is filled. */
+.language a {
+  display: inline-grid;
+  place-items: center;
   min-width: 44px;
   min-height: 34px;
   padding: 0 10px;
@@ -233,13 +236,14 @@ button svg {
   color: var(--ink-2);
   font-size: 0.8125rem;
   font-weight: 650;
+  text-decoration: none;
   white-space: nowrap;
   transition:
     background-color 160ms ease-out,
     color 160ms ease-out;
 }
 
-.language button[aria-pressed='true'] {
+.language a[aria-current='page'] {
   background: var(--ink);
   color: var(--ground);
 }
@@ -884,12 +888,14 @@ button svg {
   list-style: none;
 }
 
-.trainer summary::-webkit-details-marker {
+.trainer summary::-webkit-details-marker,
+.faq summary::-webkit-details-marker {
   display: none;
 }
 
 /* display:flex drops the native disclosure triangle, so draw a chevron. */
-.trainer summary::after {
+.trainer summary::after,
+.faq summary::after {
   content: '';
   flex: none;
   width: 8px;
@@ -901,7 +907,8 @@ button svg {
   transition: transform 160ms ease-out;
 }
 
-.trainer[open] summary::after {
+.trainer[open] summary::after,
+.faq[open] summary::after {
   transform: translateY(2px) rotate(-135deg);
 }
 
@@ -947,36 +954,56 @@ button svg {
   font-size: 0.875rem;
 }
 
-/* Each shortcut stays on one line; lines break between them. */
-.shortcuts {
+/* ---------------------------------------------------------------- guide */
+
+/* How to use, below everything else: a short intro, then questions that open on demand. */
+.guide {
+  width: min(100%, 44rem);
+  margin: 0 auto;
+  padding: 40px 0 32px;
+}
+
+.guide h2 {
+  margin: 0 0 8px;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.guide-intro {
+  margin: 0 0 20px;
+  color: var(--ink-2);
+}
+
+.faq {
+  border-top: 1px solid var(--rule);
+}
+
+.faq:last-of-type {
+  border-bottom: 1px solid var(--rule);
+}
+
+.faq summary {
   display: flex;
-  flex-wrap: wrap;
-  margin: 0;
-  padding: 18px 0 8px;
-  color: var(--ink-3);
-  font-size: 0.8125rem;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding-block: 8px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
 }
 
-/* A full-width colon carries its own space; the English one needs a gap. */
-.shortcuts-label:lang(en) {
-  margin-inline-end: 0.5em;
+.faq p,
+.keys {
+  max-width: 60ch;
+  margin: 0 0 16px;
+  color: var(--ink-2);
+  line-height: 1.7;
 }
 
-.shortcut {
-  white-space: nowrap;
-}
-
-.shortcut:not(:last-child)::after {
-  content: '·';
-  content: '·' / '';
-  margin-inline: 0.5em;
-}
-
-/* Keyboard shortcuts are irrelevant on touch-only devices. */
-@media (hover: none) and (pointer: coarse) {
-  .shortcuts {
-    display: none;
-  }
+.keys {
+  padding-inline-start: 1.25em;
 }
 
 @media (hover: hover) {
@@ -1112,8 +1139,7 @@ button svg {
     border-radius: 20px;
   }
 
-  .settings > .trainer,
-  .settings > .shortcuts {
+  .settings > .trainer {
     grid-column: 1 / -1;
   }
 }
@@ -1227,7 +1253,7 @@ button svg {
 
   .segment:has(input:checked),
   #trainer-toggle[aria-pressed='true'],
-  .language button[aria-pressed='true'] {
+  .language a[aria-current='page'] {
     forced-color-adjust: none;
     border-color: Highlight;
     background: Highlight;

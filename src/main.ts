@@ -12,7 +12,7 @@ import {
 } from './core/rhythm'
 import { SOUNDS, loadSettings, saveSettings, type Settings, type SoundId } from './core/settings'
 import { MAX_BPM, MIN_BPM, TapTempo, clampBpm, tempoMarking } from './core/tempo'
-import { LANGUAGES, currentLanguage, resolveLanguage, setLanguage, t, translatePage, type Language } from './i18n'
+import { LANGUAGES, browserLanguage, currentLanguage, resolveLanguage, setLanguage, t, translatePage, type Language } from './i18n'
 import { setupPwa } from './platform/pwa'
 import { ScreenWakeLock } from './platform/wakeLock'
 import { BeatPattern } from './ui/beatPattern'
@@ -49,7 +49,8 @@ const els = {
   trainerEvery: byId<HTMLInputElement>('trainer-every'),
   trainerTarget: byId<HTMLInputElement>('trainer-target'),
   install: byId<HTMLButtonElement>('install'),
-  languageButtons: document.querySelectorAll<HTMLButtonElement>('[data-language]'),
+  hint: byId('hint'),
+  languageLinks: document.querySelectorAll<HTMLAnchorElement>('[data-language]'),
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -70,7 +71,9 @@ document.fonts?.load('1em "Metronome Engraved"').then((faces) => {
 }, withoutEngraved)
 
 let settings: Settings = loadSettings(storage())
-setLanguage(resolveLanguage(settings.language))
+/** The language this page is written in: the root is Chinese, /en/ English (see build/pages.ts). */
+const pageLanguage: Language = document.documentElement.lang === 'en' ? 'en' : 'zh-Hant'
+setLanguage(resolveLanguage(settings.language, pageLanguage))
 const pattern = new BeatPattern(els.pattern, els.beatButtons)
 const engine = new MetronomeEngine(
   () => settings,
@@ -179,8 +182,9 @@ function render(): void {
     if (document.activeElement !== input) input.value = String(value)
   }
 
-  for (const button of els.languageButtons) {
-    button.setAttribute('aria-pressed', String(button.dataset.language === currentLanguage()))
+  for (const link of els.languageLinks) {
+    if (link.dataset.language === currentLanguage()) link.setAttribute('aria-current', 'page')
+    else link.removeAttribute('aria-current')
   }
   renderPlayState()
 }
@@ -322,12 +326,52 @@ function buildRuler(): void {
   )
 }
 
+/** URL path of a language's page: the build serves the root in Chinese and /en/ in English. */
+function pathFor(language: Language): string {
+  return import.meta.env.BASE_URL + (language === 'en' ? 'en/' : '')
+}
+
+/** Show the app in `language` in place (playback carries on), with the address bar to match. */
 function applyLanguage(language: Language): void {
   setLanguage(language)
   translatePage()
   buildControls()
   render()
+  dismissToast('otherLanguage')
   renderToast()
+  const path = pathFor(language)
+  if (location.pathname !== path) history.replaceState(history.state, '', path + location.search + location.hash)
+  document.querySelector('link[rel="manifest"]')?.setAttribute('href', `${path}manifest.webmanifest`)
+}
+
+function chooseLanguage(language: Language): void {
+  update({ language })
+  applyLanguage(language)
+}
+
+/**
+ * A first visit in a language other than the browser's: offer the other page, never switch by
+ * itself (search engines must see each URL in its own language). Closing the offer keeps this one.
+ */
+function suggestOtherLanguage(): void {
+  const wanted = browserLanguage()
+  if (settings.language !== 'auto' || wanted === pageLanguage) return
+  showToast('otherLanguage', { label: 'switchLanguage', run: () => chooseLanguage(wanted) }, () =>
+    update({ language: pageLanguage }),
+  )
+}
+
+const HINT_SEEN = 'metronome:accent-hint-seen'
+
+/** The accent hint is for the first visit: it goes once a numeral has been tapped. */
+function retireHint(): void {
+  if (els.hint.hidden) return
+  els.hint.hidden = true
+  try {
+    storage()?.setItem(HINT_SEEN, '1')
+  } catch {
+    // Storage full or blocked: the hint simply returns next time.
+  }
 }
 
 function buildControls(): void {
@@ -377,12 +421,13 @@ function bindEvents(): void {
     if (event.detail === 0) tap(event.timeStamp)
   })
 
-  for (const button of els.languageButtons) {
-    button.addEventListener('click', () => {
-      const language = LANGUAGES.find((code) => code === button.dataset.language)
-      if (!language) return
-      update({ language })
-      applyLanguage(language)
+  // Real links between the language pages (crawlable); a plain click switches in place instead.
+  for (const link of els.languageLinks) {
+    link.addEventListener('click', (event) => {
+      const language = LANGUAGES.find((code) => code === link.dataset.language)
+      if (!language || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+      event.preventDefault()
+      chooseLanguage(language)
     })
   }
 
@@ -393,6 +438,7 @@ function bindEvents(): void {
     const accents = settings.accents.slice()
     accents[index] = cycleAccent(accents[index] ?? 'normal')
     update({ accents })
+    retireHint()
   })
 
   els.fewerBeats.addEventListener('click', () => update({ beatsPerBar: Math.max(MIN_BEATS, settings.beatsPerBar - 1) }))
@@ -470,9 +516,13 @@ function onKeyDown(event: KeyboardEvent): void {
   }
 }
 
-translatePage()
-buildControls()
 buildRuler()
 bindEvents()
-render()
+applyLanguage(currentLanguage())
+try {
+  if (storage()?.getItem(HINT_SEEN)) els.hint.hidden = true
+} catch {
+  // Unreadable storage: show the hint.
+}
+suggestOtherLanguage()
 setupPwa(els.install, () => engine.playing)
