@@ -24,6 +24,12 @@ them. Renamed "Metronome Score Italic" like the other subsets; licence in
 src/fonts/LICENSE-OldStandardTT.txt. The stylesheet's unicode-range for it lists the same characters
 (tests/fonts.test.ts checks them).
 
+src/fonts/metronome-coffee.woff2, from Cookie (SIL OFL 1.1, Ania Kruk): only the letters of "Buy me
+a coffee", the support link's label, set in the face Buy Me a Coffee's own buttons use. Cookie's
+Reserved Font Name means the subset is renamed "Metronome Coffee"; licence in
+src/fonts/LICENSE-Cookie.txt. The stylesheet's unicode-range for it lists the same characters
+(tests/fonts.test.ts checks them).
+
 src/fonts/metronome-sans-tc.woff2, from Noto Sans TC (SIL OFL 1.1, Google / Adobe): the interface
 text, Chinese and Latin, so it looks the same on every device instead of each system's own fonts.
 A variable font kept to weights 400-700 (one file for every weight the stylesheet uses). Only the
@@ -37,11 +43,14 @@ src/fonts/LICENSE-NotoSansTC.txt. Re-run after adding text with new characters.
 
 Usage (needs fonttools and brotli; build what you pass):
     python3 scripts/build-fonts.py [--bravura Bravura.woff2] [--serif NOTO_SERIF_TC] [--sans NOTO_SANS_TC]
-                                   [--italic OLD_STANDARD_ITALIC]
+                                   [--italic OLD_STANDARD_ITALIC] [--coffee COOKIE]
 Bravura: https://github.com/steinbergmedia/bravura (redist/woff/Bravura.woff2)
 Old Standard TT Italic, from Google Fonts,
 https://raw.githubusercontent.com/google/fonts/1d0e46c7933245c8180fe83e47917961c913bbdb/ofl/oldstandardtt/OldStandard-Italic.ttf
 (sha256 4b9522f4711317fc06e2413a58b4662c249cb707df193d682b9d640e365ef564)
+Cookie, from Google Fonts,
+https://raw.githubusercontent.com/google/fonts/1d0e46c7933245c8180fe83e47917961c913bbdb/ofl/cookie/Cookie-Regular.ttf
+(sha256 9daf3cc9e5efe1b65094cdf1f14729ef6f07a70c27ee0679bf7f544a828b080e)
 Noto Serif TC: the variable font from Google Fonts, version 2.003 (instanced at weight 700),
 https://raw.githubusercontent.com/google/fonts/1d0e46c7933245c8180fe83e47917961c913bbdb/ofl/notoseriftc/NotoSerifTC%5Bwght%5D.ttf
 (sha256 0077e18f57c6908f4a000969880940bdb0dad057c0e8d98b49dc364c3d1b09c6)
@@ -73,6 +82,10 @@ ITALIC_FAMILY = 'Metronome Score Italic'
 ITALIC_OUT = FONTS / 'metronome-score-italic.woff2'
 # The letters of "accel." and "rit." (TEMPO_CHANGES in src/core/tempo.ts).
 ITALIC_TEXT = 'accel.rit'
+COFFEE_FAMILY = 'Metronome Coffee'
+COFFEE_OUT = FONTS / 'metronome-coffee.woff2'
+# The support link's label (index.html).
+COFFEE_TEXT = 'Buy me a coffee'
 SANS_FAMILY = 'Metronome Sans TC'
 SANS_OUT = FONTS / 'metronome-sans-tc.woff2'
 SANS_CHARS = FONTS / 'metronome-sans-tc.txt'
@@ -221,6 +234,24 @@ def build_italic(source: str) -> None:
     save(font, ITALIC_OUT)
 
 
+def build_coffee(source: str) -> None:
+    font = TTFont(source)
+    missing = [c for c in COFFEE_TEXT if ord(c) not in font.getBestCmap()]
+    if missing:
+        sys.exit(f'{source} lacks {"".join(missing)}')
+    options = subset.Options()
+    options.layout_features = ['kern', 'liga', 'calt']
+    options.name_IDs = [0, 1, 2, 3, 4, 5, 6, 13, 14]
+    options.notdef_outline = True
+    subsetter = subset.Subsetter(options)
+    subsetter.populate(text=COFFEE_TEXT)
+    subsetter.subset(font)
+    rename(font, COFFEE_FAMILY, 'MetronomeCoffee-Regular', 'Cookie by Ania Kruk',
+           f'(only the letters of "{COFFEE_TEXT}"). Not the original Cookie.')
+    set_style(font, 'Regular')
+    save(font, COFFEE_OUT)
+
+
 def in_sans(char: str) -> bool:
     code = ord(char)
     return char not in SANS_SKIP and any(low <= code <= high for low, high in SANS_RANGES)
@@ -271,9 +302,10 @@ if __name__ == '__main__':
     parser.add_argument('--serif', help='Noto Serif TC (variable, or a bold build), for metronome-wordmark.woff2')
     parser.add_argument('--sans', help='Noto Sans TC variable font, for metronome-sans-tc.woff2')
     parser.add_argument('--italic', help='Old Standard TT Italic, for metronome-score-italic.woff2')
+    parser.add_argument('--coffee', help='Cookie, for metronome-coffee.woff2')
     args = parser.parse_args()
-    if not (args.bravura or args.serif or args.sans or args.italic):
-        parser.error('nothing to build: pass --bravura, --serif, --sans and/or --italic')
+    if not (args.bravura or args.serif or args.sans or args.italic or args.coffee):
+        parser.error('nothing to build: pass --bravura, --serif, --sans, --italic and/or --coffee')
     if args.bravura:
         main(args.bravura)
     if args.serif:
@@ -282,3 +314,5 @@ if __name__ == '__main__':
         build_sans(args.sans)
     if args.italic:
         build_italic(args.italic)
+    if args.coffee:
+        build_coffee(args.coffee)

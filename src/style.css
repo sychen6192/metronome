@@ -33,6 +33,14 @@
   unicode-range: U+2E, U+61, U+63, U+65, U+69, U+6C, U+72, U+74;
 }
 
+/* The support button's lettering, in the face Buy Me a Coffee's buttons use (its letters only). */
+@font-face {
+  font-family: 'Metronome Coffee';
+  src: url('./fonts/metronome-coffee.woff2') format('woff2');
+  font-display: swap;
+  unicode-range: U+20, U+42, U+61, U+63, U+65, U+66, U+6D, U+6F, U+75, U+79;
+}
+
 /* The interface text, Chinese and Latin: Noto Sans TC, so every device sets it the same way.
    Variable, weights 400-700; only the characters the interface uses (scripts/build-fonts.py). */
 @font-face {
@@ -1085,60 +1093,46 @@ button svg {
   font-variant-numeric: tabular-nums;
 }
 
-/* The thanks closes the band: a pill like the transport's, opening with a metronome mark whose
-   tempo is a coffee ("♩ = ☕", the note engraved, the cup drawn like the line icons). */
+/* The thanks at the foot of the band is Buy Me a Coffee's own button, kept small: their yellow,
+   their cup and the Cookie lettering their buttons use. By the owner's choice it is the one yellow
+   besides ours; it sits last and quiet. The transparent edge shows in forced colours. */
 .support {
   grid-column: 1 / -1;
   display: flex;
   justify-content: center;
   margin: 0;
-  padding: 20px 0 8px;
+  padding: 16px 0 6px;
 }
 
-.support a {
+.coffee {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  min-height: 48px;
-  padding: 0 22px 0 18px;
-  border: 1.5px solid var(--rule);
-  border-radius: 999px;
-  color: var(--ink);
-  font-size: 0.9375rem;
-  font-weight: 600;
-  text-decoration: none;
-  transition: background-color 160ms ease-out;
-}
-
-.support-mark {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-family: var(--engraved);
-  font-size: 1.875rem;
-  font-weight: 400;
+  gap: 6px;
+  height: 40px;
+  padding: 0 14px 0 11px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: #ffdd00;
+  color: var(--on-yellow);
+  font-family: 'Metronome Coffee', cursive;
+  font-size: 1.5rem;
   line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
 }
 
-.support-note {
-  font-size: 0.62em;
-  translate: 0 -0.12em;
+/* 44 px to the touch. */
+.coffee::before {
+  content: '';
+  position: absolute;
+  inset: -3px -1px;
 }
 
-.support-equals {
-  font-family: var(--score);
-  font-size: 0.5em;
-  font-weight: 700;
-}
-
-.support svg {
-  width: 26px;
-  height: 26px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.coffee svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
 }
 
 .note {
@@ -1157,9 +1151,12 @@ button svg {
   }
 
   .settings .step:hover:not(:disabled),
-  .settings .segment:hover:not(:has(input:checked)),
-  .support a:hover {
+  .settings .segment:hover:not(:has(input:checked)) {
     background: var(--ground-3);
+  }
+
+  .coffee:hover {
+    filter: brightness(0.94);
   }
 
   .beat:hover {
@@ -1431,9 +1428,7 @@ button svg {
 }
 
 .no-engraved .mark-note,
-.no-engraved .mark-equals,
-.no-engraved .support-note,
-.no-engraved .support-equals {
+.no-engraved .mark-equals {
   display: none;
 }
 
@@ -1501,7 +1496,7 @@ button svg {
   .select,
   .switch,
   .trainer-grid input,
-  .support a,
+  .coffee,
   .language {
     border-color: ButtonText;
   }
