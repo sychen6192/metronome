@@ -45,6 +45,11 @@ export function setupPwa(installButton: HTMLButtonElement, isPlaying: () => bool
     },
   })
 
+  // iPhone and iPad browsers never offer an install prompt; Add to Home Screen sits in the Share
+  // menu, so the button shows the steps instead.
+  const manualInstall = needsManualInstall()
+  if (manualInstall) installButton.hidden = false
+
   let installPrompt: BeforeInstallPromptEvent | null = null
   window.addEventListener('beforeinstallprompt', (event) => {
     // Show our own button instead of the browser's mini-infobar.
@@ -53,7 +58,10 @@ export function setupPwa(installButton: HTMLButtonElement, isPlaying: () => bool
     installButton.hidden = false
   })
   installButton.addEventListener('click', async () => {
-    if (!installPrompt) return
+    if (!installPrompt) {
+      if (manualInstall) showToast('installSteps', undefined, { sticky: true, top: true })
+      return
+    }
     const prompt = installPrompt
     installPrompt = null
     installButton.hidden = true
@@ -63,4 +71,12 @@ export function setupPwa(installButton: HTMLButtonElement, isPlaying: () => bool
     installPrompt = null
     installButton.hidden = true
   })
+}
+
+/** On iOS or iPadOS, in the browser rather than opened from the Home Screen. */
+function needsManualInstall(): boolean {
+  const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  const fromHomeScreen =
+    matchMedia('(display-mode: standalone)').matches || (navigator as Navigator & { standalone?: boolean }).standalone === true
+  return ios && !fromHomeScreen
 }

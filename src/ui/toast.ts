@@ -13,6 +13,8 @@ export interface ToastOptions {
   lang?: string
   /** Under the header instead of over the transport: for an offer made as the page opens. */
   top?: boolean
+  /** Stays until closed even without an action (steps to follow at leisure). */
+  sticky?: boolean
 }
 
 interface Toast extends ToastOptions {
@@ -46,7 +48,7 @@ actionButton.addEventListener('click', () => {
 })
 
 export function showToast(message: MessageKey, action?: ToastAction, options: ToastOptions = {}): void {
-  if (action) {
+  if (action || options.sticky) {
     dismissToast(message)
     persistent.push({ message, action, ...options })
   } else {
