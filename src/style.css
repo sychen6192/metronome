@@ -23,6 +23,15 @@
   unicode-range: U+5668, U+62CD, U+7BC0;
 }
 
+/* The interface text, Chinese and Latin: Noto Sans TC, so every device sets it the same way.
+   Variable, weights 400-700; only the characters the interface uses (scripts/build-fonts.py). */
+@font-face {
+  font-family: 'Metronome Sans TC';
+  font-weight: 400 700;
+  src: url('./fonts/metronome-sans-tc.woff2') format('woff2');
+  font-display: swap;
+}
+
 :root {
   color-scheme: dark;
   /* Slate: the icon's navy owns the surface. */
@@ -43,7 +52,7 @@
   --baton-ring: var(--ground);
   --focus: var(--yellow);
 
-  --sans: system-ui, -apple-system, 'Segoe UI', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
+  --sans: 'Metronome Sans TC', system-ui, -apple-system, 'Segoe UI', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
   --score: 'Old Standard TT', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
   --engraved: 'Metronome Engraved', var(--score);
   --wordmark: 'Old Standard TT', 'Metronome Wordmark', var(--score);
@@ -100,6 +109,12 @@ body {
   background: var(--ground);
   color: var(--ink);
   caret-color: var(--yellow);
+}
+
+/* The interface font's quotes and ellipsis are full-width, for Chinese; English takes its
+   proportional forms. */
+:lang(en) {
+  font-variant-east-asian: proportional-width;
 }
 
 ::selection {
