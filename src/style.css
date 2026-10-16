@@ -14,14 +14,13 @@
   font-display: swap;
 }
 
-/* Chinese in the score voice, a Ming serif that matches the score face: the app name 節拍器 and
-   the guide heading 使用說明, their glyphs only. */
+/* The Chinese app name in a Ming serif that matches the score face (three glyphs only). */
 @font-face {
   font-family: 'Metronome Wordmark';
   font-weight: 700;
   src: url('./fonts/metronome-wordmark.woff2') format('woff2');
   font-display: swap;
-  unicode-range: U+4F7F, U+5668, U+62CD, U+660E, U+7528, U+7BC0, U+8AAA;
+  unicode-range: U+5668, U+62CD, U+7BC0;
 }
 
 /* The interface text, Chinese and Latin: Noto Sans TC, so every device sets it the same way.
@@ -909,14 +908,12 @@ button svg {
   list-style: none;
 }
 
-.trainer summary::-webkit-details-marker,
-.faq summary::-webkit-details-marker {
+.trainer summary::-webkit-details-marker {
   display: none;
 }
 
 /* display:flex drops the native disclosure triangle, so draw a chevron. */
-.trainer summary::after,
-.faq summary::after {
+.trainer summary::after {
   content: '';
   flex: none;
   width: 8px;
@@ -928,8 +925,7 @@ button svg {
   transition: transform 160ms ease-out;
 }
 
-.trainer[open] summary::after,
-.faq[open] summary::after {
+.trainer[open] summary::after {
   transform: translateY(2px) rotate(-135deg);
 }
 
@@ -975,92 +971,12 @@ button svg {
   font-size: 0.875rem;
 }
 
-/* ---------------------------------------------------------------- guide */
-
-/* How to use, below everything else: a quiet appendix. A short intro, then questions that open
-   on demand, set a step below the instrument's own labels. */
-.guide {
-  width: min(100%, 36rem);
-  margin: 0 auto;
-  padding: 40px 0 32px;
-}
-
-/* An appendix heading in the score voice, like the wordmark and the tempo marking. */
-.guide h2 {
-  margin: 0 0 8px;
-  font-family: var(--wordmark);
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-}
-
-/* One or two balanced lines; Chinese breaks after punctuation, between phrases, not inside a word. */
-.guide-intro {
-  margin: 0 0 20px;
-  color: var(--ink-2);
-  text-wrap: balance;
-  word-break: keep-all;
-}
-
-.faq {
-  border-top: 1px solid var(--rule);
-}
-
-.faq:last-of-type {
-  border-bottom: 1px solid var(--rule);
-}
-
-.faq summary {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-height: 52px;
-  padding-block: 8px;
-  color: var(--ink-2);
-  font-size: 0.9375rem;
-  font-weight: 500;
-  cursor: pointer;
-  list-style: none;
-}
-
-.faq[open] summary {
-  color: var(--ink);
-}
-
-/* One measure for both scripts: about 34 Chinese characters or 75 Latin ones a line. */
-.guide-intro,
-.faq p,
-.keys {
-  max-width: 34em;
-  font-size: 0.9375rem;
-}
-
-.faq p,
-.keys {
-  text-wrap: pretty;
-}
-
-.faq p,
-.keys {
-  margin: 0 0 16px;
-  color: var(--ink-2);
-  line-height: 1.7;
-}
-
-.keys {
-  padding-inline-start: 1.25em;
-}
-
 @media (hover: hover) {
   .step:hover:not(:disabled),
   .secondary:hover,
   .segment:hover,
   .text-button:hover {
     background: var(--ground-2);
-  }
-
-  .faq summary:hover {
-    color: var(--ink);
   }
 
   .settings .step:hover:not(:disabled),

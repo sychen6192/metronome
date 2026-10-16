@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import { MAX_BPM, MIN_BPM, TapTempo, clampBpm, rampTempo, tempoMarking } from '../src/core/tempo'
-import { LANGUAGES, messagesFor } from '../src/i18n'
 
 describe('clampBpm', () => {
   it('rounds and clamps to the supported range', () => {
@@ -23,25 +22,6 @@ describe('tempoMarking', () => {
     [240, 'Prestissimo'],
   ])('%i BPM is %s', (bpm, name) => {
     expect(tempoMarking(bpm)).toBe(name)
-  })
-})
-
-describe('the tempo-marking FAQ', () => {
-  /** Each marking the app can show, with the tempos that show it. */
-  const shown = new Map<string, { low: number; high: number }>()
-  for (let bpm = MIN_BPM; bpm <= MAX_BPM; bpm++) {
-    const name = tempoMarking(bpm)
-    shown.set(name, { low: shown.get(name)?.low ?? bpm, high: bpm })
-  }
-
-  it.each(LANGUAGES)('lists every marking with the range the app uses (%s)', (language) => {
-    // "Largo 廣板（45–59" or "Largo, broad (45–59", and the last one "(200 and up)".
-    const answer = messagesFor(language).faqMarkingsA
-    const listed = [...answer.matchAll(/([A-Z][a-z]+)[^(（A-Z]*[(（](\d+)(?:–(\d+))?/g)].map(([, name, low, high]) => [
-      name,
-      { low: Number(low), high: high === undefined ? MAX_BPM : Number(high) },
-    ])
-    expect(listed).toEqual([...shown])
   })
 })
 

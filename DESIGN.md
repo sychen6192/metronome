@@ -91,20 +91,6 @@ typography:
     fontFamily: "'Metronome Sans TC', system-ui, -apple-system, 'Segoe UI', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif"
     fontSize: "0.8125rem"
     fontWeight: 400
-  headline-guide:
-    fontFamily: "'Old Standard TT', 'Metronome Wordmark', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif"
-    fontSize: "1.25rem"
-    fontWeight: 700
-    letterSpacing: "0.01em"
-  label-faq:
-    fontFamily: "'Metronome Sans TC', system-ui, -apple-system, 'Segoe UI', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif"
-    fontSize: "0.9375rem"
-    fontWeight: 500
-  body-guide:
-    fontFamily: "'Metronome Sans TC', system-ui, -apple-system, 'Segoe UI', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif"
-    fontSize: "0.9375rem"
-    fontWeight: 400
-    lineHeight: 1.7
 rounded:
   weight: "7px"
   field: "10px"
@@ -195,20 +181,6 @@ components:
     textColor: "{colors.slate}"
     rounded: "{rounded.toast}"
     padding: "8px 8px 8px 16px"
-  guide:
-    width: "min(100%, 36rem)"
-    padding: "40px 0 32px"
-  faq-summary:
-    backgroundColor: "transparent"
-    textColor: "{colors.chalk-soft}"
-    typography: "{typography.label-faq}"
-    height: "52px"
-  faq-summary-open:
-    textColor: "{colors.chalk}"
-  faq-answer:
-    textColor: "{colors.chalk-soft}"
-    typography: "{typography.body-guide}"
-    width: "34em"
 ---
 
 # Design System: 節拍器 Metronome
@@ -219,9 +191,9 @@ components:
 
 The bar is drawn the way a conductor draws it in a textbook: a beat-pattern figure (downbeat falling straight, the upbeat rising, side beats on the plane of beating) traced by a single yellow baton point that strikes each ictus on the click. The world is a music-room chalkboard: icon-navy slate owns the surface, strokes and numerals are chalk, and one yellow marks the baton and the accents. In light mode the same drawing becomes a conducting-textbook page: navy ink on cool paper, with yellow kept as a highlighter fill that always carries an ink edge.
 
-Music notation is the type voice wherever the app speaks musically. The tempo is set as a score prints it, an Italian marking over an engraved metronome mark ("Allegro / ♩ = 120"); the meter is a real stacked time signature, in the legend and again in the figure's caption; the app's own name is set in the score voice; the tempo slider is an engraved metronome scale whose thumb is the pendulum's sliding weight. Everything operational (labels, buttons, settings, the guide) is a quiet sans, bundled so every device sets it the same way, so the notation reads as the content and the chrome recedes.
+Music notation is the type voice wherever the app speaks musically. The tempo is set as a score prints it, an Italian marking over an engraved metronome mark ("Allegro / ♩ = 120"); the meter is a real stacked time signature, in the legend and again in the figure's caption; the app's own name is set in the score voice; the tempo slider is an engraved metronome scale whose thumb is the pendulum's sliding weight. Everything operational (labels, buttons, settings) is a quiet sans, bundled so every device sets it the same way, so the notation reads as the content and the chrome recedes.
 
-Density is low and glance-first: the figure takes the upper half of the screen, the tempo mark sits at arm's-length size between large − and + discs, and Start is the one filled object in the transport. Settings sit beneath as a diagram's legend on a slightly raised slate, and a short guide closes the page as a quiet appendix: the instructions live there, not in small print around the instrument. Motion exists only to show time: the baton's travel, a held strike state, one ripple per beat. Nothing flashes. The figure itself is drawn as a pen draws it, light through each rebound and pressing into each ictus, with one arrowhead on each fall and a short printed bar where the baton strikes.
+Density is low and glance-first: the figure takes the upper half of the screen, the tempo mark sits at arm's-length size between large − and + discs, and Start is the one filled object in the transport. Settings sit beneath as a diagram's legend on a slightly raised slate and close the page; the instrument explains itself, not small print around it. Motion exists only to show time: the baton's travel, a held strike state, one ripple per beat. Nothing flashes. The figure itself is drawn as a pen draws it, light through each rebound and pressing into each ictus, with one arrowhead on each fall and a short printed bar where the baton strikes.
 
 **Key Characteristics:**
 - Navy slate (dark) or cool paper (light) surface, chalk/ink strokes, a single yellow.
@@ -242,10 +214,10 @@ A two-theme monochrome-navy system with exactly one chromatic accent, yellow, sh
 - **Icon Navy Slate** (#172036): The page ground, taken from the app icon tile. Also the text colour on yellow and on chalk fills.
 - **Raised Slate** (#1d2742): The settings band (legend panel from 900px) and hover fill for stage controls.
 - **Deep Slate** (#111a2d): Hover fill for controls inside the raised settings panel.
-- **Chalk** (#eceff6): Primary text, numerals, ictus bars, the struck-beat fill, selected segment and current-language fill, the guide heading and an open or hovered question, the toast surface.
-- **Soft Chalk** (#b4bdd2): Row labels, the figure caption's time signature, ruler markings, unselected segment icons, the language links, the select chevron, the guide's intro, questions and answers.
+- **Chalk** (#eceff6): Primary text, numerals, ictus bars, the struck-beat fill, selected segment and current-language fill, the toast surface.
+- **Soft Chalk** (#b4bdd2): Row labels, the figure caption's time signature, ruler markings, unselected segment icons, the language links, the select chevron.
 - **Faint Chalk** (#8792ad): The accent hint, muted-beat numerals, subdivision ticks, ruler tick marks (5.2:1 on slate).
-- **Slate Rule** (#33405f): Hairlines between legend rows and between guide questions, and the borders of step, secondary, segment and field controls. Decorative only.
+- **Slate Rule** (#33405f): Hairlines between legend rows, and the borders of step, secondary, segment and field controls. Decorative only.
 - **Chalk Path** (chalk at 60%): The beat-pattern pen strokes and their arrowheads (one evenly filled path) and the ring of a normal beat numeral.
 
 ### Neutral (light: the textbook page)
@@ -265,8 +237,8 @@ A two-theme monochrome-navy system with exactly one chromatic accent, yellow, sh
 
 **Display Font:** Metronome Engraved (a subset of Bravura: SMuFL time-signature digits mapped to ASCII 0-9, the metronome-mark note glyphs and the tuplet 3, U+E883), falling back to Old Standard TT and the serif stack
 **Score Font:** Old Standard TT Bold (with Iowan Old Style, Palatino, Georgia)
-**Wordmark Font:** Old Standard TT for Latin, with Metronome Wordmark for the Chinese of the score voice (a subset of Noto Serif TC Bold, SIL OFL 1.1, holding only 節拍器 and 使用說明 and limited to them by `unicode-range`), then the score stack
-**Body Font:** Metronome Sans TC (a bundled variable subset of Noto Sans TC 2.004, SIL OFL 1.1, wght 400-700, about 78 KB, holding only the characters the interface uses; built by `scripts/build-fonts.py`), leading `--sans` for Chinese and Latin alike so every device sets the interface the same way; then system-ui, -apple-system, Segoe UI, PingFang TC, Noto Sans TC, Microsoft JhengHei. ± is deliberately left out of the subset (the font has only a full-width form, and it always sits beside Latin digits) so it falls through to the system face. Weights in use: 400, 500, 600, 650, 700.
+**Wordmark Font:** Old Standard TT for Latin, with Metronome Wordmark for the Chinese of the score voice (a subset of Noto Serif TC Bold, SIL OFL 1.1, holding only 節拍器, the wordmark, and limited to it by `unicode-range`), then the score stack
+**Body Font:** Metronome Sans TC (a bundled variable subset of Noto Sans TC 2.004, SIL OFL 1.1, wght 400-700, about 54 KB, holding only the characters the interface uses; built by `scripts/build-fonts.py`), leading `--sans` for Chinese and Latin alike so every device sets the interface the same way; then system-ui, -apple-system, Segoe UI, PingFang TC, Noto Sans TC, Microsoft JhengHei. ± is deliberately left out of the subset (the font has only a full-width form, and it always sits beside Latin digits) so it falls through to the system face. Weights in use: 400, 500, 600, 650, 700.
 
 **Character:** Engraved music numerals and a Didone-flavoured score serif carry every musical value; a neutral sans carries every instruction, so the two never compete.
 
@@ -280,18 +252,15 @@ A two-theme monochrome-navy system with exactly one chromatic accent, yellow, sh
 - **Display, signature fallback** (Old Standard, 1.5rem, line-height 1): the legend's time signature as plain digits when the engraved face is unavailable. The caption signature falls back to 0.8125rem at line-height 1.
 - **Label, score** (Old Standard 700, 0.8125rem): Italian markings engraved on the ruler.
 - **Title, wordmark** (Old Standard / Metronome Wordmark 700, 1.125rem, +0.02em): the app name beside the icon, in the score voice like the tempo marking.
-- **Headline, guide** (wordmark stack 700, 1.25rem, +0.01em): the guide's heading (使用說明 / How to use), an appendix heading in the score voice.
 - **Body** (sans 400, 1rem, 1.5): base text; long notes cap at 60ch.
 - **Label field** (sans 400, 1.0625rem, tabular figures): values typed into the trainer's number fields.
 - **Label strong** (sans 700, 1.125rem): the Start / Stop label only.
 - **Label** (sans 600, 0.9375rem): row labels and secondary buttons.
-- **Label, FAQ question** (sans 500, 0.9375rem): the guide's question summaries.
-- **Body, guide** (sans 400, 0.9375rem, line-height 1.7, 34em measure for both scripts): the guide's answers and shortcut list; the intro uses the same size at the body line-height.
 - **Label note** (sans, 0.875rem): trainer state, the trainer note paragraph, the Install text-button label.
 - **Label small** (sans, 0.8125rem, balanced wrapping): the accent hint beside the caption signature, the language switch (at 650), trainer field labels, and the stacked secondary labels at 380px and below.
 
 ### Named Rules
-**The Notation Voice Rule.** Any musical quantity (tempo, meter, beat number, tuplet number, tempo marking) and the app's wordmark are set in the engraved face or the score serif; any instruction or setting name is set in the sans. The guide's heading is the one prose element in the score voice, as an appendix title. Never swap them.
+**The Notation Voice Rule.** Any musical quantity (tempo, meter, beat number, tuplet number, tempo marking) and the app's wordmark are set in the engraved face or the score serif; any instruction or setting name is set in the sans. Never swap them.
 
 **The Proportional English Rule.** The interface face's quotes and ellipsis are full-width, for Chinese; English text takes their proportional forms through `:lang(en) { font-variant-east-asian: proportional-width }`. Every English run carries `lang="en"`.
 
@@ -299,7 +268,7 @@ A two-theme monochrome-navy system with exactly one chromatic accent, yellow, sh
 
 ## Layout
 
-A single column, centred, max 1080px wide with 16px side padding (32px from 900px). The playing stage comes first and fills the first viewport: the pattern figure (aspect 20:13, sized `min(100%, clamp(320px, (100svh - 460px) * 20/13, 720px))` so the caption, tempo, ruler and Start still fit beneath), its caption row 20px below, then the tempo block (max 440px, a three-column grid of − / mark / +), the ruler, and the transport (a 1fr / auto / 1fr grid with Start centred between Tap and Trainer). From 900px the stage narrows to 760px and the settings become a two-column legend panel (48px column gap) with the trainer spanning both. Below the settings the guide sits in its own centred column, `min(100%, 36rem)`, with 40px above and 32px below.
+A single column, centred, max 1080px wide with 16px side padding (32px from 900px). The playing stage comes first and fills the first viewport: the pattern figure (aspect 20:13, sized `min(100%, clamp(320px, (100svh - 460px) * 20/13, 720px))` so the caption, tempo, ruler and Start still fit beneath), its caption row 20px below, then the tempo block (max 440px, a three-column grid of − / mark / +), the ruler, and the transport (a 1fr / auto / 1fr grid with Start centred between Tap and Trainer). From 900px the stage narrows to 760px and the settings become a two-column legend panel (48px column gap) with the trainer spanning both.
 
 Spacing runs on a 4px base: 4 / 8 / 12 / 16 / 24 / 32 / 48, with 14px as the stage's internal gap and the meter gap. Legend rows are at least 64px tall with a hairline beneath, except the last (the trainer), whose rule the band's own edge replaces.
 
@@ -329,6 +298,7 @@ Few, large, round and forgiving.
 - **Step (− / +):** 52px circle with a 1.5px rule border and a 22px line glyph; 44px inside the legend, 46px at 360px and below. Hover fills raised slate; press scales to 0.94 with the raised fill. Supports hold-to-repeat.
 - **Text button (Install):** 40px tall, 20px radius, soft chalk 0.875rem 600 with an 18px icon; icon-only at 400px and below.
 - **Disabled:** 38% opacity, default cursor.
+- **Keyboard:** shortcuts are never printed on the page. The buttons declare them through `aria-keyshortcuts` (Start: Space; Tap: T; − / +: ArrowDown / ArrowUp, ±10 with Shift), and Tap's tooltip names T.
 
 ### Chips / Segmented control
 - **Language switch:** a 1px-ruled pill holding two 34px link pills (`<a>`, one URL per language: `/` and `/en/`), label small at 650 in soft chalk, no underline. The current page's pill (`aria-current="page"`) fills chalk (ink in light) with ground-coloured text. It navigates; it is not a toggle.
@@ -336,14 +306,6 @@ Few, large, round and forgiving.
 
 ### Cards / Containers
 - **Settings legend:** raised slate (raised paper) band; full-bleed with 8px 16px padding on narrow screens, a panel with 20px radius and 8px 32px 12px padding from 900px. No shadow. Rows separated by 1px rules; the last row (the trainer) has none, since the band's edge closes it.
-
-### Guide (使用說明 / How to use)
-A quiet appendix below the settings, written for the first visit and for search; it never competes with the instrument.
-- **Column:** `min(100%, 36rem)`, centred, 40px top and 32px bottom padding, on the page ground (no panel).
-- **Heading:** h2 in headline guide (score voice, chalk), 8px above the intro.
-- **Intro:** 0.9375rem soft chalk, balanced wrapping, `word-break: keep-all` so Chinese breaks after punctuation, between phrases; 20px above the questions.
-- **Questions:** eight `details.faq` items with 1px rules between them (and above the first, below the last). Summary 52px minimum, label FAQ (0.9375rem 500) in soft chalk, full chalk when open or hovered; the trainer's 8px chevron at the end, turning on open (160ms ease-out).
-- **Answers:** body guide (0.9375rem, line-height 1.7) in soft chalk, pretty wrapping, one 34em measure for both scripts (about 34 Chinese or 75 Latin characters), 16px below. The last question holds the keyboard shortcuts as a short list; they appear nowhere else.
 
 ### Inputs / Fields
 - **Select and number fields:** 46px tall, 1.5px rule border, 10px radius, ground-coloured fill (so they read as cut into the raised panel); the select draws its chevron with two gradients in soft chalk. Number fields use tabular figures at 1.0625rem.
@@ -393,7 +355,7 @@ Chalk (ink in light) rounded box at the bottom centre, 0.9375rem text, an option
 - **Do** give every state a fill or border that survives forced colours, and keep selected states as fills distinct from the focus outline.
 - **Do** draw the pattern with pen weight (1.5px rebound, 3.4px ictus, 4.8px downbeat) and printed 16px ictus bars, sized in screen px.
 - **Do** degrade to plain numerals when the engraved face is unavailable rather than squeezing a fallback into engraved metrics.
-- **Do** put instructions in the guide, not in small text around the instrument; small text that teaches retires once it has been used.
+- **Do** keep small text around the instrument minimal; small text that teaches retires once it has been used, and keyboard shortcuts live in `aria-keyshortcuts` and tooltips, not on the page.
 - **Do** add any new interface character to the Metronome Sans TC subset (`scripts/build-fonts.py`), and any new score-voice Chinese to Metronome Wordmark, rather than letting it fall through to a system face.
 
 ### Don't:

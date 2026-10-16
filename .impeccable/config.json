@@ -11,15 +11,6 @@
         ],
         "createdAt": "2026-10-15T11:58:30.827Z",
         "reason": "Claude: false positive. The static scan of index.html can't see the stylesheet that src/main.ts imports; the brand text renders var(--ink) (#eceff6 dark, #172036 light), as the review captures show."
-      },
-      {
-        "rule": "flat-type-hierarchy",
-        "value": "*",
-        "files": [
-          "index.html"
-        ],
-        "createdAt": "2026-10-16T04:17:39.496Z",
-        "reason": "Claude: false positive. The static scan of index.html can't see the stylesheet that src/main.ts imports, so it reads every role at the 16px default. Rendered, the guide's h2 is 20px over 15px text (1.33); the only smaller step is the h1, the 18px wordmark in the top bar, a brand label rather than a content heading. The h2 stays below the 22px tempo marking by design."
       }
     ]
   }

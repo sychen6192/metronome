@@ -52,14 +52,14 @@ describe('interface font subset', () => {
 })
 
 describe('score-voice Chinese font', () => {
-  it('covers the Chinese the page sets in the score voice: the app name and the guide heading', () => {
+  it('covers the Chinese app name', () => {
     // metronome-wordmark.woff2 holds exactly the glyphs its @font-face unicode-range lists.
     const css = readFileSync(join(root, 'src/style.css'), 'utf8')
     const rule = /@font-face\s*{[^}]*'Metronome Wordmark'[^}]*}/.exec(css)?.[0] ?? ''
     const range = /unicode-range:([^;]+);/.exec(rule)?.[1] ?? ''
     const covered = new Set(range.split(',').map((code) => String.fromCodePoint(parseInt(code.trim().slice(2), 16))))
-    const { appTitle, guideTitle } = messagesFor('zh-Hant')
-    const missing = [...appTitle + guideTitle].filter((char) => !covered.has(char))
+    const { appTitle } = messagesFor('zh-Hant')
+    const missing = [...appTitle].filter((char) => !covered.has(char))
     expect(missing.join(''), 'add them to WORDMARK_TEXT, re-run scripts/build-fonts.py --serif, update unicode-range').toBe('')
   })
 })
