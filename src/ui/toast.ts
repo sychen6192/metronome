@@ -9,6 +9,8 @@ export interface ToastAction {
 interface Toast {
   message: MessageKey
   action?: ToastAction
+  /** Called when the user closes the toast without acting on it. */
+  dismissed?: () => void
 }
 
 const toast = document.getElementById('toast')!
@@ -27,7 +29,7 @@ let hideTimer: number | undefined
 
 closeButton.addEventListener('click', () => {
   if (transient) clearTransient()
-  else persistent.pop()
+  else persistent.pop()?.dismissed?.()
   render()
 })
 actionButton.addEventListener('click', () => {
@@ -36,10 +38,10 @@ actionButton.addEventListener('click', () => {
   top?.action?.run()
 })
 
-export function showToast(message: MessageKey, action?: ToastAction): void {
+export function showToast(message: MessageKey, action?: ToastAction, dismissed?: () => void): void {
   if (action) {
     dismissToast(message)
-    persistent.push({ message, action })
+    persistent.push({ message, action, dismissed })
   } else {
     clearTransient()
     transient = { message }
@@ -49,6 +51,11 @@ export function showToast(message: MessageKey, action?: ToastAction): void {
     }, 4000)
   }
   render()
+}
+
+/** Whether a toast is waiting for the user to act on it or close it. */
+export function actionPending(): boolean {
+  return persistent.length > 0
 }
 
 /** Remove a persistent toast once it no longer applies (e.g. playback restarted). */

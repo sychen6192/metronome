@@ -1,5 +1,5 @@
 import { registerSW } from 'virtual:pwa-register'
-import { showToast } from '../ui/toast'
+import { actionPending, showToast } from '../ui/toast'
 
 /** Chromium-only event, not in the TypeScript DOM library. */
 interface BeforeInstallPromptEvent extends Event {
@@ -32,7 +32,9 @@ export function setupPwa(installButton: HTMLButtonElement, isPlaying: () => bool
       }
     },
     onOfflineReady() {
-      showToast('offlineReady')
+      // On a first visit this can arrive while a choice is on screen (the page in the other
+      // language); the choice matters more than this note, so the note isn't shown over it.
+      if (!actionPending()) showToast('offlineReady')
     },
     onRegisteredSW(_url, registration) {
       // An installed app can stay open for days; check for new versions periodically.

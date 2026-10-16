@@ -13,7 +13,7 @@ import { DEFAULT_BPM, clampBpm } from './tempo'
 export const SOUNDS = ['click', 'wood', 'beep', 'cowbell'] as const
 export type SoundId = (typeof SOUNDS)[number]
 
-/** Interface language; "auto" follows the browser until the user picks one. */
+/** Interface language; "auto" shows each page (URL) in its own language until the user picks one. */
 export const LANGUAGE_PREFERENCES = ['auto', 'zh-Hant', 'en'] as const
 export type LanguagePreference = (typeof LANGUAGE_PREFERENCES)[number]
 

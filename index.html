@@ -3,8 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>節拍器 Metronome</title>
-    <meta name="description" content="精準、可離線使用的節拍器：指揮拍式圖、重音、細分拍、打拍測速、速度練習。A precise offline metronome." />
+    <!-- Title, description and the search/preview tags are written per language at build time (build/pages.ts). -->
+    <title>免費線上節拍器｜指揮拍式圖、重音、細分拍，可離線使用</title>
+    <meta name="description" content="" />
     <meta name="color-scheme" content="dark light" />
     <meta name="theme-color" content="#172036" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#f3f5f9" media="(prefers-color-scheme: light)" />
@@ -26,10 +27,10 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14" /></svg>
             <span data-i18n="install">安裝 App</span>
           </button>
-          <div class="language" role="group" data-i18n-label="language" aria-label="語言">
-            <button type="button" data-language="zh-Hant" lang="zh-Hant" aria-pressed="false">中文</button>
-            <button type="button" data-language="en" lang="en" aria-pressed="false">EN</button>
-          </div>
+          <nav class="language" data-i18n-label="language" aria-label="語言">
+            <a href="./" data-language="zh-Hant" hreflang="zh-Hant" lang="zh-Hant">中文</a>
+            <a href="./en/" data-language="en" hreflang="en" lang="en">EN</a>
+          </nav>
         </div>
       </header>
 
@@ -41,7 +42,7 @@
             </div>
             <figcaption class="caption">
               <span class="caption-meter" aria-hidden="true"><span id="caption-beats">4</span><span>4</span></span>
-              <span class="hint" data-i18n="accentHint">點數字切換：重音 → 一般 → 靜音</span>
+              <span id="hint" class="hint" data-i18n="accentHint">點數字切換：重音 → 一般 → 靜音</span>
             </figcaption>
           </figure>
 
@@ -141,18 +142,53 @@
             </div>
             <p class="note" data-i18n="trainerHint"></p>
           </details>
+        </section>
 
-          <p class="shortcuts">
-            <span class="shortcuts-label" data-i18n="shortcutsLabel">快捷鍵：</span>
-            <span class="shortcut" data-i18n="shortcutPlay">空白鍵 開始／停止</span>
-            <span class="shortcut" data-i18n="shortcutTempo">↑↓ 調整速度（Shift ±10）</span>
-            <span class="shortcut" data-i18n="shortcutTap">T 打拍</span>
-          </p>
+        <section class="guide" aria-labelledby="guide-title">
+          <h2 id="guide-title" data-i18n="guideTitle">使用說明</h2>
+          <p class="guide-intro" data-i18n="guideIntro">免費的線上節拍器，打開就能用：不用下載、不用註冊，也能安裝到手機離線使用。</p>
+          <details class="faq">
+            <summary data-i18n="faqPatternQ">指揮拍式圖怎麼看？</summary>
+            <p data-i18n="faqPatternA">圓點是指揮棒，照指揮的畫法走過小節的每一拍；它落到拍點的那一刻，就是點擊聲。正在響的那一拍，數字會變成實心。</p>
+          </details>
+          <details class="faq">
+            <summary data-i18n="faqAccentQ">怎麼設定重音或靜音？</summary>
+            <p data-i18n="faqAccentA">點拍點上的數字，依序切換重音、一般和靜音。黃色是重音，虛線圓圈是靜音。</p>
+          </details>
+          <details class="faq">
+            <summary data-i18n="faqSubQ">細分拍和搖擺是什麼？</summary>
+            <p data-i18n="faqSubA">細分拍會在每一拍之間加入較輕的點擊：八分、三連音或十六分。搖擺（Shuffle）把每拍分成一長一短，常用於爵士和藍調。</p>
+          </details>
+          <details class="faq">
+            <summary data-i18n="faqTapQ">怎麼用打拍測速？</summary>
+            <p data-i18n="faqTapA">跟著音樂連續點「打拍」（或按 T）四、五下，節拍器就會換成你點的速度。</p>
+          </details>
+          <details class="faq">
+            <summary data-i18n="faqTrainerQ">速度練習怎麼用？</summary>
+            <p data-i18n="faqTrainerA">設定每次調整幾 BPM、每幾小節調整一次和目標速度。開啟後會慢慢加快（或放慢）到目標，適合反覆練習困難的段落。</p>
+          </details>
+          <details class="faq">
+            <summary data-i18n="faqMarkingsQ">速度術語是什麼意思？</summary>
+            <p data-i18n="faqMarkingsA">由慢到快：Larghissimo 最緩板（20–24 BPM）、Grave 莊板（25–44）、Largo 廣板（45–59）、Larghetto 小廣板（60–65）、Adagio 慢板（66–75）、Andante 行板（76–107）、Moderato 中板（108–119）、Allegro 快板（120–155）、Vivace 甚快板（156–175）、Presto 急板（176–199）、Prestissimo 最急板（200 以上）。調整速度時，上方會顯示對應的術語。</p>
+          </details>
+          <details class="faq">
+            <summary data-i18n="faqOfflineQ">可以離線或安裝到手機嗎？</summary>
+            <p data-i18n="faqOfflineA">可以。開過一次之後就能離線使用；在瀏覽器選單選「加入主畫面」或「安裝 App」，就能像一般 App 一樣開啟。</p>
+          </details>
+          <details class="faq">
+            <summary data-i18n="faqKeysQ">有鍵盤快捷鍵嗎？</summary>
+            <ul class="keys">
+              <li data-i18n="shortcutPlay">空白鍵 開始／停止</li>
+              <li data-i18n="shortcutTempo">↑↓ 調整速度（Shift ±10）</li>
+              <li data-i18n="shortcutTap">T 打拍</li>
+            </ul>
+          </details>
         </section>
       </main>
     </div>
 
-    <div id="toast" class="toast" role="status" hidden>
+    <!-- Status messages, never part of a search result snippet. -->
+    <div id="toast" class="toast" role="status" data-nosnippet hidden>
       <span id="toast-text"></span>
       <button id="toast-action" class="toast-action" type="button" hidden></button>
       <button id="toast-close" class="toast-close" type="button" data-i18n-label="dismiss" aria-label="關閉">

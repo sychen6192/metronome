@@ -1,7 +1,31 @@
-import type { LanguagePreference } from './core/settings'
+import type { LanguagePreference } from './core/settings.ts'
 
 const zh = {
   appTitle: '節拍器',
+  pageTitle: '免費線上節拍器｜指揮拍式圖、重音、細分拍，可離線使用',
+  pageDescription:
+    '打開就能用的免費線上節拍器，不用下載、不用註冊。指揮拍式圖讓你用眼角就跟得上拍子；支援重音、八分／三連音／十六分／搖擺、打拍測速和速度練習，還能安裝到手機離線使用。',
+  ogImageAlt: '節拍器 Metronome：指揮拍式圖與速度記號 ♩ = 120',
+  featureList: '指揮拍式圖、重音與靜音、細分拍（八分、三連音、十六分、搖擺）、打拍測速、速度練習、離線使用、可安裝到主畫面',
+  otherLanguage: 'This metronome is also in English.',
+  switchLanguage: 'English',
+  guideTitle: '使用說明',
+  guideIntro: '免費的線上節拍器，打開就能用：不用下載、不用註冊，也能安裝到手機離線使用。',
+  faqPatternQ: '指揮拍式圖怎麼看？',
+  faqPatternA: '圓點是指揮棒，照指揮的畫法走過小節的每一拍；它落到拍點的那一刻，就是點擊聲。正在響的那一拍，數字會變成實心。',
+  faqAccentQ: '怎麼設定重音或靜音？',
+  faqAccentA: '點拍點上的數字，依序切換重音、一般和靜音。黃色是重音，虛線圓圈是靜音。',
+  faqSubQ: '細分拍和搖擺是什麼？',
+  faqSubA: '細分拍會在每一拍之間加入較輕的點擊：八分、三連音或十六分。搖擺（Shuffle）把每拍分成一長一短，常用於爵士和藍調。',
+  faqTapQ: '怎麼用打拍測速？',
+  faqTapA: '跟著音樂連續點「打拍」（或按 T）四、五下，節拍器就會換成你點的速度。',
+  faqTrainerQ: '速度練習怎麼用？',
+  faqTrainerA: '設定每次調整幾 BPM、每幾小節調整一次和目標速度。開啟後會慢慢加快（或放慢）到目標，適合反覆練習困難的段落。',
+  faqOfflineQ: '可以離線或安裝到手機嗎？',
+  faqOfflineA: '可以。開過一次之後就能離線使用；在瀏覽器選單選「加入主畫面」或「安裝 App」，就能像一般 App 一樣開啟。',
+  faqKeysQ: '有鍵盤快捷鍵嗎？',
+  faqMarkingsQ: '速度術語是什麼意思？',
+  faqMarkingsA: '由慢到快：Larghissimo 最緩板（20–24 BPM）、Grave 莊板（25–44）、Largo 廣板（45–59）、Larghetto 小廣板（60–65）、Adagio 慢板（66–75）、Andante 行板（76–107）、Moderato 中板（108–119）、Allegro 快板（120–155）、Vivace 甚快板（156–175）、Presto 急板（176–199）、Prestissimo 最急板（200 以上）。調整速度時，上方會顯示對應的術語。',
   install: '安裝 App',
   language: '語言',
   pattern: '拍式圖：指揮棒依拍子移動',
@@ -43,7 +67,6 @@ const zh = {
   trainerEvery: '每幾小節',
   trainerTarget: '目標速度（BPM）',
   trainerHint: '開啟後，每隔指定小節自動朝目標速度調整，到達後維持不變。',
-  shortcutsLabel: '快捷鍵：',
   shortcutPlay: '空白鍵 開始／停止',
   shortcutTempo: '↑↓ 調整速度（Shift ±10）',
   shortcutTap: 'T 打拍',
@@ -59,6 +82,30 @@ export type MessageKey = keyof typeof zh
 
 const en: Record<MessageKey, string> = {
   appTitle: 'Metronome',
+  pageTitle: 'Free Online Metronome with Conductor Beat Patterns',
+  pageDescription:
+    'A free online metronome that runs in your browser, with no download or sign-up. Follow the beat from the corner of your eye with a conductor’s beat pattern. Accents, subdivisions, tap tempo, a speed trainer, and it works offline.',
+  ogImageAlt: 'Metronome: a conductor’s beat pattern and the tempo mark ♩ = 120',
+  featureList: 'Conductor beat patterns, accented and muted beats, subdivisions (eighths, triplets, sixteenths, swing), tap tempo, speed trainer, works offline, installable',
+  otherLanguage: '這個節拍器也有中文版。',
+  switchLanguage: '中文',
+  guideTitle: 'How to use',
+  guideIntro: 'A free online metronome that works right in your browser: no download, no sign‑up, and you can install it to use offline.',
+  faqPatternQ: 'How do I read the beat pattern?',
+  faqPatternA: 'The dot is the baton. It traces the bar the way a conductor does and lands on each beat exactly on the click. The number of the beat that is sounding turns solid.',
+  faqAccentQ: 'How do I accent or mute a beat?',
+  faqAccentA: 'Tap a beat’s number to cycle it through accent, normal and mute. Yellow means accented; a dashed ring means muted.',
+  faqSubQ: 'What are subdivisions and swing?',
+  faqSubA: 'Subdivisions add quieter clicks between the beats: eighths, triplets or sixteenths. Swing (shuffle) splits each beat into a long and a short click, as in jazz and blues.',
+  faqTapQ: 'How does tap tempo work?',
+  faqTapA: 'Tap the Tap button (or press T) four or five times along with the music, and the metronome takes on your tempo.',
+  faqTrainerQ: 'How does the speed trainer work?',
+  faqTrainerA: 'Choose how many BPM to change, how often in bars, and the target tempo. Once on, it speeds up (or slows down) bit by bit to the target, which is ideal for drilling a hard passage.',
+  faqOfflineQ: 'Does it work offline? Can I install it?',
+  faqOfflineA: 'Yes. After your first visit it works offline. Choose “Add to Home Screen” or “Install app” in your browser’s menu to open it like any other app.',
+  faqKeysQ: 'Are there keyboard shortcuts?',
+  faqMarkingsQ: 'What do the tempo markings mean?',
+  faqMarkingsA: 'From slowest to fastest: Larghissimo, as slow as possible (20–24 BPM); Grave, solemn (25–44); Largo, broad (45–59); Larghetto, a little broad (60–65); Adagio, slow (66–75); Andante, at a walking pace (76–107); Moderato, moderate (108–119); Allegro, fast (120–155); Vivace, lively (156–175); Presto, very fast (176–199); Prestissimo, as fast as possible (200 and up). The marking above the tempo follows as you change it.',
   install: 'Install app',
   language: 'Language',
   pattern: 'Beat pattern: the baton moves with the beat',
@@ -100,7 +147,6 @@ const en: Record<MessageKey, string> = {
   trainerEvery: 'Every N bars',
   trainerTarget: 'Target tempo (BPM)',
   trainerHint: 'When on, the tempo moves towards the target every few bars, then stays there.',
-  shortcutsLabel: 'Shortcuts:',
   shortcutPlay: 'Space start/stop',
   shortcutTempo: '↑↓ tempo (Shift ±10)',
   shortcutTap: 'T tap',
@@ -117,17 +163,29 @@ export type Language = (typeof LANGUAGES)[number]
 
 const MESSAGES: Record<Language, Record<MessageKey, string>> = { 'zh-Hant': zh, en }
 
+/** Every string of one language; the build uses it to write each language's page. */
+export function messagesFor(language: Language): Readonly<Record<MessageKey, string>> {
+  return MESSAGES[language]
+}
+
 /** The browser's first preference decides: any Chinese locale gets Traditional Chinese. */
 export function detectLanguage(preferred: readonly string[]): Language {
   return (preferred[0] ?? '').toLowerCase().startsWith('zh') ? 'zh-Hant' : 'en'
 }
 
-export function resolveLanguage(preference: LanguagePreference): Language {
-  if (preference !== 'auto') return preference
+/** The browser's language preference, as one of ours. */
+export function browserLanguage(): Language {
   return detectLanguage(navigator.languages?.length ? navigator.languages : [navigator.language ?? ''])
 }
 
-let current: Language = resolveLanguage('auto')
+/** An explicit choice wins; otherwise the language of the page (its URL) is used. */
+export function resolveLanguage(preference: LanguagePreference, page: Language): Language {
+  return preference === 'auto' ? page : preference
+}
+
+// Set from the page at startup; nothing here reads the browser at import time, so the build can use
+// this module too.
+let current: Language = 'zh-Hant'
 let messages: Record<MessageKey, string> = MESSAGES[current]
 
 export function setLanguage(language: Language): void {
@@ -149,7 +207,8 @@ export function t(key: MessageKey, vars: Record<string, string | number> = {}): 
  */
 export function translatePage(root: ParentNode = document): void {
   document.documentElement.lang = current
-  document.title = current === 'zh-Hant' ? `${t('appTitle')} Metronome` : t('appTitle')
+  document.title = t('pageTitle')
+  document.querySelector('meta[name="description"]')?.setAttribute('content', t('pageDescription'))
   for (const el of root.querySelectorAll<HTMLElement>('[data-i18n]')) {
     el.textContent = t(el.dataset.i18n as MessageKey)
   }

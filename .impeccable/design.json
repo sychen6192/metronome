@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-15T17:26:34+00:00",
+  "generatedAt": "2026-10-16T00:00:00+00:00",
   "title": "Design System: 節拍器 Metronome",
   "extensions": {
     "colorMeta": {
@@ -300,7 +300,7 @@
       },
       "body": {
         "displayName": "Body",
-        "purpose": "Base text; notes cap at 60ch."
+        "purpose": "Base text; notes cap at 60ch. Metronome Sans TC (bundled variable Noto Sans TC 2.004 subset, wght 400-700, ~78 KB, interface characters only) leads --sans for Chinese and Latin; ± is left out so it falls to the system face. English takes proportional quotes and ellipsis via :lang(en) { font-variant-east-asian: proportional-width }. Weights in use: 400, 500, 600, 650, 700."
       },
       "label": {
         "displayName": "Label",
@@ -308,7 +308,7 @@
       },
       "label-small": {
         "displayName": "Small Label",
-        "purpose": "Accent hint beside the caption signature (balanced wrapping), language switch, trainer field labels, shortcuts, stacked secondary labels at 380px and below."
+        "purpose": "Accent hint beside the caption signature (balanced wrapping), language switch (at 650), trainer field labels, stacked secondary labels at 380px and below."
       },
       "title-numeral-crowded": {
         "displayName": "Crowded Beat Numeral",
@@ -328,7 +328,7 @@
       },
       "title-wordmark": {
         "displayName": "Wordmark",
-        "purpose": "The app name beside the icon, in the score voice: Old Standard TT for Latin, Metronome Wordmark (3-glyph Noto Serif TC Bold subset, unicode-range limited) for 節拍器."
+        "purpose": "The app name beside the icon, in the score voice: Old Standard TT for Latin, Metronome Wordmark (Noto Serif TC Bold subset holding 節拍器 and 使用說明, unicode-range limited) for the Chinese."
       },
       "display-signature-caption": {
         "displayName": "Caption Signature",
@@ -337,6 +337,18 @@
       "label-field": {
         "displayName": "Field Value",
         "purpose": "Trainer number-field values, tabular figures."
+      },
+      "headline-guide": {
+        "displayName": "Guide Heading",
+        "purpose": "The guide's h2 (使用說明 / How to use) in the score voice, an appendix heading."
+      },
+      "label-faq": {
+        "displayName": "FAQ Question",
+        "purpose": "Guide question summaries: soft chalk, full chalk when open or hovered."
+      },
+      "body-guide": {
+        "displayName": "Guide Answer",
+        "purpose": "Guide answers and the shortcut list: line-height 1.7, one 34em measure for both scripts."
       }
     },
     "shadows": [
@@ -413,7 +425,7 @@
     "themes": {
       "dark": "Default; slate tokens (slate, chalk, slate-rule, chalk-path). Baton yellow with slate ring; focus yellow.",
       "light": "prefers-color-scheme: light; paper/navy tokens. Baton navy with yellow ring; yellow shapes take a navy edge; focus navy.",
-      "forcedColors": "Pen strokes, arrowheads and ticks fill CanvasText; ictus bars stroke CanvasText; baton and ripples Highlight; accent beat CanvasText fill; struck beat, selected segment, Trainer-on and pressed language Highlight fills; control borders ButtonText; Start shadow replaced by a 2px ButtonText border.",
+      "forcedColors": "Pen strokes, arrowheads and ticks fill CanvasText; ictus bars stroke CanvasText; baton and ripples Highlight; accent beat CanvasText fill; struck beat, selected segment, Trainer-on and current language Highlight fills; control borders ButtonText; Start shadow replaced by a 2px ButtonText border.",
       "reducedMotion": "Transitions off; no beat scale and no ictus bar widening; baton placed on each ictus without travel; no ripple; held strike fill remains.",
       "noEngraved": "When Metronome Engraved fails to load: note and '=' hidden, BPM plain numerals up to 5rem at line-height 1, legend time signature in display-signature-fallback (1.5rem, line-height 1), caption signature at 0.8125rem line-height 1, subdivision tuplet 3 as a plain Old Standard digit."
     },
@@ -447,7 +459,7 @@
       "refersTo": "button-start",
       "description": "The single primary action: yellow pill, the only lifted object on the board.",
       "html": "<button class=\"ds-start\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7.5 5.2v13.6L18.6 12z\"/></svg><span>Start</span></button>",
-      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-start{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-width:148px;height:64px;padding:0 28px;border:0;border-radius:999px;background:var(--yellow);color:var(--on-yellow);font:700 1.125rem/1 var(--sans);box-shadow:0 6px 18px rgb(0 0 0 / 0.22);cursor:pointer;transition:scale 100ms ease-out,box-shadow 160ms ease-out}.ds-start svg{width:24px;height:24px;fill:currentColor}.ds-start:active{scale:.97;box-shadow:0 2px 8px rgb(0 0 0 / 0.2)}.ds-start:focus-visible{outline:2px solid var(--focus);outline-offset:3px}"
+      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:'Metronome Sans TC',system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-start{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-width:148px;height:64px;padding:0 28px;border:0;border-radius:999px;background:var(--yellow);color:var(--on-yellow);font:700 1.125rem/1 var(--sans);box-shadow:0 6px 18px rgb(0 0 0 / 0.22);cursor:pointer;transition:scale 100ms ease-out,box-shadow 160ms ease-out}.ds-start svg{width:24px;height:24px;fill:currentColor}.ds-start:active{scale:.97;box-shadow:0 2px 8px rgb(0 0 0 / 0.2)}.ds-start:focus-visible{outline:2px solid var(--focus);outline-offset:3px}"
     },
     {
       "name": "Secondary Button",
@@ -455,7 +467,7 @@
       "refersTo": "button-secondary",
       "description": "Tap and Trainer flanking Start: ruled full pill, line icon; stacks into a 20px-radius panel at 380px and below.",
       "html": "<button class=\"ds-secondary\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M3.5 17.5 9 12l4 4 7.5-7.5m0 0H15m5.5 0V14\"/></svg><span>Trainer</span></button>",
-      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-secondary{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:92px;height:52px;padding:0 14px;border:1.5px solid var(--rule);border-radius:999px;background:none;color:var(--ink);font:600 .9375rem/1 var(--sans);cursor:pointer;transition:background-color 160ms ease-out,border-color 160ms ease-out,scale 100ms ease-out}.ds-secondary svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.ds-secondary:hover{background:var(--ground-2)}.ds-secondary:active{scale:.97}.ds-secondary:focus-visible{outline:2px solid var(--focus);outline-offset:3px}.ds-secondary[aria-pressed=true]{border-color:var(--yellow);background:color-mix(in srgb,var(--yellow) 18%,var(--ground))}@media (max-width:380px){.ds-secondary{flex-direction:column;gap:2px;height:64px;padding:0 10px;border-radius:20px;font-size:.8125rem}}"
+      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:'Metronome Sans TC',system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-secondary{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:92px;height:52px;padding:0 14px;border:1.5px solid var(--rule);border-radius:999px;background:none;color:var(--ink);font:600 .9375rem/1 var(--sans);cursor:pointer;transition:background-color 160ms ease-out,border-color 160ms ease-out,scale 100ms ease-out}.ds-secondary svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.ds-secondary:hover{background:var(--ground-2)}.ds-secondary:active{scale:.97}.ds-secondary:focus-visible{outline:2px solid var(--focus);outline-offset:3px}.ds-secondary[aria-pressed=true]{border-color:var(--yellow);background:color-mix(in srgb,var(--yellow) 18%,var(--ground))}@media (max-width:380px){.ds-secondary{flex-direction:column;gap:2px;height:64px;padding:0 10px;border-radius:20px;font-size:.8125rem}}"
     },
     {
       "name": "Step Disc",
@@ -463,7 +475,7 @@
       "refersTo": "button-step",
       "description": "The − and + tempo/meter steps: ruled circle, hold to repeat.",
       "html": "<button class=\"ds-step\" aria-label=\"Faster\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 12h14M12 5v14\"/></svg></button>",
-      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-step{display:grid;place-items:center;width:52px;height:52px;border:1.5px solid var(--rule);border-radius:50%;background:none;color:var(--ink);cursor:pointer;transition:background-color 140ms ease-out,scale 100ms ease-out}.ds-step svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}.ds-step:hover{background:var(--ground-2)}.ds-step:active{scale:.94;background:var(--ground-2)}.ds-step:focus-visible{outline:2px solid var(--focus);outline-offset:3px}"
+      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:'Metronome Sans TC',system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-step{display:grid;place-items:center;width:52px;height:52px;border:1.5px solid var(--rule);border-radius:50%;background:none;color:var(--ink);cursor:pointer;transition:background-color 140ms ease-out,scale 100ms ease-out}.ds-step svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}.ds-step:hover{background:var(--ground-2)}.ds-step:active{scale:.94;background:var(--ground-2)}.ds-step:focus-visible{outline:2px solid var(--focus);outline-offset:3px}"
     },
     {
       "name": "Beat Numerals",
@@ -471,7 +483,7 @@
       "refersTo": "beat-numeral",
       "description": "Accent controls on the beat-pattern figure: accent disc, normal ring, dashed mute, held struck fill.",
       "html": "<div class=\"ds-beats\"><button class=\"ds-beat ds-accent\">1</button><button class=\"ds-beat ds-active\">2</button><button class=\"ds-beat\">3</button><button class=\"ds-beat ds-mute\">4</button></div>",
-      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-beats{display:flex;gap:16px;padding:16px;background:var(--ground)}.ds-beat{display:grid;place-items:center;width:44px;height:44px;border:2px solid var(--path);border-radius:50%;background:var(--ground);color:var(--ink);font:700 1.25rem/1 var(--score);font-variant-numeric:lining-nums;cursor:pointer;transition:scale 140ms ease-out,background-color 160ms ease-out,border-color 160ms ease-out}.ds-beat:hover{border-color:var(--ink)}.ds-beat:focus-visible{outline:2px solid var(--focus);outline-offset:3px}.ds-accent{border-color:var(--yellow);background:var(--yellow);color:var(--on-yellow)}.ds-mute{border-style:dashed;color:var(--ink-3)}.ds-active{scale:1.14;border-color:var(--ink);background:var(--ink);color:var(--ground)}"
+      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:'Metronome Sans TC',system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-beats{display:flex;gap:16px;padding:16px;background:var(--ground)}.ds-beat{display:grid;place-items:center;width:44px;height:44px;border:2px solid var(--path);border-radius:50%;background:var(--ground);color:var(--ink);font:700 1.25rem/1 var(--score);font-variant-numeric:lining-nums;cursor:pointer;transition:scale 140ms ease-out,background-color 160ms ease-out,border-color 160ms ease-out}.ds-beat:hover{border-color:var(--ink)}.ds-beat:focus-visible{outline:2px solid var(--focus);outline-offset:3px}.ds-accent{border-color:var(--yellow);background:var(--yellow);color:var(--on-yellow)}.ds-mute{border-style:dashed;color:var(--ink-3)}.ds-active{scale:1.14;border-color:var(--ink);background:var(--ink);color:var(--ground)}"
     },
     {
       "name": "Tempo Mark",
@@ -479,15 +491,15 @@
       "refersTo": "typography.display",
       "description": "The tempo set as a score prints it: Italian marking over an engraved metronome mark.",
       "html": "<div class=\"ds-tempo\"><span class=\"ds-marking\">Allegro</span><span class=\"ds-mark\"><svg class=\"ds-note\" viewBox=\"0 0 12 34\" fill=\"currentColor\" aria-hidden=\"true\"><ellipse cx=\"5\" cy=\"28\" rx=\"4.6\" ry=\"3.3\" transform=\"rotate(-20 5 28)\"/><rect x=\"8\" y=\"2\" width=\"1.6\" height=\"26\"/></svg><span class=\"ds-eq\">=</span><span>120</span></span></div>",
-      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-tempo{display:grid;justify-items:center;gap:4px;padding:16px;background:var(--ground);color:var(--ink)}.ds-marking{font:700 1.375rem/1.2 var(--score);letter-spacing:.01em}.ds-mark{display:flex;align-items:baseline;gap:.1em;font:700 5rem/1 var(--engraved);font-variant-numeric:tabular-nums}.ds-note{width:.22em;height:.62em;align-self:center}.ds-eq{font:700 .34em var(--score);translate:0 -.7em;margin-right:.08em}"
+      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:'Metronome Sans TC',system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-tempo{display:grid;justify-items:center;gap:4px;padding:16px;background:var(--ground);color:var(--ink)}.ds-marking{font:700 1.375rem/1.2 var(--score);letter-spacing:.01em}.ds-mark{display:flex;align-items:baseline;gap:.1em;font:700 5rem/1 var(--engraved);font-variant-numeric:tabular-nums}.ds-note{width:.22em;height:.62em;align-self:center}.ds-eq{font:700 .34em var(--score);translate:0 -.7em;margin-right:.08em}"
     },
     {
       "name": "Figure Caption",
       "kind": "custom",
       "refersTo": "typography.display-signature-caption",
-      "description": "The beat-pattern figure's caption: engraved stacked metre, then the accent hint, 20px below the figure.",
+      "description": "The beat-pattern figure's caption: engraved stacked metre, then the accent hint, 20px below the figure. The hint retires after the first accent change.",
       "html": "<figcaption class=\"ds-caption\"><span class=\"ds-caption-meter\" aria-hidden=\"true\"><span>4</span><span>4</span></span><span class=\"ds-hint\">Tap a numeral: accent → normal → mute</span></figcaption>",
-      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-caption{display:flex;align-items:center;justify-content:center;gap:12px;margin:20px 0 0;padding:16px;background:var(--ground)}.ds-caption-meter{display:grid;flex:none;justify-items:center;color:var(--ink-2);font-family:var(--engraved);font-size:1.5rem;line-height:.56}.ds-hint{color:var(--ink-3);font:.8125rem var(--sans);text-wrap:balance}"
+      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:'Metronome Sans TC',system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-caption{display:flex;align-items:center;justify-content:center;gap:12px;margin:20px 0 0;padding:16px;background:var(--ground)}.ds-caption-meter{display:grid;flex:none;justify-items:center;color:var(--ink-2);font-family:var(--engraved);font-size:1.5rem;line-height:.56}.ds-hint{color:var(--ink-3);font:.8125rem var(--sans);text-wrap:balance}"
     },
     {
       "name": "Subdivision Segments",
@@ -495,7 +507,7 @@
       "refersTo": "segment",
       "description": "Five equal cells with drawn note groups; selected fills chalk.",
       "html": "<div class=\"ds-seg\"><label class=\"ds-cell\"><input type=\"radio\" name=\"ds-sub\"><svg viewBox=\"0 0 44 34\" fill=\"currentColor\"><ellipse cx=\"20\" cy=\"28\" rx=\"3.7\" ry=\"2.7\" transform=\"rotate(-20 20 28)\"/><rect x=\"22.3\" y=\"11\" width=\"1.5\" height=\"17\"/></svg></label><label class=\"ds-cell\"><input type=\"radio\" name=\"ds-sub\" checked><svg viewBox=\"0 0 44 34\" fill=\"currentColor\"><ellipse cx=\"12\" cy=\"28\" rx=\"3.7\" ry=\"2.7\" transform=\"rotate(-20 12 28)\"/><ellipse cx=\"28\" cy=\"28\" rx=\"3.7\" ry=\"2.7\" transform=\"rotate(-20 28 28)\"/><rect x=\"14.3\" y=\"11\" width=\"1.5\" height=\"17\"/><rect x=\"30.3\" y=\"11\" width=\"1.5\" height=\"17\"/><rect x=\"14.3\" y=\"11\" width=\"17.5\" height=\"2.6\"/></svg></label></div>",
-      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-seg{display:grid;grid-template-columns:repeat(2,64px);gap:4px;padding:12px;background:var(--ground-2)}.ds-cell{position:relative;display:grid;place-items:center;height:48px;border:1.5px solid var(--rule);border-radius:10px;color:var(--ink-2);cursor:pointer;transition:background-color 160ms ease-out,color 160ms ease-out}.ds-cell input{position:absolute;inset:0;margin:0;opacity:0;cursor:pointer}.ds-cell svg{width:38px;height:auto;pointer-events:none}.ds-cell:hover{background:#111a2d}.ds-cell:has(input:checked){border-color:var(--ink);background:var(--ink);color:var(--ground)}.ds-cell:has(input:focus-visible){outline:2px solid var(--focus);outline-offset:2px}"
+      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:'Metronome Sans TC',system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-seg{display:grid;grid-template-columns:repeat(2,64px);gap:4px;padding:12px;background:var(--ground-2)}.ds-cell{position:relative;display:grid;place-items:center;height:48px;border:1.5px solid var(--rule);border-radius:10px;color:var(--ink-2);cursor:pointer;transition:background-color 160ms ease-out,color 160ms ease-out}.ds-cell input{position:absolute;inset:0;margin:0;opacity:0;cursor:pointer}.ds-cell svg{width:38px;height:auto;pointer-events:none}.ds-cell:hover{background:#111a2d}.ds-cell:has(input:checked){border-color:var(--ink);background:var(--ink);color:var(--ground)}.ds-cell:has(input:focus-visible){outline:2px solid var(--focus);outline-offset:2px}"
     },
     {
       "name": "Select Field",
@@ -503,32 +515,40 @@
       "refersTo": "field",
       "description": "Sound picker: ground-filled field cut into the raised legend, drawn chevron.",
       "html": "<select class=\"ds-select\"><option>Wood block</option><option>Click</option></select>",
-      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-select{width:240px;min-height:46px;padding:0 40px 0 14px;border:1.5px solid var(--rule);border-radius:10px;color:var(--ink);font:1rem var(--sans);background:linear-gradient(45deg,transparent 50%,var(--ink-2) 50%) right 20px center/6px 6px no-repeat,linear-gradient(-45deg,transparent 50%,var(--ink-2) 50%) right 14px center/6px 6px no-repeat,var(--ground);appearance:none;-webkit-appearance:none}.ds-select:focus-visible{outline:2px solid var(--focus);outline-offset:3px}"
+      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:'Metronome Sans TC',system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-select{width:240px;min-height:46px;padding:0 40px 0 14px;border:1.5px solid var(--rule);border-radius:10px;color:var(--ink);font:1rem var(--sans);background:linear-gradient(45deg,transparent 50%,var(--ink-2) 50%) right 20px center/6px 6px no-repeat,linear-gradient(-45deg,transparent 50%,var(--ink-2) 50%) right 14px center/6px 6px no-repeat,var(--ground);appearance:none;-webkit-appearance:none}.ds-select:focus-visible{outline:2px solid var(--focus);outline-offset:3px}"
     },
     {
       "name": "Language Switch",
       "kind": "nav",
-      "refersTo": "language-switch-pressed",
-      "description": "Top-bar 中文/EN pill pair; pressed fills chalk.",
-      "html": "<div class=\"ds-lang\"><button aria-pressed=\"true\">中文</button><button aria-pressed=\"false\">EN</button></div>",
-      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-lang{display:inline-flex;padding:3px;border:1px solid var(--rule);border-radius:999px;background:var(--ground)}.ds-lang button{min-width:44px;min-height:34px;padding:0 10px;border:0;border-radius:999px;background:none;color:var(--ink-2);font:650 .8125rem var(--sans);cursor:pointer;transition:background-color 160ms ease-out,color 160ms ease-out}.ds-lang button[aria-pressed=true]{background:var(--ink);color:var(--ground)}.ds-lang button:focus-visible{outline:2px solid var(--focus);outline-offset:3px}"
+      "refersTo": "language-switch-current",
+      "description": "Top-bar 中文/EN pair of link pills, one URL per language; the current page's pill (aria-current=page) fills chalk.",
+      "html": "<nav class=\"ds-lang\" aria-label=\"Language\"><a href=\"./\" hreflang=\"zh-Hant\" lang=\"zh-Hant\" aria-current=\"page\">中文</a><a href=\"./en/\" hreflang=\"en\" lang=\"en\">EN</a></nav>",
+      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:'Metronome Sans TC',system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-lang{display:inline-flex;padding:3px;border:1px solid var(--rule);border-radius:999px;background:var(--ground)}.ds-lang a{display:inline-grid;place-items:center;min-width:44px;min-height:34px;padding:0 10px;border-radius:999px;color:var(--ink-2);font:650 .8125rem var(--sans);text-decoration:none;white-space:nowrap;transition:background-color 160ms ease-out,color 160ms ease-out}.ds-lang a[aria-current=page]{background:var(--ink);color:var(--ground)}.ds-lang a:focus-visible{outline:2px solid var(--focus);outline-offset:3px}"
     },
     {
       "name": "Toast",
       "kind": "card",
       "refersTo": "toast",
-      "description": "Bottom status message with optional yellow action; never interrupts playback.",
-      "html": "<div class=\"ds-toast\" role=\"status\"><span>Update ready</span><button class=\"ds-toast-action\">Reload</button></div>",
-      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-toast{display:inline-flex;align-items:center;gap:8px;padding:8px 8px 8px 16px;border-radius:14px;background:var(--ink);color:var(--ground);font:.9375rem var(--sans);box-shadow:0 10px 30px rgb(0 0 0 / 0.3)}.ds-toast-action{min-height:40px;padding:0 14px;border:0;border-radius:10px;background:var(--yellow);color:var(--on-yellow);font:700 .9375rem var(--sans);cursor:pointer}.ds-toast-action:focus-visible{outline:2px solid var(--ground);outline-offset:3px}"
+      "description": "Bottom status message with optional yellow action; never interrupts playback; data-nosnippet keeps it out of search snippets.",
+      "html": "<div class=\"ds-toast\" role=\"status\" data-nosnippet><span>Update ready</span><button class=\"ds-toast-action\">Reload</button></div>",
+      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:'Metronome Sans TC',system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-toast{display:inline-flex;align-items:center;gap:8px;padding:8px 8px 8px 16px;border-radius:14px;background:var(--ink);color:var(--ground);font:.9375rem var(--sans);box-shadow:0 10px 30px rgb(0 0 0 / 0.3)}.ds-toast-action{min-height:40px;padding:0 14px;border:0;border-radius:10px;background:var(--yellow);color:var(--on-yellow);font:700 .9375rem var(--sans);cursor:pointer}.ds-toast-action:focus-visible{outline:2px solid var(--ground);outline-offset:3px}"
+    },
+    {
+      "name": "Guide",
+      "kind": "custom",
+      "refersTo": "guide",
+      "description": "使用說明 / How to use: a quiet appendix below the settings. Score-voice heading, balanced intro, eight details.faq questions with rules between them and the trainer's chevron; answers at 1.7 in a 34em measure. The keyboard shortcuts live in the last answer.",
+      "html": "<section class=\"ds-guide\"><h2>How to use</h2><p class=\"ds-intro\">A free online metronome that works as soon as it opens.</p><details class=\"ds-faq\" open><summary>How do I read the beat pattern?</summary><p>The dot is the baton. It travels the bar the way a conductor draws it; the click sounds as it lands on each beat.</p></details><details class=\"ds-faq\"><summary>Are there keyboard shortcuts?</summary><ul class=\"ds-keys\"><li>Space Start / stop</li><li>↑↓ Change tempo (Shift ±10)</li><li>T Tap tempo</li></ul></details></section>",
+      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:'Metronome Sans TC',system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-guide{width:min(100%,36rem);margin:0 auto;padding:40px 0 32px;background:var(--ground);color:var(--ink);font:400 1rem/1.5 var(--sans)}.ds-guide h2{margin:0 0 8px;font:700 1.25rem var(--score);letter-spacing:.01em}.ds-intro{margin:0 0 20px;max-width:34em;color:var(--ink-2);font-size:.9375rem;text-wrap:balance;word-break:keep-all}.ds-faq{border-top:1px solid var(--rule)}.ds-faq:last-of-type{border-bottom:1px solid var(--rule)}.ds-faq summary{display:flex;align-items:center;gap:12px;min-height:52px;padding-block:8px;color:var(--ink-2);font-size:.9375rem;font-weight:500;cursor:pointer;list-style:none}.ds-faq summary::-webkit-details-marker{display:none}.ds-faq summary::after{content:'';flex:none;width:8px;height:8px;margin-inline:auto 6px;border-right:2px solid var(--ink-2);border-bottom:2px solid var(--ink-2);transform:translateY(-2px) rotate(45deg);transition:transform 160ms ease-out}.ds-faq[open] summary::after{transform:translateY(2px) rotate(-135deg)}.ds-faq[open] summary,.ds-faq summary:hover{color:var(--ink)}.ds-faq summary:focus-visible{outline:2px solid var(--focus);outline-offset:3px}.ds-faq p,.ds-keys{max-width:34em;margin:0 0 16px;color:var(--ink-2);font-size:.9375rem;line-height:1.7;text-wrap:pretty}.ds-keys{padding-inline-start:1.25em}"
     }
   ],
   "narrative": {
     "northStar": "The Conductor's Board",
-    "overview": "The bar is drawn the way a conductor draws it in a textbook: a beat-pattern figure (downbeat falling straight, the upbeat rising, side beats on the plane of beating) traced by a single yellow baton point that strikes each ictus on the click. The world is a music-room chalkboard: icon-navy slate owns the surface, strokes and numerals are chalk, and one yellow marks the baton and the accents. In light mode the same drawing becomes a conducting-textbook page: navy ink on cool paper, with yellow kept as a highlighter fill that always carries an ink edge.\n\nMusic notation is the type voice wherever the app speaks musically. The tempo is set as a score prints it, an Italian marking over an engraved metronome mark (\"Allegro / ♩ = 120\"); the meter is a real stacked time signature, in the legend and again in the figure's caption; the app's own name is set in the score voice; the tempo slider is an engraved metronome scale whose thumb is the pendulum's sliding weight. Everything operational (labels, buttons, settings) is quiet system sans, so the notation reads as the content and the chrome recedes.\n\nDensity is low and glance-first: the figure takes the upper half of the screen, the tempo mark sits at arm's-length size between large − and + discs, and Start is the one filled object in the transport. Settings sit beneath as a diagram's legend on a slightly raised slate. Motion exists only to show time: the baton's travel, a held strike state, one ripple per beat. Nothing flashes. The figure itself is drawn as a pen draws it, light through each rebound and pressing into each ictus, with one arrowhead on each fall and a short printed bar where the baton strikes.",
+    "overview": "The bar is drawn the way a conductor draws it in a textbook: a beat-pattern figure (downbeat falling straight, the upbeat rising, side beats on the plane of beating) traced by a single yellow baton point that strikes each ictus on the click. The world is a music-room chalkboard: icon-navy slate owns the surface, strokes and numerals are chalk, and one yellow marks the baton and the accents. In light mode the same drawing becomes a conducting-textbook page: navy ink on cool paper, with yellow kept as a highlighter fill that always carries an ink edge.\n\nMusic notation is the type voice wherever the app speaks musically. The tempo is set as a score prints it, an Italian marking over an engraved metronome mark (\"Allegro / ♩ = 120\"); the meter is a real stacked time signature, in the legend and again in the figure's caption; the app's own name is set in the score voice; the tempo slider is an engraved metronome scale whose thumb is the pendulum's sliding weight. Everything operational (labels, buttons, settings, the guide) is a quiet sans, bundled so every device sets it the same way, so the notation reads as the content and the chrome recedes.\n\nDensity is low and glance-first: the figure takes the upper half of the screen, the tempo mark sits at arm's-length size between large − and + discs, and Start is the one filled object in the transport. Settings sit beneath as a diagram's legend on a slightly raised slate, and a short guide closes the page as a quiet appendix: the instructions live there, not in small print around the instrument. Motion exists only to show time: the baton's travel, a held strike state, one ripple per beat. Nothing flashes. The figure itself is drawn as a pen draws it, light through each rebound and pressing into each ictus, with one arrowhead on each fall and a short printed bar where the baton strikes.",
     "keyCharacteristics": [
       "Navy slate (dark) or cool paper (light) surface, chalk/ink strokes, a single yellow.",
       "The beat-pattern figure is the hero and the accent control at once.",
-      "Engraved Bravura-derived numerals and Old Standard TT for everything musical and for the wordmark; system sans for chrome.",
+      "Engraved Bravura-derived numerals and Old Standard TT for everything musical and for the wordmark; Metronome Sans TC (bundled Noto Sans TC) for chrome.",
       "Pen-weighted strokes, arrowheads and ictus bars hold their on-screen size at every figure size.",
       "Round and pill forms throughout; flat surfaces with one soft lift under Start.",
       "Strike states are held, not flashed; reduced motion keeps the information and drops the travel."
@@ -551,7 +571,7 @@
       },
       {
         "name": "The Notation Voice Rule",
-        "body": "Any musical quantity (tempo, meter, beat number, tuplet number, tempo marking) and the app's wordmark are set in the engraved face or the score serif; any instruction or setting name is set in system sans. Never swap them.",
+        "body": "Any musical quantity (tempo, meter, beat number, tuplet number, tempo marking) and the app's wordmark are set in the engraved face or the score serif; any instruction or setting name is set in the sans. The guide's heading is the one prose element in the score voice, as an appendix title. Never swap them.",
         "section": "typography"
       },
       {
@@ -573,6 +593,11 @@
         "name": "The Clear Arrow Rule",
         "body": "An arrowhead appears only where it is clear of every numeral, mark, tick, the baton and the other strokes; where nothing is clear, the stroke goes without. Better no arrow than one hidden or misread.",
         "section": "components"
+      },
+      {
+        "name": "The Proportional English Rule",
+        "body": "The interface face's quotes and ellipsis are full-width, for Chinese; English text takes their proportional forms through :lang(en) { font-variant-east-asian: proportional-width }. Every English run carries lang=\"en\".",
+        "section": "typography"
       }
     ],
     "dos": [
@@ -582,7 +607,9 @@
       "**Do** keep touch targets at 44px or larger (52px step discs, 64px Start) and let the figure, tempo mark and Start share the first viewport.",
       "**Do** give every state a fill or border that survives forced colours, and keep selected states as fills distinct from the focus outline.",
       "**Do** draw the pattern with pen weight (1.5px rebound, 3.4px ictus, 4.8px downbeat) and printed 16px ictus bars, sized in screen px.",
-      "**Do** degrade to plain numerals when the engraved face is unavailable rather than squeezing a fallback into engraved metrics."
+      "**Do** degrade to plain numerals when the engraved face is unavailable rather than squeezing a fallback into engraved metrics.",
+      "**Do** put instructions in the guide, not in small text around the instrument; small text that teaches retires once it has been used.",
+      "**Do** add any new interface character to the Metronome Sans TC subset (scripts/build-fonts.py), and any new score-voice Chinese to Metronome Wordmark, rather than letting it fall through to a system face."
     ],
     "donts": [
       "**Don't** flash, pulse or loop decoration on the beat; motion only shows the baton's travel and one ripple per strike, and none of it may delay the click.",
