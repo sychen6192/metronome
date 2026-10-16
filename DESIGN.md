@@ -11,6 +11,7 @@ colors:
   slate-rule: "#33405f"
   chalk-path: "rgb(236 239 246 / 0.6)"
   baton-yellow: "#fccf3f"
+  coffee-yellow: "#ffdd00"
   paper: "#f3f5f9"
   paper-raised: "#e7ebf3"
   paper-deep: "#d9dfeb"
@@ -56,9 +57,9 @@ typography:
     fontFamily: "'Old Standard TT', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif"
     fontSize: "1.25rem"
     lineHeight: 1
-  display-support-mark:
-    fontFamily: "'Metronome Engraved', 'Old Standard TT', Georgia, serif"
-    fontSize: "1.875rem"
+  label-coffee:
+    fontFamily: "'Metronome Coffee', cursive"
+    fontSize: "1.5rem"
     lineHeight: 1
   label-score:
     fontFamily: "'Old Standard TT', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif"
@@ -98,6 +99,7 @@ typography:
     fontWeight: 400
 rounded:
   weight: "7px"
+  coffee: "8px"
   field: "10px"
   toast: "14px"
   panel: "20px"
@@ -247,7 +249,7 @@ A two-theme monochrome-navy system with exactly one chromatic accent, yellow, sh
 - In light mode the baton is yellow with a navy ring, the focus ring is navy, and yellow shapes take a navy edge. An accent beat rests as the highlighter disc (yellow, 2px navy edge, navy numeral) and strikes navy with a yellow ring and a paper numeral.
 
 ### Named Rules
-**The One Yellow Rule.** Yellow is the only hue. It marks the baton, accents and the single primary action; it never decorates, never tints a surface beyond the 18% pressed-toggle mix, and never appears as text on a light ground.
+**The One Yellow Rule.** Yellow is the only hue. It marks the baton, accents and the single primary action; it never decorates, never tints a surface beyond the 18% pressed-toggle mix, and never appears as text on a light ground. The one exception is Buy Me a Coffee's own button at the foot of the settings band, in its brand yellow (#ffdd00) by the owner's choice: small, last, and never on the stage.
 
 **The Ink-Edged Highlighter Rule.** On paper, yellow is a fill that always carries a navy edge (3px on the ruler weight, 2px on resting accent beats, a navy ring on the baton) or navy text inside it. Yellow alone never stands as a shape on the light ground.
 
@@ -261,6 +263,7 @@ A two-theme monochrome-navy system with exactly one chromatic accent, yellow, sh
 **Score Font:** Old Standard TT Bold (with Iowan Old Style, Palatino, Georgia)
 **Wordmark Font:** Old Standard TT for Latin, with Metronome Wordmark for the Chinese of the score voice (a subset of Noto Serif TC Bold, SIL OFL 1.1, holding only 節拍器, the wordmark, and limited to it by `unicode-range`), then the score stack
 **Italic Score Font:** Metronome Score Italic (a subset of Old Standard TT Italic 400, SIL OFL 1.1, holding only the letters of "accel." and "rit." and limited to them by `unicode-range`; built by `scripts/build-fonts.py --italic`), then the score stack
+**Support Lettering:** Metronome Coffee (a subset of Cookie, SIL OFL 1.1, holding only the letters of "Buy me a coffee", renamed for Cookie's Reserved Font Name, limited by `unicode-range`; built by `scripts/build-fonts.py --coffee`): the lettering Buy Me a Coffee's own buttons use, for that button only.
 **Body Font:** Metronome Sans TC (a bundled variable subset of Noto Sans TC 2.004, SIL OFL 1.1, wght 400-700, about 54 KB, holding only the characters the interface uses; built by `scripts/build-fonts.py`), leading `--sans` for Chinese and Latin alike so every device sets the interface the same way; then system-ui, -apple-system, Segoe UI, PingFang TC, Noto Sans TC, Microsoft JhengHei. ± is deliberately left out of the subset (the font has only a full-width form, and it always sits beside Latin digits) so it falls through to the system face; the minus sign (U+2212), which the trainer's step rule writes, is in it. Weights in use: 400, 500, 600, 650, 700.
 
 **Character:** Engraved music numerals and a Didone-flavoured score serif carry every musical value; a neutral sans carries every instruction, so the two never compete.
@@ -273,7 +276,7 @@ A two-theme monochrome-navy system with exactly one chromatic accent, yellow, sh
 - **Title, beat numerals** (Old Standard 700, 1.25rem, lining figures): the numerals on the figure.
 - **Title, crowded numerals** (Old Standard 700, 0.875rem, lining figures): beat numerals in bars of more than 8 beats, sitting on their ictus.
 - **Display, signature fallback** (Old Standard, 1.25rem, line-height 1): the time signature as plain digits when the engraved face is unavailable.
-- **Display, support mark** (engraved, 1.875rem, line-height 1): the "♩ =" of the support pill's coffee mark; the note at 0.62em, the score "=" at 0.5em, the drawn cup at 26px.
+- **Label, coffee** (Metronome Coffee, 1.5rem, line-height 1): "Buy me a coffee" on the support button, in both languages, as Buy Me a Coffee prints it.
 - **Label, score** (Old Standard 700, 0.8125rem): Italian markings engraved on the ruler.
 - **Title, wordmark** (Old Standard / Metronome Wordmark 700, 1.125rem, +0.02em): the app name beside the icon, in the score voice like the tempo marking.
 - **Body** (sans 400, 1rem, 1.5): base text; long notes cap at 60ch.
@@ -365,7 +368,7 @@ The conductor's diagram for 1 to 16 beats, drawn in a fixed 400×260 SVG box tha
 "Marking over ♩ = BPM" between the step discs; the marking row spans all three columns and never wraps. The engraved BPM scales with its container to fill the space between − and + up to 8rem (72px on short screens), with tabular digits so the width holds as the tempo changes. While the speed trainer is on and its target differs from the tempo, the marking gives way to the tempo change, "accel. → ♩ = 160" plus the step rule ("每 4 小節 +5", "+5 every 4 bars"); when the trainer is off or the target is reached, the marking returns. Stop returns to the tempo the run started from, and only that tempo is stored; a tempo set by hand mid-run becomes the start, and switching off mid-run keeps the tempo reached.
 
 ### Support link
-The settings band closes with one centred pill, built like the transport's secondary buttons (48px tall, 1.5px rule border, label at 0.9375rem 600 in chalk; hover fills deep slate). It opens with a metronome mark whose tempo is a coffee, "♩ = ☕": the engraved quarter note and the score "=" beside a line-drawn cup with steam (26px, 1.8px stroke), then "請我喝杯咖啡 / Buy me a coffee". It opens buymeacoffee.com in a new tab so playback carries on. Without the engraved face the note and "=" drop and the cup remains. Nothing else in the app asks for anything, and the pill carries no yellow: that stays with Start.
+The settings band closes with Buy Me a Coffee's own button, centred and kept small: 40px tall (44px to the touch), 8px radius, its brand yellow (#ffdd00), its cup logo (Simple Icons, CC0) at 20px and "Buy me a coffee" in the Cookie lettering its buttons use (Metronome Coffee, 1.5rem), in slate navy. The same English button on both language pages, as the service prints it; hover darkens it slightly. It opens buymeacoffee.com in a new tab so playback carries on. Nothing else in the app asks for anything. A transparent 1px edge gives it an outline in forced colours.
 
 ### Toast
 Chalk (ink in light) rounded box, 0.9375rem text, an optional yellow 44px action (its label never wraps) and a 44px close button, with the floating shadow. Every toast sits in one place, never over the instrument (not the figure, whose baton rests at its top, nor Start): under 900px over the header row (4px below the top plus the safe area), from 900px under the header at the right, beneath the language switch (placed from the header's measured height). Used for update-ready and install messages, the offer of the page in the other language (its text carries that language's `lang`; starting playback passes over it, as if closed), and on iPhone and iPad, where browsers have no install prompt, the Add to Home Screen steps behind the Install button, which stay until closed. It never interrupts playback. Messages wrap in balanced lines; Chinese breaks with `line-break: strict`, never before its punctuation. It carries `data-nosnippet` so status text never appears in a search result.

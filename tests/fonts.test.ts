@@ -70,6 +70,17 @@ describe('score-voice Chinese font', () => {
   })
 })
 
+describe('support button lettering', () => {
+  it('covers the button label', () => {
+    const covered = unicodeRange('Metronome Coffee')
+    const html = readFileSync(join(root, 'index.html'), 'utf8')
+    const label = /<a class="coffee"[^>]*>[\s\S]*?<\/svg>\s*([^<]*?)\s*<\/a>/.exec(html)?.[1] ?? ''
+    expect(label).toBe('Buy me a coffee')
+    const missing = [...label].filter((char) => !covered.has(char))
+    expect(missing.join(''), 'add them to COFFEE_TEXT, re-run scripts/build-fonts.py --coffee, update unicode-range').toBe('')
+  })
+})
+
 describe('score italic font', () => {
   it('covers the tempo changes the speed trainer writes', () => {
     const covered = unicodeRange('Metronome Score Italic')
