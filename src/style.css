@@ -894,11 +894,6 @@ button svg {
   border-bottom: 1px solid var(--rule);
 }
 
-/* The band's own edge closes its last row. */
-.settings > .trainer:last-child {
-  border-bottom: 0;
-}
-
 .trainer summary {
   display: flex;
   align-items: center;
@@ -962,6 +957,39 @@ button svg {
   background: var(--ground);
   font-size: 1.0625rem;
   font-variant-numeric: tabular-nums;
+}
+
+/* A quiet thank-you link, the last line of the band. */
+.support {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 8px 0 4px;
+}
+
+.support a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  color: var(--ink-3);
+  font-size: 0.8125rem;
+  text-decoration: none;
+}
+
+.support a:hover {
+  color: var(--ink-2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.support svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .note {

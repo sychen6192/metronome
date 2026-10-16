@@ -334,6 +334,9 @@ The conductor's diagram for 1 to 16 beats, drawn in a fixed 400×260 SVG box tha
 ### Tempo Mark (signature)
 "Marking over ♩ = BPM" between the step discs; the engraved BPM scales with its container to fill the space between − and + up to 8rem, with tabular digits so the width holds as the tempo changes.
 
+### Support link
+The settings band ends with one quiet line: a 16px line-drawn cup and "請我喝杯咖啡 / Buy me a coffee" in ink-3 at 0.8125rem (ink-2 and underlined on hover), opening buymeacoffee.com in a new tab so playback carries on. Nothing else in the app asks for anything.
+
 ### Toast
 Chalk (ink in light) rounded box at the bottom centre, 0.9375rem text, an optional yellow 40px action (its label never wraps) and a 40px close button, with the floating shadow. Used for update-ready and install messages; it never interrupts playback. Toasts about the page itself sit under the header instead, clear of the transport: the offer of the page in the other language (its text carries that language's `lang`), and on iPhone and iPad, where browsers have no install prompt, the Add to Home Screen steps behind the Install button, which stay until closed. Messages wrap in balanced lines, Chinese after punctuation where it can. It carries `data-nosnippet` so status text never appears in a search result.
 
