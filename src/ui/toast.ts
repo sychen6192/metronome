@@ -6,11 +6,18 @@ export interface ToastAction {
   run: () => void
 }
 
-interface Toast {
-  message: MessageKey
-  action?: ToastAction
+export interface ToastOptions {
   /** Called when the user closes the toast without acting on it. */
   dismissed?: () => void
+  /** Language of the message and action when it isn't the page's (an offer of the other language). */
+  lang?: string
+  /** Under the header instead of over the transport: for an offer made as the page opens. */
+  top?: boolean
+}
+
+interface Toast extends ToastOptions {
+  message: MessageKey
+  action?: ToastAction
 }
 
 const toast = document.getElementById('toast')!
@@ -38,10 +45,10 @@ actionButton.addEventListener('click', () => {
   top?.action?.run()
 })
 
-export function showToast(message: MessageKey, action?: ToastAction, dismissed?: () => void): void {
+export function showToast(message: MessageKey, action?: ToastAction, options: ToastOptions = {}): void {
   if (action) {
     dismissToast(message)
-    persistent.push({ message, action, dismissed })
+    persistent.push({ message, action, ...options })
   } else {
     clearTransient()
     transient = { message }
@@ -80,4 +87,9 @@ export function render(): void {
   text.textContent = t(current.message)
   actionButton.hidden = !current.action
   actionButton.textContent = current.action ? t(current.action.label) : ''
+  for (const part of [text, actionButton]) {
+    if (current.lang) part.lang = current.lang
+    else part.removeAttribute('lang')
+  }
+  toast.classList.toggle('top', Boolean(current.top))
 }

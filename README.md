@@ -2,7 +2,7 @@
 
 A metronome that draws the bar the way a conductor does. Free, installable, works offline.
 
-**[Open it](https://sychen6192.github.io/metronome/)** · [English page](https://sychen6192.github.io/metronome/en/)
+**[440bpm.app](https://440bpm.app/)** · [English](https://440bpm.app/en/)
 
 Twin app: [Tuner](https://github.com/sychen6192/tuner), a chromatic tuner on the same chalkboard, in the same score type.
 
@@ -30,9 +30,9 @@ npm run preview   # serve the build (the service worker runs here only)
 
 ## Deploy
 
-Pushes to `main` deploy to GitHub Pages (Settings → Pages → Source: GitHub Actions).
+Pushes to `main` deploy to GitHub Pages, served at the custom domain 440bpm.app.
 `homepage` in `package.json` is the canonical URL behind every canonical, hreflang, sitemap and
-Open Graph tag: set it to your domain.
+Open Graph tag.
 
 ## Assets
 
