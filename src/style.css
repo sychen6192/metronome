@@ -1017,9 +1017,13 @@ button svg {
   bottom: auto;
 }
 
-/* The message wraps; the action keeps its label on one line (Chinese would break anywhere). */
+/* The message wraps in balanced lines, Chinese after punctuation where it can; the action keeps
+   its label on one line. */
 #toast-text {
   min-width: 0;
+  text-wrap: balance;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 }
 
 .toast-action {
