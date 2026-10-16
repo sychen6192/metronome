@@ -280,7 +280,7 @@ Flat by default. Depth comes from tonal grounds (slate, raised slate for the leg
 
 ### Shadow Vocabulary
 - **Start lift** (`box-shadow: 0 6px 18px rgb(0 0 0 / 0.22)`, pressing to `0 2px 8px rgb(0 0 0 / 0.2)`): the Start/Stop button only.
-- **Floating toast** (`box-shadow: 0 10px 30px rgb(0 0 0 / 0.3)`): transient status messages at the bottom of the screen.
+- **Floating toast** (`box-shadow: 0 10px 30px rgb(0 0 0 / 0.3)`): transient status messages at the bottom of the screen (the language offer under the header).
 
 ### Named Rules
 **The One Lifted Object Rule.** Only the primary action casts a shadow on the board; everything else is drawn on it.
@@ -335,7 +335,7 @@ The conductor's diagram for 1 to 16 beats, drawn in a fixed 400×260 SVG box tha
 "Marking over ♩ = BPM" between the step discs; the engraved BPM scales with its container to fill the space between − and + up to 8rem, with tabular digits so the width holds as the tempo changes.
 
 ### Toast
-Chalk (ink in light) rounded box at the bottom centre, 0.9375rem text, an optional yellow 40px action and a 40px close button, with the floating shadow. Used for update-ready and install messages; it never interrupts playback. It carries `data-nosnippet` so status text never appears in a search result.
+Chalk (ink in light) rounded box at the bottom centre, 0.9375rem text, an optional yellow 40px action (its label never wraps) and a 40px close button, with the floating shadow. Used for update-ready and install messages; it never interrupts playback. The one offer made as the page opens, the page in the other language, sits under the header instead, beside the language switch and clear of the transport, and its text carries that language's `lang`. It carries `data-nosnippet` so status text never appears in a search result.
 
 ### Link-preview image
 `public/og-image.png`, 1200×630, rendered from the running app by `scripts/generate-og-image.mjs` (dark theme, reduced motion): the icon with the bilingual name (節拍器 over a soft-chalk "Metronome"), the tempo mark set flush left beneath it, and the 4/4 pattern frozen on the downbeat strike, on the slate ground. The card is laid out at 1/1.5 size and enlarged so pen strokes and ictus bars read at the ~500 px a preview is shown; the baton is shrunk to clear the lit 1. One image serves both languages, so it carries no sentences.

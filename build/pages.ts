@@ -20,14 +20,13 @@ interface PageInfo {
   path: string
   /** Open Graph locale (language_TERRITORY). */
   ogLocale: string
-  /** Name of the installed app. */
+  /** Name of the installed app (its short name is the page's appTitle message). */
   appName: string
-  shortName: string
 }
 
 export const PAGES: Readonly<Record<Language, PageInfo>> = {
-  'zh-Hant': { path: '', ogLocale: 'zh_TW', appName: '節拍器 Metronome', shortName: '節拍器' },
-  en: { path: 'en/', ogLocale: 'en_US', appName: 'Metronome', shortName: 'Metronome' },
+  'zh-Hant': { path: '', ogLocale: 'zh_TW', appName: '節拍器 Metronome' },
+  en: { path: 'en/', ogLocale: 'en_US', appName: 'Metronome' },
 }
 
 /** One name for the whole site (Google shows one site name per domain). */
@@ -70,7 +69,7 @@ export function renderPage(template: string, language: Language, site: Site): st
     .replace(/<html lang="[^"]*"/, `<html lang="${language}"`)
     .replace(/<title>[^<]*<\/title>/, `<title>${escapeHtml(messages.pageTitle)}</title>`)
     .replace(/(<meta name="description" content=")[^"]*(")/, `$1${escapeHtml(messages.pageDescription)}$2`)
-    .replace(/(<meta name="apple-mobile-web-app-title" content=")[^"]*(")/, `$1${escapeHtml(PAGES[language].shortName)}$2`)
+    .replace(/(<meta name="apple-mobile-web-app-title" content=")[^"]*(")/, `$1${escapeHtml(messages.appTitle)}$2`)
     // Text of elements marked data-i18n (they hold plain text only).
     .replace(/(<(\w+)\b[^>]*\sdata-i18n="([\w.]+)"[^>]*>)[^<]*(<\/\2>)/g, (_, open: string, _tag, key: string, close: string) =>
       `${open}${escapeHtml(message(messages, key))}${close}`,
@@ -185,7 +184,7 @@ export function manifest(language: Language, site: Site) {
   return {
     id: site.base,
     name: PAGES[language].appName,
-    short_name: PAGES[language].shortName,
+    short_name: messagesFor(language).appTitle,
     description: messagesFor(language).pageDescription,
     lang: language === 'en' ? 'en' : 'zh-Hant-TW',
     start_url: pagePath(site, language),

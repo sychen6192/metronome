@@ -169,6 +169,7 @@ export function translatePage(root: ParentNode = document): void {
   document.documentElement.lang = current
   document.title = t('pageTitle')
   document.querySelector('meta[name="description"]')?.setAttribute('content', t('pageDescription'))
+  document.querySelector('meta[name="apple-mobile-web-app-title"]')?.setAttribute('content', t('appTitle'))
   for (const el of root.querySelectorAll<HTMLElement>('[data-i18n]')) {
     el.textContent = t(el.dataset.i18n as MessageKey)
   }

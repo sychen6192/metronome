@@ -1010,7 +1010,21 @@ button svg {
   transform: translateX(-50%);
 }
 
+/* An offer made as the page opens (the other language) sits under the header, beside the
+   language switch, and never over the transport. */
+.toast.top {
+  top: calc(64px + env(safe-area-inset-top));
+  bottom: auto;
+}
+
+/* The message wraps; the action keeps its label on one line (Chinese would break anywhere). */
+#toast-text {
+  min-width: 0;
+}
+
 .toast-action {
+  flex: none;
+  white-space: nowrap;
   min-height: 40px;
   padding: 0 14px;
   border-radius: 10px;

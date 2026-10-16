@@ -10,6 +10,7 @@ const root = fileURLToPath(new URL('.', import.meta.url))
 // GitHub Pages serves the app from /<repo>/, so the deploy workflow sets BASE_PATH.
 const base = process.env.BASE_PATH ?? '/'
 const withSlash = (url: string) => (url.endsWith('/') ? url : `${url}/`)
+const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 const { homepage } = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8')) as { homepage: string }
 /**
  * The canonical public URL, package.json "homepage" (SITE_URL overrides it). Every build, on any
@@ -81,8 +82,12 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,ico,webmanifest,woff2}'],
         globIgnores: ['404.html', 'og-image.png'],
         cleanupOutdatedCaches: true,
-        // Navigations to /en/ are answered by the precached en/index.html; anything else gets the root.
+        // Both pages answer from the precache with any query string (?ref=…, ?gclid=…).
+        ignoreURLParametersMatching: [/./],
+        // Other navigations to the app's pages (/en without its slash) get the app, which reads its
+        // language from the URL; sitemap.xml, robots.txt and unknown paths go to the server.
         navigateFallback: 'index.html',
+        navigateFallbackAllowlist: [new RegExp(`^${escapeRegExp(base)}(en/?)?(\\?.*)?$`)],
       },
     }),
     englishManifest!,

@@ -71,8 +71,19 @@ document.fonts?.load('1em "Metronome Engraved"').then((faces) => {
 }, withoutEngraved)
 
 let settings: Settings = loadSettings(storage())
-/** The language this page is written in: the root is Chinese, /en/ English (see build/pages.ts). */
-const pageLanguage: Language = document.documentElement.lang === 'en' ? 'en' : 'zh-Hant'
+/**
+ * The language of this page's URL: the root is Chinese, /en/ English (see build/pages.ts). Read
+ * from the address, not the document: offline, the service worker answers /en without its slash
+ * with the Chinese page, which then translates itself.
+ */
+const englishPath = `${import.meta.env.BASE_URL}en`
+const pageLanguage: Language =
+  location.pathname === englishPath || location.pathname.startsWith(`${englishPath}/`) ? 'en' : 'zh-Hant'
+// The other language's link opened in a new tab is a choice too, newer than the stored one.
+if (settings.language !== 'auto' && settings.language !== pageLanguage && openedFromOtherLanguage()) {
+  settings = { ...settings, language: pageLanguage }
+  saveSettings(storage(), settings)
+}
 setLanguage(resolveLanguage(settings.language, pageLanguage))
 const pattern = new BeatPattern(els.pattern, els.beatButtons)
 const engine = new MetronomeEngine(
@@ -331,6 +342,16 @@ function pathFor(language: Language): string {
   return import.meta.env.BASE_URL + (language === 'en' ? 'en/' : '')
 }
 
+/** Whether this page was opened from this site's own page in the other language. */
+function openedFromOtherLanguage(): boolean {
+  try {
+    const from = new URL(document.referrer)
+    return from.origin === location.origin && from.pathname === pathFor(pageLanguage === 'en' ? 'zh-Hant' : 'en')
+  } catch {
+    return false
+  }
+}
+
 /** Show the app in `language` in place (playback carries on), with the address bar to match. */
 function applyLanguage(language: Language): void {
   setLanguage(language)
@@ -342,6 +363,13 @@ function applyLanguage(language: Language): void {
   const path = pathFor(language)
   if (location.pathname !== path) history.replaceState(history.state, '', path + location.search + location.hash)
   document.querySelector('link[rel="manifest"]')?.setAttribute('href', `${path}manifest.webmanifest`)
+  // Sharing names the page now shown. Unchanged unless the language differs from the URL's
+  // (search engines never switch, so they always see the canonical written at build time).
+  const url = document.querySelector<HTMLLinkElement>(`link[rel="alternate"][hreflang="${language}"]`)?.href
+  if (url) {
+    document.querySelector('link[rel="canonical"]')?.setAttribute('href', url)
+    document.querySelector('meta[property="og:url"]')?.setAttribute('content', url)
+  }
 }
 
 function chooseLanguage(language: Language): void {
@@ -356,8 +384,10 @@ function chooseLanguage(language: Language): void {
 function suggestOtherLanguage(): void {
   const wanted = browserLanguage()
   if (settings.language !== 'auto' || wanted === pageLanguage) return
-  showToast('otherLanguage', { label: 'switchLanguage', run: () => chooseLanguage(wanted) }, () =>
-    update({ language: pageLanguage }),
+  showToast(
+    'otherLanguage',
+    { label: 'switchLanguage', run: () => chooseLanguage(wanted) },
+    { dismissed: () => update({ language: pageLanguage }), lang: wanted, top: true },
   )
 }
 

@@ -50,6 +50,7 @@ describe.each([PROJECT_SITE, ROOT_SITE])('renderPage on $url', (site) => {
       expect(html).toContain(`<html lang="${language}"`)
       expect(html).toContain(`<title>${messages.pageTitle}</title>`)
       expect(html).toContain(`<meta name="description" content="${messages.pageDescription}" />`)
+      expect(html).toContain(`<meta name="apple-mobile-web-app-title" content="${messages.appTitle}" />`)
       expect(html).toContain(`data-i18n="beats">${messages.beats}</span>`)
       expect(html).toContain(`data-i18n="accentHint">${messages.accentHint}</span>`)
     }
@@ -142,6 +143,17 @@ describe('structuredData', () => {
     })
     expect(JSON.stringify(data)).not.toMatch(/aggregateRating|review/i)
   })
+
+  it('gives the English page its own app entry', () => {
+    const [, app] = (structuredData('en', PROJECT_SITE) as { '@graph': Array<Record<string, unknown>> })['@graph']
+    expect(app).toMatchObject({
+      '@id': 'https://example.github.io/metronome/en/#app',
+      url: 'https://example.github.io/metronome/en/',
+      name: 'Metronome',
+      inLanguage: 'en',
+      description: messagesFor('en').pageDescription,
+    })
+  })
 })
 
 describe('sitemap', () => {
@@ -153,10 +165,18 @@ describe('sitemap', () => {
       'https://example.github.io/metronome/',
       'https://example.github.io/metronome/en/',
     ])
+    const expected = {
+      'zh-Hant': 'https://example.github.io/metronome/',
+      en: 'https://example.github.io/metronome/en/',
+      'x-default': 'https://example.github.io/metronome/en/',
+    }
     for (const url of urls) {
-      expect(tags(url, /hreflang="([^"]*)"/g)).toEqual(['hreflang="zh-Hant"', 'hreflang="en"', 'hreflang="x-default"'])
+      const links = tags(url, /<xhtml:link [^>]*\/>/g).map((tag) => [attribute(tag, 'hreflang'), attribute(tag, 'href')])
+      expect(Object.fromEntries(links)).toEqual(expected)
+      expect(links).toHaveLength(3)
     }
     expect(xml).toMatch(/^<\?xml version="1.0" encoding="UTF-8"\?>\n<urlset /)
+    expect(xml).toContain('xmlns:xhtml="http://www.w3.org/1999/xhtml"')
   })
 })
 
