@@ -564,10 +564,17 @@ function bindEvents(): void {
   trainerField(els.trainerEvery, 'everyBars', 1, 64)
   trainerField(els.trainerTarget, 'target', MIN_BPM, MAX_BPM)
 
-  // How focus arrived: by keyboard (Tab, arrows) or by pointer (a click or tap).
+  // How focus arrived: by keyboard (Tab, arrows) or by pointer (a click or tap). Coming back to
+  // the window (after ⌘-Tab, say) focuses the same element again; that isn't a move.
+  let focusBeforeLeaving: Element | null = null
   document.addEventListener('keydown', () => (keyboardInput = true), true)
   document.addEventListener('pointerdown', () => (keyboardInput = false), true)
-  document.addEventListener('focusin', (event) => (keyboardFocus = keyboardInput ? event.target : null))
+  window.addEventListener('blur', () => (focusBeforeLeaving = document.activeElement))
+  document.addEventListener('focusin', (event) => {
+    const returning = event.target === focusBeforeLeaving
+    focusBeforeLeaving = null
+    if (!returning) keyboardFocus = keyboardInput ? event.target : null
+  })
   document.addEventListener('keydown', onKeyDown)
   document.addEventListener('keyup', (event) => {
     // Space started or stopped playback: don't also "click" the button that has focus.
