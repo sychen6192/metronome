@@ -62,6 +62,8 @@ const CARD_CSS = `
   /* The struck bar reaches past the baton on both sides, so the landing reads. */
   .og .ictus.active { transform: scaleX(1.75); }
   .og .caption { display: none; }
+  /* The card is short and wide like a phone on its side: undo the page's placement for that. */
+  .og .pattern-figure, .og .tempo { grid-row: auto; grid-column: auto; }
   /* The 1 hangs below the pattern: lift the figure so its mass centres on the card. */
   .og .pattern-figure { position: relative; top: ${px(-40)}; }
 `

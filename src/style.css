@@ -23,6 +23,16 @@
   unicode-range: U+5668, U+62CD, U+7BC0;
 }
 
+/* "accel." and "rit." in the score's italic, as a score sets a tempo change (their letters only). */
+@font-face {
+  font-family: 'Metronome Score Italic';
+  font-style: italic;
+  font-weight: 400;
+  src: url('./fonts/metronome-score-italic.woff2') format('woff2');
+  font-display: swap;
+  unicode-range: U+2E, U+61, U+63, U+65, U+69, U+6C, U+72, U+74;
+}
+
 /* The interface text, Chinese and Latin: Noto Sans TC, so every device sets it the same way.
    Variable, weights 400-700; only the characters the interface uses (scripts/build-fonts.py). */
 @font-face {
@@ -51,6 +61,16 @@
   --baton: var(--yellow);
   --baton-ring: var(--ground);
   --focus: var(--yellow);
+  /* Accent numerals. On slate an accent rests as a yellow ring and strikes solid yellow: the
+     strike must be the brightest change on the board, and yellow to chalk is only 1.3:1. */
+  --accent-edge: var(--yellow);
+  --accent-edge-width: 3px;
+  --accent-fill: var(--ground);
+  --accent-ink: var(--yellow);
+  --accent-struck: var(--yellow);
+  --accent-struck-ink: var(--on-yellow);
+  --accent-struck-edge: var(--ink);
+  --topbar-h: 60px;
 
   --sans: 'Metronome Sans TC', system-ui, -apple-system, 'Segoe UI', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif;
   --score: 'Old Standard TT', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
@@ -80,9 +100,17 @@
     --on-yellow: #172036;
     --yellow-edge: #172036;
     --thumb-edge: #172036;
-    --baton: #172036;
-    --baton-ring: var(--yellow);
+    --baton: var(--yellow);
+    --baton-ring: #172036;
     --focus: #172036;
+    /* On paper an accent rests as a highlighter disc and strikes navy (10.9:1 against yellow). */
+    --accent-edge: #172036;
+    --accent-edge-width: 2px;
+    --accent-fill: var(--yellow);
+    --accent-ink: var(--on-yellow);
+    --accent-struck: var(--ink);
+    --accent-struck-ink: var(--ground);
+    --accent-struck-edge: var(--yellow);
   }
 }
 
@@ -219,7 +247,7 @@ button svg {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 40px;
+  min-height: 44px;
   padding: 0 10px;
   border-radius: 20px;
   color: var(--ink-2);
@@ -240,8 +268,10 @@ button svg {
   border-radius: 999px;
 }
 
-/* Links between the two language pages; the current one is filled. */
+/* Links between the two language pages; the current one is filled. Each reaches 44 px tall
+   beyond its pill. */
 .language a {
+  position: relative;
   display: inline-grid;
   place-items: center;
   min-width: 44px;
@@ -258,6 +288,12 @@ button svg {
     color 160ms ease-out;
 }
 
+.language a::before {
+  content: '';
+  position: absolute;
+  inset: -5px 0;
+}
+
 .language a[aria-current='page'] {
   background: var(--ink);
   color: var(--ground);
@@ -271,7 +307,10 @@ button svg {
   gap: 8px;
 }
 
+/* --reserve: the height the header and everything below the figure need on the first screen. */
 .stage {
+  --reserve: 476px;
+  --figure-min: 320px;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 14px;
@@ -288,7 +327,7 @@ button svg {
 .pattern {
   position: relative;
   width: min(100%, 520px);
-  width: min(100%, clamp(320px, (100svh - 460px) * 20 / 13, 720px));
+  width: min(100%, clamp(var(--figure-min), (100svh - var(--reserve)) * 20 / 13, 720px));
   aspect-ratio: 20 / 13;
   margin: 8px auto 0;
 }
@@ -381,14 +420,18 @@ button svg {
   line-height: 1;
   font-variant-numeric: lining-nums;
   translate: -50% -50%;
+  /* The numeral swaps colour halfway through the fill's release, when it reads on either fill;
+     swapping at once would leave it the colour of the fill for a few frames. */
   transition:
     scale 140ms ease-out,
     background-color 160ms ease-out,
-    border-color 160ms ease-out;
+    border-color 160ms ease-out,
+    color 0s 55ms;
 }
 
-/* Crowded bars: smaller numerals sit on their ictus. Their hit areas still reach 44 px wide;
-   the tiers keep neighbours on the same row at least that far apart. */
+/* Crowded bars: smaller numerals sit on their ictus. Their hit areas still reach 44 px wide (the
+   tiers keep neighbours on the same row that far apart) and as tall as the tiers allow: raised
+   tiers sit 46 drawing units apart, so half of that each way never reaches the next tier. */
 .pattern.crowded .beat {
   --size: 30px;
   border-width: 1.5px;
@@ -398,13 +441,18 @@ button svg {
 .pattern.crowded .beat::before {
   content: '';
   position: absolute;
-  inset: -1.5px -8.5px;
+  inset: calc(50% - min(22px, var(--unit, 1) * 22px)) calc(50% - 22px);
 }
 
 .beat[data-level='accent'] {
-  border-color: var(--yellow-edge);
-  background: var(--yellow);
-  color: var(--on-yellow);
+  border-width: var(--accent-edge-width);
+  border-color: var(--accent-edge);
+  background: var(--accent-fill);
+  color: var(--accent-ink);
+}
+
+.pattern.crowded .beat[data-level='accent'] {
+  border-width: max(1.5px, var(--accent-edge-width) - 1px);
 }
 
 .beat[data-level='mute'] {
@@ -424,10 +472,13 @@ button svg {
   background: var(--ink);
   color: var(--ground);
   transition-duration: 0s;
+  transition-delay: 0s;
 }
 
 .beat.active[data-level='accent'] {
-  border-color: var(--yellow);
+  border-color: var(--accent-struck-edge);
+  background: var(--accent-struck);
+  color: var(--accent-struck-ink);
 }
 
 /* A muted beat is passed, not struck. */
@@ -437,8 +488,9 @@ button svg {
   color: var(--ink-2);
 }
 
-/* Captioned as a textbook captions its diagram: the metre, then how to use the numerals. Clear of
-   the numerals that hang below the figure; the hint wraps if it must. */
+/* Captioned as a textbook captions its diagram: the metre, set right here between − and +, then
+   how to use the numerals. Clear of the numerals that hang below the figure; the hint wraps if it
+   must. */
 .caption {
   display: flex;
   align-items: center;
@@ -447,20 +499,30 @@ button svg {
   margin: 20px 0 0;
 }
 
-.caption-meter {
-  display: grid;
+.meter {
+  display: flex;
   flex: none;
+  align-items: center;
+  gap: 8px;
+}
+
+/* A real time signature, in engraved numerals. */
+.time-signature {
+  display: grid;
   justify-items: center;
-  color: var(--ink-2);
+  min-width: 2ch;
   font-family: var(--engraved);
-  font-size: 1.5rem;
+  font-size: 2.25rem;
   line-height: 0.56;
 }
 
+/* Chinese breaks after its punctuation or at the arrows, never inside a word. */
 .hint {
   color: var(--ink-3);
   font-size: 0.8125rem;
   text-wrap: balance;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 }
 
 /* Tempo set the way a score prints it: "Allegro  ♩ = 120", with − and + level with the numerals. */
@@ -473,7 +535,7 @@ button svg {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   grid-template-areas:
-    '. marking .'
+    'marking marking marking'
     'slower mark faster';
   align-items: center;
   gap: 4px 8px;
@@ -499,6 +561,46 @@ button svg {
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+/* The speed trainer's heading, where the marking was: "accel. → ♩ = 160" as a score writes a tempo
+   change, then the step in the interface voice. */
+.direction-line {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3em;
+}
+
+.direction-change {
+  font-family: 'Metronome Score Italic', var(--score);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.direction-arrow {
+  color: var(--ink-2);
+  font-family: var(--sans);
+  font-size: 0.75em;
+  font-weight: 400;
+}
+
+.direction-mark {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.1em;
+  font-family: var(--engraved);
+  font-size: 1.4em;
+  line-height: 0.6;
+}
+
+.direction-rule {
+  margin-left: 0.3em;
+  color: var(--ink-2);
+  font-family: var(--sans);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  letter-spacing: normal;
 }
 
 /* As large as the space between − and + allows ("♩ = 300" is 2.12em wide), up to 8rem. */
@@ -562,7 +664,7 @@ button svg {
   --thumb-w: 22px;
   --thumb-h: 22px;
   width: 100%;
-  height: 40px;
+  height: 44px;
   margin: 0;
   background: transparent;
   cursor: pointer;
@@ -696,13 +798,35 @@ button svg {
   bottom: 2px;
 }
 
+/* The speed trainer's target, pencilled on the scale: the weight's outline where the run is
+   heading. */
+.ruler-track {
+  position: absolute;
+  inset: 0 13px;
+  pointer-events: none;
+}
+
+.ruler-target {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--at) * 100%);
+  width: 26px;
+  height: 30px;
+  border: 2px dashed var(--yellow-edge);
+  border-radius: 7px;
+  translate: -50% -50%;
+}
+
 /* ---------------------------------------------------------------- transport */
 
+/* Sized from its own width, which is the screen's on a phone and one column beside the figure on a
+   phone turned sideways. */
 .transport {
+  container-type: inline-size;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  gap: clamp(6px, 2.4vw, 12px);
+  gap: clamp(6px, 2.6%, 12px);
   margin-top: 4px;
 }
 
@@ -711,9 +835,9 @@ button svg {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  min-width: min(148px, 32vw);
+  min-width: min(148px, 35cqi);
   height: 64px;
-  padding: 0 clamp(16px, 5vw, 28px);
+  padding: 0 clamp(16px, 5.5cqi, 28px);
   border-radius: 999px;
   background: var(--yellow);
   color: var(--on-yellow);
@@ -752,9 +876,9 @@ button svg {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-width: min(92px, 24vw);
+  min-width: min(92px, 26cqi);
   height: 52px;
-  padding: 0 clamp(8px, 3vw, 14px);
+  padding: 0 clamp(8px, 3.3cqi, 14px);
   border: 1.5px solid var(--rule);
   border-radius: 999px;
   color: var(--ink);
@@ -812,22 +936,6 @@ button svg {
   color: var(--ink-2);
   font-size: 0.9375rem;
   font-weight: 600;
-}
-
-.meter {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-/* A real time signature, in engraved numerals. */
-.time-signature {
-  display: grid;
-  justify-items: center;
-  min-width: 2ch;
-  font-family: var(--engraved);
-  font-size: 3.4rem;
-  line-height: 0.56;
 }
 
 .segmented {
@@ -894,44 +1002,59 @@ button svg {
   border-bottom: 1px solid var(--rule);
 }
 
-.trainer summary {
+.trainer-head {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
   min-height: 64px;
-  cursor: pointer;
-  list-style: none;
 }
 
-.trainer summary::-webkit-details-marker {
-  display: none;
-}
-
-/* display:flex drops the native disclosure triangle, so draw a chevron. */
-.trainer summary::after {
-  content: '';
+/* On/off as a switch: off is a ruled track, on fills it chalk (ink on paper) like a selected
+   segment. The knob travels with the state; the fill, not the rule, carries it. */
+.switch {
+  position: relative;
   flex: none;
-  width: 8px;
-  height: 8px;
-  margin-inline: auto 6px;
-  border-right: 2px solid var(--ink-2);
-  border-bottom: 2px solid var(--ink-2);
-  transform: translateY(-2px) rotate(45deg);
-  transition: transform 160ms ease-out;
+  width: 52px;
+  height: 32px;
+  border: 1.5px solid var(--rule);
+  border-radius: 999px;
+  background: var(--ground);
+  transition:
+    background-color 160ms ease-out,
+    border-color 160ms ease-out;
 }
 
-.trainer[open] summary::after {
-  transform: translateY(2px) rotate(-135deg);
+/* 44 px tall to the touch. */
+.switch::before {
+  content: '';
+  position: absolute;
+  inset: -7.5px -1.5px;
 }
 
-.state {
-  color: var(--ink-3);
-  font-size: 0.875rem;
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background: var(--ink-3);
+  translate: 0 -50%;
+  transition:
+    translate 160ms ease-out,
+    background-color 160ms ease-out;
 }
 
-.state.on {
-  color: var(--ink);
-  font-weight: 600;
+.switch[aria-checked='true'] {
+  border-color: var(--ink);
+  background: var(--ink);
+}
+
+.switch[aria-checked='true']::after {
+  background: var(--ground);
+  translate: 20px -50%;
 }
 
 .trainer-grid {
@@ -970,7 +1093,7 @@ button svg {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 40px;
+  min-height: 44px;
   color: var(--ink-3);
   font-size: 0.8125rem;
   text-decoration: none;
@@ -1019,10 +1142,11 @@ button svg {
 
 /* ---------------------------------------------------------------- toast */
 
+/* Under the header, never over the transport (Start sits at the foot of the first screen). */
 .toast {
   position: fixed;
+  top: calc(var(--topbar-h) + 4px + env(safe-area-inset-top));
   left: 50%;
-  bottom: calc(16px + env(safe-area-inset-bottom));
   z-index: 10;
   display: flex;
   align-items: center;
@@ -1038,15 +1162,8 @@ button svg {
   transform: translateX(-50%);
 }
 
-/* An offer made as the page opens (the other language) sits under the header, beside the
-   language switch, and never over the transport. */
-.toast.top {
-  top: calc(64px + env(safe-area-inset-top));
-  bottom: auto;
-}
-
-/* The message wraps in balanced lines, Chinese after punctuation where it can; the action keeps
-   its label on one line. */
+/* The message wraps in balanced lines, Chinese after punctuation where it can and never before
+   it; the action keeps its label on one line. */
 #toast-text {
   min-width: 0;
   text-wrap: balance;
@@ -1054,10 +1171,15 @@ button svg {
   overflow-wrap: anywhere;
 }
 
+#toast-text:lang(zh-Hant) {
+  word-break: normal;
+  line-break: strict;
+}
+
 .toast-action {
   flex: none;
   white-space: nowrap;
-  min-height: 40px;
+  min-height: 44px;
   padding: 0 14px;
   border-radius: 10px;
   background: var(--yellow);
@@ -1068,8 +1190,8 @@ button svg {
 .toast-close {
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 10px;
   color: var(--ground);
 }
@@ -1086,6 +1208,20 @@ button svg {
 /* ---------------------------------------------------------------- sizes */
 
 @media (max-width: 360px) {
+  /* One row even with Install shown and the longer English name. */
+  .topbar {
+    column-gap: 8px;
+  }
+
+  .topbar-actions {
+    gap: 4px;
+  }
+
+  .brand {
+    gap: 8px;
+    font-size: 1rem;
+  }
+
   .row {
     grid-template-columns: minmax(0, 1fr);
     gap: 8px;
@@ -1100,9 +1236,9 @@ button svg {
   }
 }
 
-/* Narrow phones: Tap and Trainer set their label under the icon, at Start's height, so the row
-   fits with English labels too. */
-@media (max-width: 380px) {
+/* A narrow transport: Tap and Trainer set their label under the icon, at Start's height, so the
+   row fits with English labels too. */
+@container (max-width: 348px) {
   .secondary {
     flex-direction: column;
     gap: 2px;
@@ -1142,6 +1278,7 @@ button svg {
     margin-inline: auto;
   }
 
+  /* The legend in two columns: sound settings on the left, the speed trainer on the right. */
   .settings {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: 48px;
@@ -1150,8 +1287,99 @@ button svg {
     border-radius: 20px;
   }
 
+  .settings > .row {
+    grid-column: 1;
+  }
+
   .settings > .trainer {
-    grid-column: 1 / -1;
+    grid-column: 2;
+    grid-row: 1 / span 3;
+  }
+
+  /* Under the language switch, clear of the figure. */
+  .toast {
+    left: auto;
+    right: max(32px, (100% - 1080px) / 2 + 32px);
+    transform: none;
+  }
+}
+
+/* Short screens (a small phone in its browser, a zoomed page): everything on the stage tightens
+   so the figure, tempo and Start still share the first screen; the scale keeps its ticks but
+   drops its markings, which the tempo marking above already names. */
+@media (max-height: 700px) {
+  .topbar {
+    min-height: 52px;
+  }
+
+  .stage {
+    --reserve: 348px;
+    --figure-min: 288px;
+    gap: 8px;
+  }
+
+  .pattern {
+    margin-top: 4px;
+  }
+
+  .metronome-mark {
+    font-size: min(72px, calc((100cqi - 2 * var(--step) - 16px) / 2.15));
+  }
+
+  .ruler {
+    padding-block: 0;
+  }
+
+  .ruler-scale {
+    display: none;
+  }
+
+  .transport {
+    margin-top: 0;
+  }
+}
+
+/* A phone turned sideways (or a short, zoomed window): the figure beside the tempo and transport. */
+@media (orientation: landscape) and (max-height: 600px) and (min-width: 600px) {
+  /* The tempo, scale and transport stay together, centred beside the figure. */
+  .stage {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: 1fr auto auto auto 1fr;
+    column-gap: 24px;
+  }
+
+  .pattern-figure {
+    grid-row: 1 / -1;
+    align-self: center;
+  }
+
+  .tempo,
+  .ruler,
+  .transport {
+    grid-column: 2;
+  }
+
+  .tempo {
+    grid-row: 2;
+  }
+
+  .ruler {
+    grid-row: 3;
+  }
+
+  .transport {
+    grid-row: 4;
+  }
+
+  .pattern {
+    width: min(100%, (100svh - var(--topbar-h) - 84px) * 20 / 13);
+  }
+
+  /* Over the figure's side, clear of the controls. */
+  .toast {
+    left: calc(16px + env(safe-area-inset-left));
+    max-width: calc(50% - 28px);
+    transform: none;
   }
 }
 
@@ -1186,12 +1414,7 @@ button svg {
 }
 
 .no-engraved .time-signature {
-  font-size: 1.5rem;
-  line-height: 1;
-}
-
-.no-engraved .caption-meter {
-  font-size: 0.8125rem;
+  font-size: 1.25rem;
   line-height: 1;
 }
 
@@ -1252,9 +1475,19 @@ button svg {
   .secondary,
   .segment,
   .select,
+  .switch,
   .trainer-grid input,
   .language {
     border-color: ButtonText;
+  }
+
+  .switch::after {
+    forced-color-adjust: none;
+    background: ButtonText;
+  }
+
+  .ruler-target {
+    border-color: CanvasText;
   }
 
   .primary {
@@ -1264,11 +1497,16 @@ button svg {
 
   .segment:has(input:checked),
   #trainer-toggle[aria-pressed='true'],
+  .switch[aria-checked='true'],
   .language a[aria-current='page'] {
     forced-color-adjust: none;
     border-color: Highlight;
     background: Highlight;
     color: HighlightText;
+  }
+
+  .switch[aria-checked='true']::after {
+    background: HighlightText;
   }
 
   .slider::-webkit-slider-runnable-track {

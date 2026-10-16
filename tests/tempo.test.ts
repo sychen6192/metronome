@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { MAX_BPM, MIN_BPM, TapTempo, clampBpm, rampTempo, tempoMarking } from '../src/core/tempo'
+import { MAX_BPM, MIN_BPM, TapTempo, clampBpm, rampTempo, tempoChange, tempoMarking } from '../src/core/tempo'
 
 describe('clampBpm', () => {
   it('rounds and clamps to the supported range', () => {
@@ -22,6 +22,14 @@ describe('tempoMarking', () => {
     [240, 'Prestissimo'],
   ])('%i BPM is %s', (bpm, name) => {
     expect(tempoMarking(bpm)).toBe(name)
+  })
+})
+
+describe('tempoChange', () => {
+  it('names the change a score writes on the way to the target', () => {
+    expect(tempoChange(120, 160)).toBe('accel.')
+    expect(tempoChange(160, 120)).toBe('rit.')
+    expect(tempoChange(120, 120)).toBeNull()
   })
 })
 

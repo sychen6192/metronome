@@ -69,6 +69,8 @@ export class BeatPattern {
       const width = entry?.contentRect.width ?? 0
       if (width <= 0) return
       this.scale = width / PATTERN_BOX.width
+      // Screen px per drawing unit, for the numerals' hit areas.
+      figure.style.setProperty('--unit', String(this.scale))
       this.baton.setAttribute('r', (batonRadius(width) / this.scale).toFixed(2))
       this.drawStrokes()
     }).observe(figure)

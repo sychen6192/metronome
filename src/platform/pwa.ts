@@ -59,7 +59,7 @@ export function setupPwa(installButton: HTMLButtonElement, isPlaying: () => bool
   })
   installButton.addEventListener('click', async () => {
     if (!installPrompt) {
-      if (manualInstall) showToast('installSteps', undefined, { sticky: true, top: true })
+      if (manualInstall) showToast('installSteps', undefined, { sticky: true })
       return
     }
     const prompt = installPrompt

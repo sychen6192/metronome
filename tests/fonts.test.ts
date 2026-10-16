@@ -2,6 +2,7 @@ import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
+import { TEMPO_CHANGES } from '../src/core/tempo'
 import { messagesFor } from '../src/i18n'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
@@ -12,6 +13,7 @@ const SANS_RANGES: ReadonlyArray<readonly [number, number]> = [
   [0xa0, 0xff], // Latin-1
   [0x2000, 0x206f], // general punctuation
   [0x2190, 0x21ff], // arrows
+  [0x2212, 0x2212], // minus sign
   [0x3000, 0x303f], // CJK punctuation
   [0x3400, 0x9fff], // ideographs
   [0xff00, 0xffef], // full-width forms
@@ -51,15 +53,27 @@ describe('interface font subset', () => {
   })
 })
 
+/** The characters a subset font's @font-face unicode-range lists (it holds exactly those glyphs). */
+function unicodeRange(family: string): Set<string> {
+  const css = readFileSync(join(root, 'src/style.css'), 'utf8')
+  const rule = new RegExp(`@font-face\\s*{[^}]*'${family}'[^}]*}`).exec(css)?.[0] ?? ''
+  const range = /unicode-range:([^;]+);/.exec(rule)?.[1] ?? ''
+  return new Set(range.split(',').map((code) => String.fromCodePoint(parseInt(code.trim().slice(2), 16))))
+}
+
 describe('score-voice Chinese font', () => {
   it('covers the Chinese app name', () => {
-    // metronome-wordmark.woff2 holds exactly the glyphs its @font-face unicode-range lists.
-    const css = readFileSync(join(root, 'src/style.css'), 'utf8')
-    const rule = /@font-face\s*{[^}]*'Metronome Wordmark'[^}]*}/.exec(css)?.[0] ?? ''
-    const range = /unicode-range:([^;]+);/.exec(rule)?.[1] ?? ''
-    const covered = new Set(range.split(',').map((code) => String.fromCodePoint(parseInt(code.trim().slice(2), 16))))
+    const covered = unicodeRange('Metronome Wordmark')
     const { appTitle } = messagesFor('zh-Hant')
     const missing = [...appTitle].filter((char) => !covered.has(char))
     expect(missing.join(''), 'add them to WORDMARK_TEXT, re-run scripts/build-fonts.py --serif, update unicode-range').toBe('')
+  })
+})
+
+describe('score italic font', () => {
+  it('covers the tempo changes the speed trainer writes', () => {
+    const covered = unicodeRange('Metronome Score Italic')
+    const missing = Object.values(TEMPO_CHANGES).flatMap((term) => [...term]).filter((char) => !covered.has(char))
+    expect(missing.join(''), 'add them to ITALIC_TEXT, re-run scripts/build-fonts.py --italic, update unicode-range').toBe('')
   })
 })

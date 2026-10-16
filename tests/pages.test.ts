@@ -51,7 +51,8 @@ describe.each([PROJECT_SITE, ROOT_SITE])('renderPage on $url', (site) => {
       expect(html).toContain(`<title>${messages.pageTitle}</title>`)
       expect(html).toContain(`<meta name="description" content="${messages.pageDescription}" />`)
       expect(html).toContain(`<meta name="apple-mobile-web-app-title" content="${messages.appTitle}" />`)
-      expect(html).toContain(`data-i18n="beats">${messages.beats}</span>`)
+      expect(html).toContain(`data-i18n="subdivision">${messages.subdivision}</span>`)
+      expect(html).toContain(`data-i18n-label="beats" aria-label="${messages.beats}"`)
       expect(html).toContain(`data-i18n="accentHint">${messages.accentHint}</span>`)
     }
   })
@@ -100,7 +101,7 @@ describe.each([PROJECT_SITE, ROOT_SITE])('renderPage on $url', (site) => {
 
 describe('renderPage', () => {
   it('rejects a message key the dictionary lacks', () => {
-    const broken = template.replace('data-i18n="beats"', 'data-i18n="noSuchKey"')
+    const broken = template.replace('data-i18n="subdivision"', 'data-i18n="noSuchKey"')
     expect(() => renderPage(broken, 'en', ROOT_SITE)).toThrow(/noSuchKey/)
   })
 })

@@ -11,13 +11,13 @@ import {
   type Subdivision,
 } from './core/rhythm'
 import { SOUNDS, loadSettings, saveSettings, type Settings, type SoundId } from './core/settings'
-import { MAX_BPM, MIN_BPM, TapTempo, clampBpm, tempoMarking } from './core/tempo'
+import { MAX_BPM, MIN_BPM, TEMPO_CHANGES, TapTempo, clampBpm, tempoChange, tempoMarking } from './core/tempo'
 import { LANGUAGES, browserLanguage, currentLanguage, resolveLanguage, setLanguage, t, translatePage, type Language } from './i18n'
 import { setupPwa } from './platform/pwa'
 import { ScreenWakeLock } from './platform/wakeLock'
 import { BeatPattern } from './ui/beatPattern'
 import { subdivisionIcon } from './ui/notation'
-import { dismissToast, render as renderToast, showToast } from './ui/toast'
+import { declineToast, dismissToast, render as renderToast, showToast } from './ui/toast'
 
 const byId = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T
 
@@ -27,8 +27,14 @@ const els = {
   tempo: byId('tempo'),
   bpm: byId<HTMLOutputElement>('bpm'),
   marking: byId('marking'),
+  direction: byId('direction'),
+  directionChange: byId('direction-change'),
+  directionTarget: byId('direction-target'),
+  directionRule: byId('direction-rule'),
+  directionText: byId('direction-text'),
   slider: byId<HTMLInputElement>('bpm-slider'),
   rulerScale: byId('ruler-scale'),
+  rulerTarget: byId('ruler-target'),
   slower: byId<HTMLButtonElement>('slower'),
   faster: byId<HTMLButtonElement>('faster'),
   tap: byId<HTMLButtonElement>('tap'),
@@ -38,17 +44,16 @@ const els = {
   fewerBeats: byId<HTMLButtonElement>('fewer-beats'),
   moreBeats: byId<HTMLButtonElement>('more-beats'),
   beatsValue: byId<HTMLOutputElement>('beats-value'),
-  meterTop: byId('meter-top'),
   captionBeats: byId('caption-beats'),
   subdivisions: byId('subdivisions'),
   sound: byId<HTMLSelectElement>('sound'),
   volume: byId<HTMLInputElement>('volume'),
-  trainer: byId<HTMLDetailsElement>('trainer'),
-  trainerState: byId('trainer-state'),
+  trainerSwitch: byId<HTMLButtonElement>('trainer-switch'),
   trainerStep: byId<HTMLInputElement>('trainer-step'),
   trainerEvery: byId<HTMLInputElement>('trainer-every'),
   trainerTarget: byId<HTMLInputElement>('trainer-target'),
   install: byId<HTMLButtonElement>('install'),
+  topbar: document.querySelector<HTMLElement>('.topbar')!,
   hint: byId('hint'),
   languageLinks: document.querySelectorAll<HTMLAnchorElement>('[data-language]'),
 }
@@ -92,11 +97,13 @@ const engine = new MetronomeEngine(
   (change) => {
     if (change === 'resumed') {
       // Played again from the lock screen or headphones.
+      beginRun()
       requestAnimationFrame(frame)
       void wakeLock.request()
     } else {
       void wakeLock.release()
       restBaton()
+      endRun()
       if (change === 'interrupted') showInterruptedNotice()
     }
     renderPlayState()
@@ -144,10 +151,39 @@ function saveNow(): void {
   if (saveTimer === undefined) return
   clearTimeout(saveTimer)
   saveTimer = undefined
-  saveSettings(storage(), settings)
+  // Mid-run, the tempo kept is the one the run started from, as Stop would leave it.
+  saveSettings(storage(), runOrigin === undefined ? settings : { ...settings, bpm: runOrigin })
 }
 
-const changeBpm = (delta: number) => update({ bpm: clampBpm(settings.bpm + delta) })
+/**
+ * The tempo a speed-trainer run started from. The trainer's steps are the run's progress, not the
+ * user's tempo: Stop returns here. A tempo set by hand during the run becomes the new start.
+ */
+let runOrigin: number | undefined
+
+function beginRun(): void {
+  runOrigin = settings.trainer.enabled ? settings.bpm : undefined
+}
+
+function endRun(): void {
+  const origin = runOrigin
+  runOrigin = undefined
+  if (origin !== undefined && origin !== settings.bpm) update({ bpm: origin })
+}
+
+/** A tempo the user set (buttons, scale, keys, tapping), not one the trainer stepped to. */
+function setBpm(bpm: number): void {
+  if (runOrigin !== undefined) runOrigin = bpm
+  update({ bpm })
+}
+
+const changeBpm = (delta: number) => setBpm(clampBpm(settings.bpm + delta))
+
+function setTrainer(enabled: boolean): void {
+  update({ trainer: { ...settings.trainer, enabled } })
+  // Switched on while playing, the run starts here; switched off, the tempo reached stays.
+  runOrigin = enabled && engine.playing ? settings.bpm : undefined
+}
 
 // ---------------------------------------------------------------------------------------------
 // Rendering
@@ -170,6 +206,7 @@ function render(): void {
   const marking = tempoMarking(settings.bpm)
   els.bpm.value = String(settings.bpm)
   els.marking.textContent = marking
+  renderDirection()
   setSlider(els.slider, settings.bpm)
   els.slider.setAttribute('aria-valuetext', t('tempoValue', { bpm: settings.bpm, marking }))
   els.slower.disabled = settings.bpm <= MIN_BPM
@@ -177,7 +214,6 @@ function render(): void {
 
   renderBeats()
   els.beatsValue.value = String(settings.beatsPerBar)
-  els.meterTop.textContent = String(settings.beatsPerBar)
   els.captionBeats.textContent = String(settings.beatsPerBar)
   els.fewerBeats.disabled = settings.beatsPerBar <= MIN_BEATS
   els.moreBeats.disabled = settings.beatsPerBar >= MAX_BEATS
@@ -190,8 +226,7 @@ function render(): void {
 
   const { trainer } = settings
   els.trainerToggle.setAttribute('aria-pressed', String(trainer.enabled))
-  els.trainerState.textContent = trainer.enabled ? t('trainerOn') : t('trainerOff')
-  els.trainerState.classList.toggle('on', trainer.enabled)
+  els.trainerSwitch.setAttribute('aria-checked', String(trainer.enabled))
   // Don't overwrite a number field while the user is typing in it.
   for (const [input, value] of [
     [els.trainerStep, trainer.step],
@@ -206,6 +241,23 @@ function render(): void {
     else link.removeAttribute('aria-current')
   }
   renderPlayState()
+}
+
+/** While the speed trainer is on, the marking gives way to where it is taking the tempo. */
+function renderDirection(): void {
+  const { trainer, bpm } = settings
+  const change = trainer.enabled ? tempoChange(bpm, trainer.target) : null
+  els.marking.hidden = change !== null
+  els.direction.hidden = change === null
+  els.rulerTarget.hidden = change === null
+  if (change === null) return
+  const step = `${change === TEMPO_CHANGES.faster ? '+' : '−'}${trainer.step}`
+  const rule = trainer.everyBars === 1 ? t('trainerRuleOne', { step }) : t('trainerRule', { step, bars: trainer.everyBars })
+  els.directionChange.textContent = change
+  els.directionTarget.textContent = String(trainer.target)
+  els.directionRule.textContent = rule
+  els.directionText.textContent = t('trainerDirection', { target: trainer.target, rule })
+  els.rulerTarget.style.setProperty('--at', String((trainer.target - MIN_BPM) / (MAX_BPM - MIN_BPM)))
 }
 
 function renderPlayState(): void {
@@ -258,11 +310,15 @@ async function togglePlay(): Promise<void> {
     engine.stop()
     void wakeLock.release()
     restBaton()
+    endRun()
     renderPlayState()
     return
   }
+  beginRun()
   const starting = engine.start()
   dismissToast('audioInterrupted')
+  // Playing passes over the offer of the other language, which would sit over the figure.
+  declineToast('otherLanguage')
   renderPlayState()
   try {
     await starting
@@ -270,6 +326,7 @@ async function togglePlay(): Promise<void> {
     requestAnimationFrame(frame)
     void wakeLock.request()
   } catch {
+    endRun()
     showToast('audioError')
   }
   renderPlayState()
@@ -277,7 +334,7 @@ async function togglePlay(): Promise<void> {
 
 function tap(timeStamp: number): void {
   const bpm = tapTempo.tap(timeStamp)
-  if (bpm !== null) update({ bpm })
+  if (bpm !== null) setBpm(bpm)
   els.tap.animate([{ transform: 'scale(0.94)' }, { transform: 'scale(1)' }], { duration: 120 })
 }
 
@@ -395,7 +452,7 @@ function suggestOtherLanguage(): void {
   showToast(
     'otherLanguage',
     { label: 'switchLanguage', run: () => chooseLanguage(wanted) },
-    { dismissed: () => update({ language: pageLanguage }), lang: wanted, top: true },
+    { dismissed: () => update({ language: pageLanguage }), lang: wanted },
   )
 }
 
@@ -431,7 +488,7 @@ function bindEvents(): void {
 
   holdToRepeat(els.slower, () => changeBpm(-1))
   holdToRepeat(els.faster, () => changeBpm(1))
-  els.slider.addEventListener('input', () => update({ bpm: clampBpm(els.slider.valueAsNumber) }))
+  els.slider.addEventListener('input', () => setBpm(clampBpm(els.slider.valueAsNumber)))
 
   // Scroll on the tempo display to fine-tune (trackpads send many small deltas, so accumulate).
   let wheelDelta = 0
@@ -491,12 +548,10 @@ function bindEvents(): void {
   })
   els.volume.addEventListener('input', () => update({ volume: els.volume.valueAsNumber / 100 }))
 
-  els.trainerToggle.addEventListener('click', () => {
-    const enabled = !settings.trainer.enabled
-    update({ trainer: { ...settings.trainer, enabled } })
-    // Show the step / interval / target fields when the trainer is switched on.
-    if (enabled) els.trainer.open = true
-  })
+  // The transport's toggle and the legend's switch are one setting.
+  for (const toggle of [els.trainerToggle, els.trainerSwitch]) {
+    toggle.addEventListener('click', () => setTrainer(!settings.trainer.enabled))
+  }
   const trainerField = (input: HTMLInputElement, key: 'step' | 'everyBars' | 'target', min: number, max: number) => {
     input.addEventListener('change', () => {
       const value = Number.isFinite(input.valueAsNumber) ? input.valueAsNumber : settings.trainer[key]
@@ -509,11 +564,20 @@ function bindEvents(): void {
   trainerField(els.trainerEvery, 'everyBars', 1, 64)
   trainerField(els.trainerTarget, 'target', MIN_BPM, MAX_BPM)
 
+  // How focus arrived: by keyboard (Tab, arrows) or by pointer (a click or tap).
+  document.addEventListener('keydown', () => (keyboardInput = true), true)
+  document.addEventListener('pointerdown', () => (keyboardInput = false), true)
+  document.addEventListener('focusin', (event) => (keyboardFocus = keyboardInput ? event.target : null))
   document.addEventListener('keydown', onKeyDown)
   document.addEventListener('keyup', (event) => {
-    // Stop Space from also "clicking" whichever button has focus.
-    if (event.code === 'Space' && !isTextEntry(event.target)) event.preventDefault()
+    // Space started or stopped playback: don't also "click" the button that has focus.
+    if (event.code === 'Space' && !keyboardOwns(event.target)) event.preventDefault()
   })
+
+  // Toasts sit just under the header, whose height changes when it wraps or the text is zoomed.
+  new ResizeObserver(() => {
+    document.documentElement.style.setProperty('--topbar-h', `${els.topbar.offsetHeight}px`)
+  }).observe(els.topbar)
 
   // Persist a pending change when the page goes away. Only a pending one: rewriting everything
   // would overwrite what another tab saved since (say, the other language opened there).
@@ -524,16 +588,31 @@ function isTextEntry(target: EventTarget | null): boolean {
   return target instanceof HTMLElement && target.matches('input[type="number"], input[type="text"], select, textarea')
 }
 
+/** The control the user last reached with the keyboard (Tab, arrows), while it keeps focus. */
+let keyboardFocus: EventTarget | null = null
+let keyboardInput = false
+
+/**
+ * Whether the focused control keeps the keyboard to itself: a text entry, or a button, radio or
+ * switch the user reached with the keyboard (Space presses it, as everywhere else). One clicked
+ * or tapped doesn't count, so Space still starts and stops there; Start's Space is its own.
+ */
+function keyboardOwns(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false
+  if (isTextEntry(target)) return true
+  return target === keyboardFocus && target !== els.play && target.matches('button, summary, input[type="radio"], input[type="checkbox"]')
+}
+
 function onKeyDown(event: KeyboardEvent): void {
   if (event.ctrlKey || event.metaKey || event.altKey) return
   const target = event.target
   if (event.code === 'Space') {
-    if (isTextEntry(target)) return
+    if (keyboardOwns(target)) return
     event.preventDefault()
     if (!event.repeat) void togglePlay()
     return
   }
-  if ((event.key === 't' || event.key === 'T') && !isTextEntry(target)) {
+  if ((event.key === 't' || event.key === 'T') && (target === els.tap || !keyboardOwns(target))) {
     if (!event.repeat) tap(event.timeStamp)
     return
   }
