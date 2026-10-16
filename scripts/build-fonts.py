@@ -12,10 +12,11 @@ text in CSS.
 Bravura's Reserved Font Name means a modified version must not be called "Bravura", so the subset
 is renamed "Metronome Engraved". Its licence is in src/fonts/LICENSE-Bravura.txt.
 
-src/fonts/metronome-wordmark.woff2, from Noto Serif TC Bold (SIL OFL 1.1, Google / Adobe): only
-the three glyphs of the Chinese app name, 節拍器, so the wordmark is set in a Ming serif that
-matches the score face. Renamed "Metronome Wordmark"; licence in
-src/fonts/LICENSE-NotoSerifTC.txt.
+src/fonts/metronome-wordmark.woff2, from Noto Serif TC Bold (SIL OFL 1.1, Google / Adobe): the
+Chinese the page sets in the score voice, a Ming serif that matches the score face: the app name
+節拍器 (the wordmark) and the guide heading 使用說明, their glyphs only. Renamed "Metronome
+Wordmark"; licence in src/fonts/LICENSE-NotoSerifTC.txt. The stylesheet's unicode-range for it
+lists the same characters (tests/fonts.test.ts checks it against the text).
 
 src/fonts/metronome-sans-tc.woff2, from Noto Sans TC (SIL OFL 1.1, Google / Adobe): the interface
 text, Chinese and Latin, so it looks the same on every device instead of each system's own fonts.
@@ -28,10 +29,11 @@ They are listed in src/fonts/metronome-sans-tc.txt, which a test compares with t
 src/fonts/LICENSE-NotoSansTC.txt. Re-run after adding text with new characters.
 
 Usage (needs fonttools and brotli; build what you pass):
-    python3 scripts/build-fonts.py [--bravura Bravura.woff2] [--serif NOTO_SERIF_TC_BOLD] [--sans NOTO_SANS_TC]
+    python3 scripts/build-fonts.py [--bravura Bravura.woff2] [--serif NOTO_SERIF_TC] [--sans NOTO_SANS_TC]
 Bravura: https://github.com/steinbergmedia/bravura (redist/woff/Bravura.woff2)
-Noto Serif TC Bold: any build containing 節拍器, e.g. @fontsource/noto-serif-tc 5.3.0,
-files/noto-serif-tc-121-700-normal.woff2
+Noto Serif TC: the variable font from Google Fonts, version 2.003 (instanced at weight 700),
+https://raw.githubusercontent.com/google/fonts/1d0e46c7933245c8180fe83e47917961c913bbdb/ofl/notoseriftc/NotoSerifTC%5Bwght%5D.ttf
+(sha256 0077e18f57c6908f4a000969880940bdb0dad057c0e8d98b49dc364c3d1b09c6)
 Noto Sans TC: the variable font from Google Fonts, version 2.004,
 https://raw.githubusercontent.com/google/fonts/1d0e46c7933245c8180fe83e47917961c913bbdb/ofl/notosanstc/NotoSansTC%5Bwght%5D.ttf
 (sha256 864727d210d54f2537bbe23b3a839436c3992af72de9322af5270897246bd44f)
@@ -53,7 +55,9 @@ FONTS = ROOT / 'src' / 'fonts'
 OUT = FONTS / 'metronome-engraved.woff2'
 WORDMARK_FAMILY = 'Metronome Wordmark'
 WORDMARK_OUT = FONTS / 'metronome-wordmark.woff2'
-WORDMARK_TEXT = '節拍器'
+# The app name and the guide heading (zh-Hant appTitle and guideTitle in src/i18n.ts).
+WORDMARK_TEXT = '節拍器使用說明'
+WORDMARK_WEIGHT = 700
 SANS_FAMILY = 'Metronome Sans TC'
 SANS_OUT = FONTS / 'metronome-sans-tc.woff2'
 SANS_CHARS = FONTS / 'metronome-sans-tc.txt'
@@ -146,6 +150,14 @@ def rename(font: TTFont, family: str, postscript: str, origin: str, changes: str
     name.setName(f'Subset of {origin}, modified for the Metronome app {changes}', 5, 3, 1, 0x409)
 
 
+def set_style(font: TTFont, style: str) -> None:
+    """The style names of an instance (a variable source names its own default, e.g. Thin)."""
+    name = font['name']
+    for record in list(name.names):
+        if record.nameID in (2, 17):
+            name.setName(style, record.nameID, record.platformID, record.platEncID, record.langID)
+
+
 def save(font: TTFont, out: Path) -> None:
     out.parent.mkdir(parents=True, exist_ok=True)
     font.flavor = 'woff2'
@@ -166,8 +178,12 @@ def build_wordmark(source: str) -> None:
     missing = [c for c in WORDMARK_TEXT if ord(c) not in font.getBestCmap()]
     if missing:
         sys.exit(f'{source} lacks {"".join(missing)}')
+    if 'fvar' in font:  # the variable source: keep the bold instance only
+        font = instancer.instantiateVariableFont(font, {'wght': WORDMARK_WEIGHT})
+        font['OS/2'].usWeightClass = WORDMARK_WEIGHT
     rename(font, WORDMARK_FAMILY, 'MetronomeWordmark-Bold', 'Noto Serif TC Bold by Google and Adobe',
            f'(only the glyphs of {WORDMARK_TEXT}). Not the original Noto Serif TC.')
+    set_style(font, 'Bold')
     save(font, WORDMARK_OUT)
 
 
@@ -203,10 +219,7 @@ def build_sans(source: str) -> None:
     low, default, high = SANS_WEIGHTS
     font = instancer.instantiateVariableFont(font, {'wght': (low, default, high)})
     font['OS/2'].usWeightClass = default
-    name = font['name']
-    for record in list(name.names):
-        if record.nameID == 17:  # the default instance's style: Thin in the source, Regular here
-            name.setName('Regular', 17, record.platformID, record.platEncID, record.langID)
+    set_style(font, 'Regular')
     rename(font, SANS_FAMILY, 'MetronomeSansTC-Regular', 'Noto Sans TC by Google and Adobe',
            f'(only the characters the interface uses, weights {low}-{high}). Not the original Noto Sans TC.')
     # The named instances keep their style names but not Noto's PostScript names.
@@ -221,7 +234,7 @@ def build_sans(source: str) -> None:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Build the font subsets in src/fonts.')
     parser.add_argument('--bravura', help='Bravura.woff2, for metronome-engraved.woff2')
-    parser.add_argument('--serif', help='Noto Serif TC Bold, for metronome-wordmark.woff2')
+    parser.add_argument('--serif', help='Noto Serif TC (variable, or a bold build), for metronome-wordmark.woff2')
     parser.add_argument('--sans', help='Noto Sans TC variable font, for metronome-sans-tc.woff2')
     args = parser.parse_args()
     if not (args.bravura or args.serif or args.sans):

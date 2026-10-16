@@ -1,7 +1,8 @@
 // Renders public/og-image.png, the 1200 x 630 link-preview image (Open Graph and X cards), from
 // the running app: the wordmark, the tempo mark and the conductor's beat pattern on the slate
 // ground, the way the app draws them. One image serves both language pages, so it carries no
-// sentences, only the bilingual name.
+// sentences, only the bilingual name. It shows the downbeat being struck: the baton on the 1's
+// ictus and the 1 lit.
 //
 // Usage: npm run build && npm run preview, then in another terminal
 //   node scripts/generate-og-image.mjs [app URL, default http://localhost:4173/]
@@ -54,7 +55,15 @@ const CARD_CSS = `
   .og .metronome-mark { justify-self: start; font-size: ${px(150)}; }
   .og .step { display: none; }
   .og .pattern { width: 100%; margin: 0; }
-  .og .hint { display: none; }
+  /* Heavier pen strokes and ictus bars (opaque, so the added stroke doesn't double the tint). */
+  .og { --path: color-mix(in srgb, var(--ink) 60%, var(--ground)); }
+  .og .pattern-path { stroke: var(--path); stroke-width: 1px; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+  .og .ictus { stroke-width: 4px; }
+  /* The struck bar reaches past the baton on both sides, so the landing reads. */
+  .og .ictus.active { transform: scaleX(1.75); }
+  .og .caption { display: none; }
+  /* The 1 hangs below the pattern: lift the figure so its mass centres on the card. */
+  .og .pattern-figure { position: relative; top: ${px(-40)}; }
 `
 
 const browser = await chromium.launch()
@@ -88,6 +97,24 @@ await page.evaluate(() => {
 })
 await page.evaluate(() => document.fonts.ready)
 await page.waitForTimeout(500)
+// Start (Space), and stop the app's frame loop on the frame the downbeat sounds: with reduced
+// motion the baton sits on the struck ictus, so the card freezes the strike.
+await page.keyboard.press('Space')
+await page.evaluate(
+  () =>
+    new Promise((resolve) => {
+      const check = () => {
+        if (document.querySelector('.beat.active')?.dataset.index !== '0') return requestAnimationFrame(check)
+        window.requestAnimationFrame = () => 0
+        // At this size the app's baton would touch the lit 1 below it; a smaller dot keeps them apart.
+        const baton = document.querySelector('.baton')
+        baton.setAttribute('r', String(Number(baton.getAttribute('r')) * 0.72))
+        resolve()
+      }
+      requestAnimationFrame(check)
+    }),
+)
+await page.waitForTimeout(100)
 const shot = await page.screenshot()
 await browser.close()
 
