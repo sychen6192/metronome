@@ -2,6 +2,8 @@
 
 精準、可安裝、可離線使用的網頁節拍器。純 TypeScript，無 UI 框架，打包後 JS 約 12 KB（gzip）。
 
+雙胞胎：[調音器 Tuner](https://github.com/sychen6192/tuner)，同一塊黑板、同一套樂譜字型的半音階調音器。
+
 ## 功能
 
 - **20–300 BPM**：滑桿、± 按鈕（長按連續調整）、滑鼠滾輪、鍵盤方向鍵，並顯示義大利速度術語（Andante、Allegro…）
