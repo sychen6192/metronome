@@ -51,7 +51,6 @@
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12M12 6v12" /></svg>
                 </button>
               </span>
-              <span id="hint" class="hint" data-i18n="accentHint">點數字切換：重音 → 一般 → 靜音</span>
             </figcaption>
           </figure>
 
@@ -146,7 +145,6 @@
                 <input id="trainer-target" type="number" inputmode="numeric" min="20" max="300" step="1" />
               </label>
             </div>
-            <p class="note" data-i18n="trainerHint"></p>
           </div>
 
           <!-- Buy Me a Coffee's own button: their yellow, their cup (Simple Icons, CC0) and lettering. -->
@@ -159,6 +157,10 @@
         </section>
       </main>
     </div>
+
+    <!-- First-time hints, each shown once beside what it explains (src/ui/hints.ts). -->
+    <div id="accent-hint" class="bubble" role="status" data-nosnippet hidden><span data-i18n="accentHint">點數字切換：重音 → 一般 → 靜音</span></div>
+    <div id="trainer-hint" class="bubble" role="status" data-nosnippet hidden><span data-i18n="trainerHint"></span></div>
 
     <!-- Status messages, never part of a search result snippet. -->
     <div id="toast" class="toast" role="status" data-nosnippet hidden>

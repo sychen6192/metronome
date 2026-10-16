@@ -238,7 +238,7 @@ A two-theme monochrome-navy system with exactly one chromatic accent, yellow, sh
 - **Deep Slate** (#111a2d): Hover fill for controls inside the raised settings panel.
 - **Chalk** (#eceff6): Primary text, numerals, the caption time signature, ictus bars, the struck-beat fill, the struck accent's ring, selected segment, trainer switch (on) and current-language fill, the toast surface.
 - **Soft Chalk** (#b4bdd2): Row labels, the tempo change's arrow and step rule, ruler markings, unselected segment icons, the language links, the select chevron.
-- **Faint Chalk** (#8792ad): The accent hint, muted-beat numerals, subdivision ticks, ruler tick marks, the knob of the switch when off (5.2:1 on slate).
+- **Faint Chalk** (#8792ad): Muted-beat numerals, subdivision ticks, ruler tick marks, the knob of the switch when off (5.2:1 on slate).
 - **Slate Rule** (#33405f): Hairlines between legend rows, and the borders of step, secondary, segment, field and switch (off) controls. Decorative only.
 - **Chalk Path** (chalk at 60%): The beat-pattern pen strokes and their arrowheads (one evenly filled path) and the ring of a normal beat numeral.
 
@@ -283,8 +283,8 @@ A two-theme monochrome-navy system with exactly one chromatic accent, yellow, sh
 - **Label field** (sans 400, 1.0625rem, tabular figures): values typed into the trainer's number fields.
 - **Label strong** (sans 700, 1.125rem): the Start / Stop label only.
 - **Label** (sans 600, 0.9375rem): row labels and secondary buttons.
-- **Label note** (sans, 0.875rem): the trainer note paragraph, the Install text-button label.
-- **Label small** (sans, 0.8125rem, balanced wrapping): the accent hint beside the caption's metre (Chinese breaking only at punctuation and arrows), the language switch (at 650), the trainer's step rule ("每 4 小節 +5", "+5 every 4 bars"), trainer field labels, and the stacked secondary labels in a narrow transport.
+- **Label note** (sans, 0.875rem): the first-time hint bubbles, the Install text-button label.
+- **Label small** (sans, 0.8125rem, balanced wrapping): the language switch (at 650), the trainer's step rule ("每 4 小節 +5", "+5 every 4 bars"), trainer field labels, and the stacked secondary labels in a narrow transport.
 
 ### Named Rules
 **The Notation Voice Rule.** Any musical quantity (tempo, meter, beat number, tuplet number, tempo marking, tempo change) and the app's wordmark are set in the engraved face or the score serif; any instruction or setting name is set in the sans. Never swap them.
@@ -295,7 +295,7 @@ A two-theme monochrome-navy system with exactly one chromatic accent, yellow, sh
 
 ## Layout
 
-A single column, centred, max 1080px wide with 16px side padding (32px from 900px). The playing stage comes first and fills the first viewport. Each stage size names a reserve (the height the header and everything below the figure need) and a figure minimum, and the pattern figure (aspect 20:13) is sized `min(100%, clamp(figure-min, (100svh - reserve) * 20/13, 720px))`: by default a 476px reserve and a 320px minimum. Below the figure come its caption row 20px down ("− 4/4 +", the metre control, then the hint), the tempo block (max 440px, a three-column grid of − / mark / + with the marking row spanning all three columns), the ruler, and the transport (a 1fr / auto / 1fr grid with Start centred between Tap and Trainer; a size container, so its buttons size from its own width). From 900px the stage narrows to 760px and the settings become a two-column legend panel (48px column gap): subdivision, sound and volume take the left column, and the trainer spans the right column for those three rows, its bottom rule level with the volume row's; the support line spans both beneath.
+A single column, centred, max 1080px wide with 16px side padding (32px from 900px). The playing stage comes first and fills the first viewport. Each stage size names a reserve (the height the header and everything below the figure need) and a figure minimum, and the pattern figure (aspect 20:13) is sized `min(100%, clamp(figure-min, (100svh - reserve) * 20/13, 720px))`: by default a 476px reserve and a 320px minimum. Below the figure come its caption row 20px down ("− 4/4 +", the metre control), the tempo block (max 440px, a three-column grid of − / mark / + with the marking row spanning all three columns), the ruler, and the transport (a 1fr / auto / 1fr grid with Start centred between Tap and Trainer; a size container, so its buttons size from its own width). From 900px the stage narrows to 760px and the settings become a two-column legend panel (48px column gap): subdivision, sound and volume take the left column, and the trainer spans the right column for those three rows, its bottom rule level with the volume row's; the support line spans both beneath.
 
 Spacing runs on a 4px base: 4 / 8 / 12 / 16 / 24 / 32 / 48, with 14px as the stage's internal gap and 8px inside the metre control. Legend rows are at least 64px tall with a hairline beneath: subdivision, sound, volume, then the trainer group, then the support line, which is last and has no rule; the band's own edge closes it.
 
@@ -311,7 +311,7 @@ Flat by default. Depth comes from tonal grounds (slate, raised slate for the leg
 
 ### Shadow Vocabulary
 - **Start lift** (`box-shadow: 0 6px 18px rgb(0 0 0 / 0.22)`, pressing to `0 2px 8px rgb(0 0 0 / 0.2)`): the Start/Stop button only.
-- **Floating toast** (`box-shadow: 0 10px 30px rgb(0 0 0 / 0.3)`): transient status messages over the header row (under the language switch from 900px).
+- **Floating toast** (`box-shadow: 0 10px 30px rgb(0 0 0 / 0.3)`): transient status messages over the header row (under the language switch from 900px), and the first-time hint bubbles.
 
 ### Named Rules
 **The One Lifted Object Rule.** Only the primary action casts a shadow on the board; everything else is drawn on it.
@@ -337,7 +337,7 @@ Few, large, round and forgiving.
 
 ### Cards / Containers
 - **Settings legend:** raised slate (raised paper) band; full-bleed with 8px 16px padding on narrow screens, a panel with 20px radius and 8px 32px 12px padding from 900px. No shadow. Rows separated by 1px rules, in order: subdivision, sound, volume, the speed trainer group, and the support line, which is last and has none, since the band's edge closes it.
-- **Speed trainer group:** a header row with the label (加速練習 / Speed trainer) and its switch at the right, then the three number fields (step, every N bars, target) and a note in label note saying that Stop returns to the starting tempo. From 900px it is the legend's right column.
+- **Speed trainer group:** a header row with the label (加速練習 / Speed trainer) and its switch at the right, then the three number fields (step, every N bars, target), 18px above the group's rule. No note: what the trainer does is said once, in a hint bubble, the first time it is switched on. From 900px it is the legend's right column.
 
 ### Inputs / Fields
 - **Select and number fields:** 46px tall, 1.5px rule border, 10px radius, ground-coloured fill (so they read as cut into the raised panel); the select draws its chevron with two gradients in soft chalk. Number fields use tabular figures at 1.0625rem.
@@ -358,7 +358,7 @@ The conductor's diagram for 1 to 16 beats, drawn in a fixed 400×260 SVG box tha
 - **Beat numerals = accent buttons:** 44px circles 38 units below each ictus (beside it for the upbeat; 30px with crowded numerals, on the ictus above 8 beats, with hit areas 44px wide and as tall as the tiers allow, min(44px, 44 drawing units × scale), from the `--unit` the figure sets). Normal: chalk-path ring on ground. Accent: on slate a 3px yellow ring around a yellow numeral on the ground; on paper the highlighter disc. Mute: dashed ring, faint numeral. Struck: solid chalk fill with ground numeral at scale 1.14, landing instantly and held until the next beat; a struck accent turns solid yellow with a chalk ring and slate numeral on slate, navy with a yellow ring on paper; struck mute is a 14% chalk tint with soft-chalk ring. On release the numeral's colour swaps 55ms into the fill's 160ms release (`color 0s 55ms`), so it never matches its fill. Hover sharpens the ring to chalk. Tapping cycles accent → normal → mute.
 - **Baton:** a filled circle 12-16px in radius on screen (figure width / 30), yellow with a 4px slate ring on slate, yellow with a navy ring on paper. It travels each segment with the velocity profile `t + 0.72/(2π)·sin(2πt)`: fastest into the ictus, slowest at the rebound top, as a conductor's hand moves. Stopped, it rests raised above the downbeat.
 - **Ripple:** one ring per strike, expanding from 0.5 to 1.5 (accent 1.9, 3px yellow) and fading over 420ms on `cubic-bezier(0.16, 1, 0.3, 1)`. Muted beats get none.
-- **Caption:** a centred row 20px below the figure, captioned as a textbook captions its diagram: the metre control ("− 4/4 +": 44px step discs either side of the engraved time signature, 8px apart; the only place the beat count is set), a 12px gap, then the accent hint in label small (faint chalk, balanced wrapping, Chinese breaking only at punctuation and arrows). The hint is for the first visit: it retires for good after the first accent change (remembered in storage), leaving the metre alone.
+- **Caption:** a centred row 20px below the figure, captioned as a textbook captions its diagram: the metre control ("− 4/4 +": 44px step discs either side of the engraved time signature, 8px apart; the only place the beat count is set). How the numerals work is told once, in a hint bubble under the 1 on the first visit.
 
 **The Pen Rule.** The pattern is drawn, not stroked: light on the rebound, heavy into the ictus, heaviest into the downbeat, at fixed screen widths. Never draw it as a uniform line.
 
@@ -372,6 +372,9 @@ The settings band closes with Buy Me a Coffee's own button, centred and kept sma
 
 ### Toast
 Chalk (ink in light) rounded box, 0.9375rem text, an optional yellow 44px action (its label never wraps) and a 44px close button, with the floating shadow. Every toast sits in one place, never over the instrument (not the figure, whose baton rests at its top, nor Start): under 900px over the header row (4px below the top plus the safe area), from 900px under the header at the right, beneath the language switch (placed from the header's measured height). Used for update-ready and install messages, the offer of the page in the other language (its text carries that language's `lang`; starting playback passes over it, as if closed), and on iPhone and iPad, where browsers have no install prompt, the Add to Home Screen steps behind the Install button, which stay until closed. It never interrupts playback. Messages wrap in balanced lines; Chinese breaks with `line-break: strict`, never before its punctuation. It carries `data-nosnippet` so status text never appears in a search result.
+
+### Hint bubble
+What a control does is said once, beside it, the first time it matters, then never again: the toast's surface (chalk on slate, navy on paper) with the floating shadow, 14px radius, 8px 12px padding, label note at line-height 1.4 in balanced lines (Chinese breaking only at its punctuation and the arrows), at most 260px wide and kept 16px inside the screen, with a 12px square pointer aimed at the control's centre, 12px away. It takes no touch (`pointer-events: none`), so the control under it still works, and the next touch or key anywhere ends it; ended is remembered in storage. A `role="status"` region announces it. Two exist: on the first visit, 0.7s in, under the 1 (點數字切換：重音 → 一般 → 靜音 / Tap a number to cycle: accent → normal → mute), retired at once by an accent change; and the first time the trainer is switched on, above the control that did it (每隔指定小節，自動朝目標速度調整。/ Every few bars, the tempo moves towards the target.).
 
 ### Link-preview image
 `public/og-image.png`, 1200×630, rendered from the running app by `scripts/generate-og-image.mjs` (dark theme, reduced motion): the icon with the bilingual name (節拍器 over a soft-chalk "Metronome"), the tempo mark set flush left beneath it, and the 4/4 pattern frozen on the downbeat strike (the struck accent 1 solid yellow), on the slate ground; the generator undoes the landscape stage placement, since the card is short and wide like a phone on its side. The card is laid out at 1/1.5 size and enlarged so pen strokes and ictus bars read at the ~500 px a preview is shown; the baton is shrunk to clear the lit 1. One image serves both languages, so it carries no sentences.

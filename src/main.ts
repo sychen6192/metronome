@@ -16,6 +16,7 @@ import { LANGUAGES, browserLanguage, currentLanguage, resolveLanguage, setLangua
 import { setupPwa } from './platform/pwa'
 import { ScreenWakeLock } from './platform/wakeLock'
 import { BeatPattern } from './ui/beatPattern'
+import { Hint } from './ui/hints'
 import { subdivisionIcon } from './ui/notation'
 import { declineToast, dismissToast, render as renderToast, showToast } from './ui/toast'
 
@@ -54,7 +55,6 @@ const els = {
   trainerTarget: byId<HTMLInputElement>('trainer-target'),
   install: byId<HTMLButtonElement>('install'),
   topbar: document.querySelector<HTMLElement>('.topbar')!,
-  hint: byId('hint'),
   languageLinks: document.querySelectorAll<HTMLAnchorElement>('[data-language]'),
 }
 
@@ -179,10 +179,11 @@ function setBpm(bpm: number): void {
 
 const changeBpm = (delta: number) => setBpm(clampBpm(settings.bpm + delta))
 
-function setTrainer(enabled: boolean): void {
+function setTrainer(enabled: boolean, from?: Element): void {
   update({ trainer: { ...settings.trainer, enabled } })
   // Switched on while playing, the run starts here; switched off, the tempo reached stays.
   runOrigin = enabled && engine.playing ? settings.bpm : undefined
+  if (enabled && from) trainerHint.show(from, 'above')
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -456,18 +457,9 @@ function suggestOtherLanguage(): void {
   )
 }
 
-const HINT_SEEN = 'metronome:accent-hint-seen'
-
-/** The accent hint is for the first visit: it goes once a numeral has been tapped. */
-function retireHint(): void {
-  if (els.hint.hidden) return
-  els.hint.hidden = true
-  try {
-    storage()?.setItem(HINT_SEEN, '1')
-  } catch {
-    // Storage full or blocked: the hint simply returns next time.
-  }
-}
+/** First-time hints: how the numerals work (on the first visit), what the trainer does (when first on). */
+const accentHint = new Hint(byId('accent-hint'), 'metronome:accent-hint-seen', storage)
+const trainerHint = new Hint(byId('trainer-hint'), 'metronome:trainer-hint-seen', storage)
 
 function buildControls(): void {
   els.subdivisions.innerHTML = SUBDIVISIONS.map(
@@ -533,7 +525,7 @@ function bindEvents(): void {
     const accents = settings.accents.slice()
     accents[index] = cycleAccent(accents[index] ?? 'normal')
     update({ accents })
-    retireHint()
+    accentHint.retire()
   })
 
   els.fewerBeats.addEventListener('click', () => update({ beatsPerBar: Math.max(MIN_BEATS, settings.beatsPerBar - 1) }))
@@ -550,7 +542,7 @@ function bindEvents(): void {
 
   // The transport's toggle and the legend's switch are one setting.
   for (const toggle of [els.trainerToggle, els.trainerSwitch]) {
-    toggle.addEventListener('click', () => setTrainer(!settings.trainer.enabled))
+    toggle.addEventListener('click', () => setTrainer(!settings.trainer.enabled, toggle))
   }
   const trainerField = (input: HTMLInputElement, key: 'step' | 'everyBars' | 'target', min: number, max: number) => {
     input.addEventListener('change', () => {
@@ -644,10 +636,7 @@ function onKeyDown(event: KeyboardEvent): void {
 buildRuler()
 bindEvents()
 applyLanguage(currentLanguage())
-try {
-  if (storage()?.getItem(HINT_SEEN)) els.hint.hidden = true
-} catch {
-  // Unreadable storage: show the hint.
-}
+// On the first visit, under the downbeat: the numerals are the accent controls.
+accentHint.show(() => els.beatButtons.querySelector('.beat[data-index="0"]'), 'below', 700)
 suggestOtherLanguage()
 setupPwa(els.install, () => engine.playing)

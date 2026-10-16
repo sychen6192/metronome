@@ -524,15 +524,6 @@ button svg {
   line-height: 0.56;
 }
 
-/* Chinese breaks after its punctuation or at the arrows, never inside a word. */
-.hint {
-  color: var(--ink-3);
-  font-size: 0.8125rem;
-  text-wrap: balance;
-  word-break: keep-all;
-  overflow-wrap: anywhere;
-}
-
 /* Tempo set the way a score prints it: "Allegro  ♩ = 120", with − and + level with the numerals. */
 .tempo {
   --step: 52px;
@@ -1010,6 +1001,7 @@ button svg {
 }
 
 .trainer {
+  padding-bottom: 18px;
   border-bottom: 1px solid var(--rule);
 }
 
@@ -1135,13 +1127,6 @@ button svg {
   fill: currentColor;
 }
 
-.note {
-  max-width: 60ch;
-  margin: 12px 0 18px;
-  color: var(--ink-2);
-  font-size: 0.875rem;
-}
-
 @media (hover: hover) {
   .step:hover:not(:disabled),
   .secondary:hover,
@@ -1165,6 +1150,45 @@ button svg {
 }
 
 /* ---------------------------------------------------------------- toast */
+
+/* A first-time hint beside the control it explains: the toast's chalk surface with a pointer.
+   It never takes a touch, so the control under it still works; the next touch or key ends it.
+   Chinese breaks after its punctuation or at the arrows, never inside a word. */
+.bubble {
+  position: absolute;
+  z-index: 9;
+  max-width: min(260px, calc(100vw - 32px));
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: var(--ink);
+  color: var(--ground);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.3);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  text-wrap: balance;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+}
+
+.bubble::before {
+  content: '';
+  position: absolute;
+  left: calc(var(--pointer, 50%) - 6px);
+  width: 12px;
+  height: 12px;
+  background: inherit;
+  rotate: 45deg;
+}
+
+.bubble.below::before {
+  top: -6px;
+}
+
+.bubble.above::before {
+  bottom: -6px;
+}
 
 /* Over the header row, never over the instrument: not the figure, whose baton rests at its top,
    nor Start at the foot of the first screen. Wide screens set it under the language switch. */
