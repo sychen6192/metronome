@@ -734,9 +734,12 @@ button svg {
   padding-block: 20px;
 }
 
+/* Above the target outline, so the weight slides over it as the run arrives. */
 .ruler .slider {
   --thumb-w: 26px;
   --thumb-h: 30px;
+  position: relative;
+  z-index: 1;
   height: 44px;
 }
 
@@ -1082,35 +1085,58 @@ button svg {
   font-variant-numeric: tabular-nums;
 }
 
-/* A quiet thank-you link, the last line of the band. */
+/* The thanks closes the band: a pill like the transport's, opening with a metronome mark whose
+   tempo is a coffee ("♩ = ☕", the note engraved, the cup drawn like the line icons). */
 .support {
   grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
   margin: 0;
-  padding: 8px 0 4px;
+  padding: 20px 0 8px;
 }
 
 .support a {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  min-height: 44px;
-  color: var(--ink-3);
-  font-size: 0.8125rem;
+  gap: 12px;
+  min-height: 48px;
+  padding: 0 22px 0 18px;
+  border: 1.5px solid var(--rule);
+  border-radius: 999px;
+  color: var(--ink);
+  font-size: 0.9375rem;
+  font-weight: 600;
   text-decoration: none;
+  transition: background-color 160ms ease-out;
 }
 
-.support a:hover {
-  color: var(--ink-2);
-  text-decoration: underline;
-  text-underline-offset: 3px;
+.support-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--engraved);
+  font-size: 1.875rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.support-note {
+  font-size: 0.62em;
+  translate: 0 -0.12em;
+}
+
+.support-equals {
+  font-family: var(--score);
+  font-size: 0.5em;
+  font-weight: 700;
 }
 
 .support svg {
-  width: 16px;
-  height: 16px;
+  width: 26px;
+  height: 26px;
   fill: none;
   stroke: currentColor;
-  stroke-width: 2;
+  stroke-width: 1.8;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -1131,7 +1157,8 @@ button svg {
   }
 
   .settings .step:hover:not(:disabled),
-  .settings .segment:hover:not(:has(input:checked)) {
+  .settings .segment:hover:not(:has(input:checked)),
+  .support a:hover {
     background: var(--ground-3);
   }
 
@@ -1142,10 +1169,11 @@ button svg {
 
 /* ---------------------------------------------------------------- toast */
 
-/* Under the header, never over the transport (Start sits at the foot of the first screen). */
+/* Over the header row, never over the instrument: not the figure, whose baton rests at its top,
+   nor Start at the foot of the first screen. Wide screens set it under the language switch. */
 .toast {
   position: fixed;
-  top: calc(var(--topbar-h) + 4px + env(safe-area-inset-top));
+  top: calc(4px + env(safe-area-inset-top));
   left: 50%;
   z-index: 10;
   display: flex;
@@ -1298,6 +1326,7 @@ button svg {
 
   /* Under the language switch, clear of the figure. */
   .toast {
+    top: calc(var(--topbar-h) + 4px + env(safe-area-inset-top));
     left: auto;
     right: max(32px, (100% - 1080px) / 2 + 32px);
     transform: none;
@@ -1374,13 +1403,6 @@ button svg {
   .pattern {
     width: min(100%, (100svh - var(--topbar-h) - 84px) * 20 / 13);
   }
-
-  /* Over the figure's side, clear of the controls. */
-  .toast {
-    left: calc(16px + env(safe-area-inset-left));
-    max-width: calc(50% - 28px);
-    transform: none;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1409,7 +1431,9 @@ button svg {
 }
 
 .no-engraved .mark-note,
-.no-engraved .mark-equals {
+.no-engraved .mark-equals,
+.no-engraved .support-note,
+.no-engraved .support-equals {
   display: none;
 }
 
@@ -1477,6 +1501,7 @@ button svg {
   .select,
   .switch,
   .trainer-grid input,
+  .support a,
   .language {
     border-color: ButtonText;
   }
