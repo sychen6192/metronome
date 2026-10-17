@@ -34,6 +34,16 @@ export function tempoMarking(bpm: number): string {
   return 'Prestissimo'
 }
 
+/**
+ * One step of the tempo in `direction`: by 1, or by `size` to the next multiple of `size` (a held
+ * button speeds up through round tempos: 123 → 125 → 130).
+ */
+export function stepTempo(bpm: number, direction: 1 | -1, size = 1): number {
+  if (size <= 1) return clampBpm(bpm + direction)
+  const next = direction > 0 ? Math.floor(bpm / size) * size + size : Math.ceil(bpm / size) * size - size
+  return clampBpm(next)
+}
+
 /** How a score writes a gradual tempo change: accelerando (faster) or ritardando (slower). */
 export const TEMPO_CHANGES = { faster: 'accel.', slower: 'rit.' } as const
 

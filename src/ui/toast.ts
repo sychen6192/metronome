@@ -28,7 +28,7 @@ const closeButton = document.getElementById('toast-close') as HTMLButtonElement
 /**
  * Toasts with an action (e.g. "Reload" for an update) stay until used or dismissed, and are never
  * lost: a newer one shows on top and the older one returns afterwards. A plain message shows over
- * them for a few seconds.
+ * them for a few seconds, unless one that needs the user arrives after it.
  */
 const persistent: Toast[] = []
 let transient: Toast | null = null
@@ -47,6 +47,7 @@ actionButton.addEventListener('click', () => {
 
 export function showToast(message: MessageKey, action?: ToastAction, options: ToastOptions = {}): void {
   if (action || options.sticky) {
+    clearTransient()
     dismissToast(message)
     persistent.push({ message, action, ...options })
   } else {

@@ -75,8 +75,9 @@
               <span class="metronome-mark">
                 <span class="mark-note" aria-hidden="true">&#xECA5;</span>
                 <span class="mark-equals" aria-hidden="true">=</span>
-                <output id="bpm" class="bpm" for="bpm-slider">120</output>
-                <span class="sr-only">BPM</span>
+                <!-- Typed in place: tap the number. -->
+                <input id="bpm" class="bpm" type="text" inputmode="numeric" autocomplete="off" enterkeyhint="done" spellcheck="false" value="120" data-i18n-label="tempoInput" data-i18n-title="tempoInputTitle" aria-label="速度（BPM）" />
+                <span id="bpm-status" class="sr-only" aria-live="polite"></span>
               </span>
             </p>
             <button id="faster" class="step" type="button" data-i18n-label="faster" data-i18n-title="fasterTitle" aria-label="加快" aria-keyshortcuts="ArrowUp Shift+ArrowUp">

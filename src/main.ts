@@ -11,7 +11,7 @@ import {
   type Subdivision,
 } from './core/rhythm'
 import { SOUNDS, loadSettings, saveSettings, type Settings, type SoundId } from './core/settings'
-import { MAX_BPM, MIN_BPM, TEMPO_CHANGES, TapTempo, clampBpm, tempoChange, tempoMarking } from './core/tempo'
+import { MAX_BPM, MIN_BPM, TEMPO_CHANGES, TapTempo, clampBpm, stepTempo, tempoChange, tempoMarking } from './core/tempo'
 import { LANGUAGES, browserLanguage, currentLanguage, resolveLanguage, setLanguage, t, translatePage, type Language } from './i18n'
 import { setupPwa } from './platform/pwa'
 import { ScreenWakeLock } from './platform/wakeLock'
@@ -26,7 +26,8 @@ const els = {
   pattern: byId('pattern'),
   beatButtons: byId('beat-buttons'),
   tempo: byId('tempo'),
-  bpm: byId<HTMLOutputElement>('bpm'),
+  bpm: byId<HTMLInputElement>('bpm'),
+  bpmStatus: byId('bpm-status'),
   marking: byId('marking'),
   direction: byId('direction'),
   directionChange: byId('direction-change'),
@@ -93,7 +94,10 @@ setLanguage(resolveLanguage(settings.language, pageLanguage))
 const pattern = new BeatPattern(els.pattern, els.beatButtons)
 const engine = new MetronomeEngine(
   () => settings,
-  (bpm) => update({ bpm }),
+  (bpm) => {
+    update({ bpm })
+    announceTempo()
+  },
   (change) => {
     if (change === 'resumed') {
       // Played again from the lock screen or headphones.
@@ -168,13 +172,41 @@ function beginRun(): void {
 function endRun(): void {
   const origin = runOrigin
   runOrigin = undefined
-  if (origin !== undefined && origin !== settings.bpm) update({ bpm: origin })
+  if (origin !== undefined && origin !== settings.bpm) {
+    update({ bpm: origin })
+    announceTempo()
+  }
 }
 
-/** A tempo the user set (buttons, scale, keys, tapping), not one the trainer stepped to. */
-function setBpm(bpm: number): void {
+/** A tempo the user set (buttons, scale, keys, tapping, typing), not one the trainer stepped to. */
+function setBpm(bpm: number, announce = true): void {
   if (runOrigin !== undefined) runOrigin = bpm
   update({ bpm })
+  if (announce) announceTempo()
+}
+
+let announceTimer: number | undefined
+/** Tell screen readers the tempo once it settles; holding − or + changes it many times a second. */
+function announceTempo(): void {
+  clearTimeout(announceTimer)
+  announceTimer = window.setTimeout(() => {
+    els.bpmStatus.textContent = t('tempoValue', { bpm: settings.bpm, marking: tempoMarking(settings.bpm) })
+  }, 800)
+}
+
+/** The digits of a typed tempo, at most three; full-width ones (from a CJK keyboard) count. */
+function tempoDigits(text: string): string {
+  const ascii = text.replace(/[\uff10-\uff19]/g, (digit) => String.fromCharCode(digit.charCodeAt(0) - 0xfee0))
+  return ascii.replace(/\D/g, '').slice(0, 3)
+}
+
+/** Whether the tempo field holds digits being typed: a re-render leaves them be, leaving keeps them. */
+let typingTempo = false
+
+/** The tempo field, as wide as its digits (the engraved digits are all one width). */
+function showBpm(value: string): void {
+  els.bpm.value = value
+  els.bpm.style.width = `${Math.max(value.length, 1)}ch`
 }
 
 const changeBpm = (delta: number) => setBpm(clampBpm(settings.bpm + delta))
@@ -205,7 +237,7 @@ function setSlider(input: HTMLInputElement, value: number): void {
 
 function render(): void {
   const marking = tempoMarking(settings.bpm)
-  els.bpm.value = String(settings.bpm)
+  if (!typingTempo) showBpm(String(settings.bpm))
   els.marking.textContent = marking
   renderDirection()
   setSlider(els.slider, settings.bpm)
@@ -318,6 +350,7 @@ async function togglePlay(): Promise<void> {
   beginRun()
   const starting = engine.start()
   dismissToast('audioInterrupted')
+  dismissToast('audioError')
   // Playing passes over the offer of the other language, which would sit over the figure.
   declineToast('otherLanguage')
   renderPlayState()
@@ -328,7 +361,12 @@ async function togglePlay(): Promise<void> {
     void wakeLock.request()
   } catch {
     endRun()
-    showToast('audioError')
+    showToast('audioError', {
+      label: 'retry',
+      run: () => {
+        if (!engine.playing) void togglePlay()
+      },
+    })
   }
   renderPlayState()
 }
@@ -339,16 +377,18 @@ function tap(timeStamp: number): void {
   els.tap.animate([{ transform: 'scale(0.94)' }, { transform: 'scale(1)' }], { duration: 120 })
 }
 
-/** Press and hold to keep changing the value, like a hardware metronome. */
-function holdToRepeat(button: HTMLButtonElement, action: () => void): void {
-  let delay: number | undefined
-  let repeat: number | undefined
+/**
+ * Press and hold to keep changing the value, like a hardware metronome: one step at a time, then,
+ * held past a second and a half, through round values (`action` gets the step size: 1, then 5).
+ */
+function holdToRepeat(button: HTMLButtonElement, action: (size: number) => void): void {
+  let timer: number | undefined
+  let started = 0
   /** The pointer whose press drives the repeat; other fingers neither stop nor block it. */
   let owner: number | undefined
   const stop = () => {
-    clearTimeout(delay)
-    clearInterval(repeat)
-    delay = repeat = owner = undefined
+    clearTimeout(timer)
+    timer = owner = undefined
   }
   const release = (event: PointerEvent) => {
     if (event.pointerId === owner) stop()
@@ -356,16 +396,19 @@ function holdToRepeat(button: HTMLButtonElement, action: () => void): void {
   // The action disables the button at the tempo limit, after which some browsers stop
   // delivering pointer events to it, so the repeat also ends itself there.
   const tick = () => {
-    action()
-    if (button.disabled) stop()
+    const fast = performance.now() - started > 1500
+    action(fast ? 5 : 1)
+    if (button.disabled) return stop()
+    timer = window.setTimeout(tick, fast ? 100 : 70)
   }
   button.addEventListener('pointerdown', (event) => {
     if (event.button !== 0) return
     // A new press, from any finger, takes over; an earlier repeat never keeps running.
     stop()
     owner = event.pointerId
-    tick()
-    if (owner !== undefined) delay = window.setTimeout(() => (repeat = window.setInterval(tick, 70)), 400)
+    started = performance.now()
+    action(1)
+    if (!button.disabled) timer = window.setTimeout(tick, 400)
   })
   button.addEventListener('pointerleave', release)
   // Leaving the app ends it; the button's own blur doesn't (another finger's tap moves focus).
@@ -375,7 +418,7 @@ function holdToRepeat(button: HTMLButtonElement, action: () => void): void {
   window.addEventListener('pointercancel', release)
   // Keyboard activation (Enter/Space on the focused button) arrives as a click with detail 0.
   button.addEventListener('click', (event) => {
-    if (event.detail === 0) action()
+    if (event.detail === 0) action(1)
   })
   button.addEventListener('contextmenu', (event) => event.preventDefault())
 }
@@ -478,9 +521,65 @@ function buildControls(): void {
 function bindEvents(): void {
   els.play.addEventListener('click', () => void togglePlay())
 
-  holdToRepeat(els.slower, () => changeBpm(-1))
-  holdToRepeat(els.faster, () => changeBpm(1))
-  els.slider.addEventListener('input', () => setBpm(clampBpm(els.slider.valueAsNumber)))
+  holdToRepeat(els.slower, (size) => setBpm(stepTempo(settings.bpm, -1, size)))
+  holdToRepeat(els.faster, (size) => setBpm(stepTempo(settings.bpm, 1, size)))
+  // The scale announces its own value as it moves.
+  els.slider.addEventListener('input', () => setBpm(clampBpm(els.slider.valueAsNumber), false))
+
+  // The tempo typed in place: digits only, kept on Enter or on leaving the field, Escape undoes.
+  // It opens selected, so the first key replaces the whole tempo, also where a browser won't
+  // select it (no length limit stops that key: the handler keeps three digits).
+  let replacing = false
+  els.bpm.addEventListener('focus', () => {
+    replacing = true
+    typingTempo = false
+    // After the click that focused it has placed the caret; not once typing has begun (nor after
+    // leaving: selecting would focus the field again).
+    requestAnimationFrame(() => {
+      if (replacing && document.activeElement === els.bpm) els.bpm.select()
+    })
+  })
+  // Placing the caret (a click in the field, or an arrow key) edits from there instead.
+  els.bpm.addEventListener('pointerdown', () => {
+    if (document.activeElement === els.bpm) replacing = false
+  })
+  els.bpm.addEventListener('input', (event) => {
+    typingTempo = true
+    const { inputType, data, isComposing } = event as InputEvent
+    // An input method is still composing: leave its text alone until it's done.
+    if (isComposing) return
+    let value = els.bpm.value
+    if (replacing && inputType.startsWith('insert')) value = data ?? value
+    else if (replacing && inputType.startsWith('delete')) value = ''
+    replacing = false
+    showBpm(tempoDigits(value))
+  })
+  els.bpm.addEventListener('compositionend', () => {
+    replacing = false
+    showBpm(tempoDigits(els.bpm.value))
+  })
+  els.bpm.addEventListener('keydown', (event) => {
+    // Enter or Escape that ends a composition is the input method's.
+    if (event.isComposing) return
+    if (event.key.startsWith('Arrow') || event.key === 'Home' || event.key === 'End') replacing = false
+    if (event.key === 'Escape') typingTempo = false
+    if (event.key === 'Enter' || event.key === 'Escape') els.bpm.blur()
+  })
+  els.bpm.addEventListener('blur', () => {
+    const typed = typingTempo ? tempoDigits(els.bpm.value) : ''
+    typingTempo = false
+    const bpm = clampBpm(Number(typed))
+    if (typed !== '' && bpm !== settings.bpm) setBpm(bpm)
+    else render()
+  })
+  // Touching anything else keeps what was typed first, so a tap on + then adds to it.
+  document.addEventListener(
+    'pointerdown',
+    (event) => {
+      if (document.activeElement === els.bpm && event.target !== els.bpm) els.bpm.blur()
+    },
+    true,
+  )
 
   // Scroll on the tempo display to fine-tune (trackpads send many small deltas, so accumulate).
   let wheelDelta = 0
@@ -490,6 +589,7 @@ function bindEvents(): void {
       // Ctrl/⌘ + wheel and trackpad pinch are page zoom; leave them to the browser.
       if (event.ctrlKey || event.metaKey) return
       event.preventDefault()
+      if (document.activeElement === els.bpm) els.bpm.blur()
       wheelDelta += event.deltaY
       const steps = Math.trunc(wheelDelta / 40)
       if (steps !== 0) {
