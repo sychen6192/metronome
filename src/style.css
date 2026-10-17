@@ -186,6 +186,13 @@ button:disabled {
   outline-offset: 3px;
 }
 
+/* Yellow controls take a chalk ring (navy on paper): a yellow ring would read as part of them. */
+.primary:focus-visible,
+.coffee:focus-visible,
+.beat[data-level='accent']:focus-visible {
+  outline-color: var(--ink);
+}
+
 svg {
   display: block;
 }
@@ -629,8 +636,30 @@ button svg {
   translate: 0 -0.735em;
 }
 
+/* The tempo is typed right here: tap the number. A borderless field in the engraved face, as wide
+   as its digits (set by script); its box is a full em tall so the digits never clip, and negative
+   margins keep the mark's tight line. Editing draws a yellow rule under it. */
 .bpm {
+  box-sizing: content-box;
+  width: 3ch;
+  height: 1em;
+  margin: -0.2em 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
   font-variant-numeric: tabular-nums;
+  line-height: 1;
+  text-align: center;
+  caret-color: var(--yellow);
+  cursor: text;
+}
+
+.bpm:focus {
+  outline: none;
+  background: linear-gradient(var(--focus), var(--focus)) center bottom 0.12em / 100% 3px no-repeat;
 }
 
 .step {
@@ -725,6 +754,14 @@ button svg {
 .slider:focus-visible::-moz-range-thumb {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
+}
+
+.ruler .slider:focus-visible::-webkit-slider-thumb {
+  outline-color: var(--ink);
+}
+
+.ruler .slider:focus-visible::-moz-range-thumb {
+  outline-color: var(--ink);
 }
 
 /* Tempo: an engraved metronome scale; the thumb is the pendulum's sliding weight. */
@@ -1454,6 +1491,10 @@ button svg {
 .no-engraved .mark-note,
 .no-engraved .mark-equals {
   display: none;
+}
+
+.no-engraved .bpm {
+  margin: 0;
 }
 
 .no-engraved .time-signature {

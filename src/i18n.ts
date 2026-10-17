@@ -20,6 +20,8 @@ const zh = {
   tapTitle: '依點擊節奏設定速度（T）',
   tempo: '速度',
   tempoValue: '{bpm} BPM，{marking}',
+  tempoInput: '速度（BPM）',
+  tempoInputTitle: '點一下輸入速度',
   slower: '減慢',
   faster: '加快',
   slowerTitle: '減慢（↓，Shift+↓ 減 10）',
@@ -59,7 +61,8 @@ const zh = {
   reload: '重新載入',
   offlineReady: '已可離線使用',
   dismiss: '關閉',
-  audioError: '無法啟動音訊，請再試一次',
+  audioError: '無法啟動音訊。請確認音量或耳機後再試一次。',
+  retry: '重試',
   audioInterrupted: '音訊被系統中斷，已停止播放',
 } as const
 
@@ -85,6 +88,8 @@ const en: Record<MessageKey, string> = {
   tapTitle: 'Set the tempo by tapping (T)',
   tempo: 'Tempo',
   tempoValue: '{bpm} BPM, {marking}',
+  tempoInput: 'Tempo (BPM)',
+  tempoInputTitle: 'Click to type a tempo',
   slower: 'Slower',
   faster: 'Faster',
   slowerTitle: 'Slower (↓, Shift+↓ for 10)',
@@ -124,7 +129,8 @@ const en: Record<MessageKey, string> = {
   reload: 'Reload',
   offlineReady: 'Ready to work offline',
   dismiss: 'Dismiss',
-  audioError: 'Could not start audio. Please try again.',
+  audioError: 'Couldn’t start audio. Check your volume or headphones, then try again.',
+  retry: 'Try again',
   audioInterrupted: 'Audio was interrupted, so playback stopped.',
 }
 
