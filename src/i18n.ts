@@ -120,7 +120,7 @@ const en: Record<MessageKey, string> = {
   trainerShort: 'Trainer',
   trainerStep: 'Step (BPM)',
   trainerEvery: 'Every N bars',
-  trainerTarget: 'Target tempo (BPM)',
+  trainerTarget: 'Target (BPM)',
   trainerHint: 'Every few bars, the tempo moves towards the target.',
   trainerRule: '{step} every {bars} bars',
   trainerRuleOne: '{step} every bar',

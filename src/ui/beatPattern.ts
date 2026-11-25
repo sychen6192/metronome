@@ -3,6 +3,7 @@ import {
   TICK_RADIUS,
   batonProgress,
   drawPattern,
+  numeralSize,
   patternGeometry,
   pointOnSegment,
   shapesPath,
@@ -71,6 +72,7 @@ export class BeatPattern {
       this.scale = width / PATTERN_BOX.width
       // Screen px per drawing unit, for the numerals' hit areas.
       figure.style.setProperty('--unit', String(this.scale))
+      this.sizeNumerals()
       this.baton.setAttribute('r', (batonRadius(width) / this.scale).toFixed(2))
       this.drawStrokes()
     }).observe(figure)
@@ -188,6 +190,12 @@ export class BeatPattern {
       Object.assign(button.style, percent(point))
     })
     this.figure.classList.toggle('crowded', this.geometry.labelsOnIctus)
+    this.sizeNumerals()
+  }
+
+  /** The numerals grow with the figure; the arrowheads keep clear of them at the same size. */
+  private sizeNumerals(): void {
+    this.figure.style.setProperty('--numeral', `${numeralSize(this.scale, this.geometry.labelsOnIctus)}px`)
   }
 
   private drawTicks(): void {

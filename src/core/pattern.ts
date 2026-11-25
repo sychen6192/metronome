@@ -32,6 +32,8 @@ export interface PatternGeometry {
 }
 
 export const PATTERN_BOX = { width: 400, height: 260 } as const
+/** The widest the figure is drawn on screen, in px (the stylesheet's cap on `.pattern`). */
+const WIDEST_FIGURE = 720
 
 const CENTER = PATTERN_BOX.width / 2
 const DOWNBEAT: Point = { x: CENTER, y: 212 }
@@ -316,12 +318,26 @@ export function arrowPlacement(
 export const PEN = { thin: 1.5, heavy: 3.4, downbeat: 4.8 } as const
 /** Length of the printed mark at each ictus, in px: the plane the baton strikes. */
 export const ICTUS_MARK = 16
-/** On-screen clearances (px) an arrowhead keeps: from a struck numeral, a mark, a tick, a stroke. */
-export const CLEAR = { numeral: 22 * 1.14 + 3, mark: 1.5 + 3, tick: 3, stroke: PEN.heavy / 2 + 2 } as const
+/** How much a numeral grows while its beat is struck (the stylesheet's `.beat.active`). */
+export const STRUCK_SCALE = 1.14
+/** On-screen clearances (px) an arrowhead keeps: from a mark, a tick, a stroke, and around a struck numeral. */
+export const CLEAR = { numeral: 3, mark: 1.5 + 3, tick: 3, stroke: PEN.heavy / 2 + 2 } as const
 /** Radius (px) kept clear around the resting baton. */
 const BATON_CLEAR = 16 + 3
 /** Subdivision tick radius, in drawing units. */
 export const TICK_RADIUS = 3.2
+
+/**
+ * Diameter of a beat numeral on screen, in px, at `scale` px per drawing unit. A phone's figure
+ * (up to 400 px wide) keeps the touch-sized 44 px, 30 px where a crowded bar sets them on the
+ * ictus; a larger figure (a tablet on the stand, a desktop) grows them with it, to 56 px and 38 px
+ * at its widest (720 px), so they still read from across the room. Even, so they centre on a pixel.
+ */
+export function numeralSize(scale: number, crowded: boolean): number {
+  const [small, large] = crowded ? [30, 38] : [44, 56]
+  const grown = small + ((large - small) * (scale - 1)) / (WIDEST_FIGURE / PATTERN_BOX.width - 1)
+  return 2 * Math.round(Math.min(large, Math.max(small, grown)) / 2)
+}
 
 export interface Mark {
   a: Point
@@ -359,8 +375,9 @@ export function drawPattern(geometry: PatternGeometry, scale: number, offsets: r
   // Crowded bars have no room for arrows; the numerals' order carries the direction.
   let arrows = 0
   if (!labelsOnIctus) {
+    const struck = (numeralSize(scale, false) / 2) * STRUCK_SCALE
     const around: Obstacle[] = [
-      ...labels.map((point) => ({ a: point, b: point, r: unit(CLEAR.numeral) })),
+      ...labels.map((point) => ({ a: point, b: point, r: unit(struck + CLEAR.numeral) })),
       // Struck marks widen by half: a centred mark both ways, the upbeat's to the left.
       ...marks.map(({ a, b, upbeat: one }) => {
         const extra = (b.x - a.x) / (one ? 2 : 4)

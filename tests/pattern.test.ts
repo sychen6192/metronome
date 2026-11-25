@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest'
 import { SUBDIVISION_OFFSETS } from '../src/core/rhythm'
 import {
   PATTERN_BOX,
+  STRUCK_SCALE,
   arrowhead,
   drawPattern,
   triangleClears,
   batonProgress,
+  numeralSize,
   patternGeometry,
   pointOnSegment,
   shapesPath,
@@ -218,9 +220,48 @@ describe('stroke drawing', () => {
   })
 })
 
+describe('numeralSize', () => {
+  const at = (width: number, crowded = false) => numeralSize(width / PATTERN_BOX.width, crowded)
+
+  it('keeps the touch-sized numerals on a phone', () => {
+    for (const width of [288, 320, 358, 400]) {
+      expect(at(width)).toBe(44)
+      expect(at(width, true)).toBe(30)
+    }
+  })
+
+  it('grows them with a larger figure, up to its widest', () => {
+    expect(at(560)).toBe(50)
+    expect(at(720)).toBe(56)
+    expect(at(1000)).toBe(56)
+    expect(at(560, true)).toBe(34)
+    expect(at(720, true)).toBe(38)
+  })
+
+  it('never shrinks as the figure widens, and stays a whole even number of px', () => {
+    let previous = 0
+    for (let width = 280; width <= 760; width += 4) {
+      for (const crowded of [false, true]) expect(at(width, crowded) % 2).toBe(0)
+      expect(at(width)).toBeGreaterThanOrEqual(previous)
+      previous = at(width)
+    }
+  })
+
+  it('takes a smaller share of a larger figure, so nothing drawn for a phone can collide', () => {
+    // In drawing units a numeral is largest in the narrowest figure, where the geometry is tested.
+    const share = (width: number, crowded: boolean) => at(width, crowded) / (width / PATTERN_BOX.width)
+    for (const crowded of [false, true]) {
+      for (let width = 292; width <= 720; width += 4) {
+        expect(share(width, crowded), `${width}px`).toBeLessThanOrEqual(share(288, crowded))
+      }
+    }
+  })
+})
+
 describe('drawn pattern', () => {
   const WIDTHS = [288, 358, 520, 720]
-  const STRUCK_NUMERAL = 22 * 1.14
+  /** Radius of a numeral while its beat is struck, at a figure width. */
+  const struckNumeral = (scale: number) => (numeralSize(scale, false) / 2) * STRUCK_SCALE
 
   it('keeps every arrowhead clear of the numerals, the struck marks and the ticks, and pointing down its fall', () => {
     for (const width of WIDTHS) {
@@ -235,7 +276,7 @@ describe('drawn pattern', () => {
           for (const head of heads) {
             const where = `${beats} beats at ${width}px`
             for (const label of geometry.labels) {
-              expect(triangleClears(head, { a: label, b: label, r: (STRUCK_NUMERAL + 1) / scale }), where).toBe(true)
+              expect(triangleClears(head, { a: label, b: label, r: (struckNumeral(scale) + 1) / scale }), where).toBe(true)
             }
             for (const { a, b } of marks) {
               expect(triangleClears(head, { a, b, r: 1.5 / scale }), where).toBe(true)
@@ -249,32 +290,37 @@ describe('drawn pattern', () => {
     }
   })
 
-  it('gives every stroke an arrowhead once the figure is wide enough', () => {
-    for (let beats = 1; beats <= 8; beats++) {
-      for (const offsets of Object.values(SUBDIVISION_OFFSETS)) {
-        expect(drawPattern(patternGeometry(beats), 520 / PATTERN_BOX.width, offsets).arrows, `${beats} beats`).toBe(beats)
+  it('gives every stroke an arrowhead once the figure is wide enough, beside its larger numerals too', () => {
+    for (const width of [520, 620, 720]) {
+      for (let beats = 1; beats <= 8; beats++) {
+        for (const offsets of Object.values(SUBDIVISION_OFFSETS)) {
+          expect(drawPattern(patternGeometry(beats), width / PATTERN_BOX.width, offsets).arrows, `${beats} beats at ${width}px`).toBe(beats)
+        }
       }
     }
   })
 
   it('keeps the ictus marks clear of their numerals, also when both are struck', () => {
-    const scale = 288 / PATTERN_BOX.width
-    for (let beats = 2; beats <= 8; beats++) {
-      const geometry = patternGeometry(beats)
-      const { marks } = drawPattern(geometry, scale, [0])
-      marks.forEach((mark, beat) => {
-        const label = geometry.labels[beat]!
-        const ictus = geometry.ictus[beat]!
-        if (mark.upbeat) {
-          // Runs left from the ictus; its numeral sits to the right.
-          expect(mark.b.x).toBe(ictus.x)
-          expect(mark.a.x).toBeLessThan(ictus.x)
-          expect((label.x - ictus.x) * scale - STRUCK_NUMERAL).toBeGreaterThanOrEqual(1.5)
-        } else {
-          expect((mark.a.x + mark.b.x) / 2).toBeCloseTo(ictus.x)
-          expect((label.y - ictus.y) * scale - STRUCK_NUMERAL).toBeGreaterThanOrEqual(1.5)
-        }
-      })
+    for (const width of WIDTHS) {
+      const scale = width / PATTERN_BOX.width
+      for (let beats = 2; beats <= 8; beats++) {
+        const geometry = patternGeometry(beats)
+        const { marks } = drawPattern(geometry, scale, [0])
+        marks.forEach((mark, beat) => {
+          const label = geometry.labels[beat]!
+          const ictus = geometry.ictus[beat]!
+          const where = `${beats} beats at ${width}px`
+          if (mark.upbeat) {
+            // Runs left from the ictus; its numeral sits to the right.
+            expect(mark.b.x).toBe(ictus.x)
+            expect(mark.a.x).toBeLessThan(ictus.x)
+            expect((label.x - ictus.x) * scale - struckNumeral(scale), where).toBeGreaterThanOrEqual(1.5)
+          } else {
+            expect((mark.a.x + mark.b.x) / 2).toBeCloseTo(ictus.x)
+            expect((label.y - ictus.y) * scale - struckNumeral(scale), where).toBeGreaterThanOrEqual(1.5)
+          }
+        })
+      }
     }
   })
 })

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-17T00:00:00+00:00",
+  "generatedAt": "2026-11-25T00:00:00+00:00",
   "title": "Design System: 節拍器 Metronome",
   "extensions": {
     "colorMeta": {
@@ -422,9 +422,14 @@
         "purpose": "max-width: install button icon-only."
       },
       {
+        "name": "legend",
+        "value": "800px",
+        "purpose": "min-width (a tablet held upright): the settings become the two-column legend panel (rows left, trainer right over the first three rows; 20px radius, 8px 24px 12px padding, 32px column gap). Below it the band runs edge to edge and its rows keep to a 560px measure, centred."
+      },
+      {
         "name": "wide",
         "value": "900px",
-        "purpose": "min-width: 32px gutters, 760px stage, two-column legend panel (rows left, trainer right over the first three rows), toast under the language switch."
+        "purpose": "min-width: 32px gutters, 760px stage, the legend's column gap 48px and padding 8px 32px 12px, toast under the language switch."
       },
       {
         "name": "short",
@@ -464,7 +469,13 @@
         "struck": "scaleX(1.5)",
         "upbeat": "runs left from its ictus"
       },
-      "labelGap": "38 units (400×260 drawing box)"
+      "labelGap": "38 units (400×260 drawing box)",
+      "numeral": {
+        "size": "44px up to a 400px figure, growing to 56px at 720px (29px + 15px × scale, even px)",
+        "crowded": "30px, growing to 38px (20px + 10px × scale, even px)",
+        "source": "numeralSize() in src/core/pattern.ts; the figure sets --numeral; arrowheads clear the struck numeral (×1.14) at that size",
+        "type": "5/11 of the size (7/15 crowded), never under 1.25rem (0.875rem)"
+      }
     }
   },
   "components": [
@@ -496,7 +507,7 @@
       "name": "Beat Numerals",
       "kind": "custom",
       "refersTo": "beat-numeral",
-      "description": "Accent controls on the beat-pattern figure: accent ring with yellow numeral (dark), normal ring, dashed mute, held struck fill; a struck accent turns solid yellow.",
+      "description": "Accent controls on the beat-pattern figure: accent ring with yellow numeral (dark), normal ring, dashed mute, held struck fill; a struck accent turns solid yellow. 44px on a phone's figure, growing with a larger one to 56px (30px to 38px in crowded bars).",
       "html": "<div class=\"ds-beats\"><button class=\"ds-beat ds-accent\">1</button><button class=\"ds-beat ds-active\">2</button><button class=\"ds-beat\">3</button><button class=\"ds-beat ds-mute\">4</button><button class=\"ds-beat ds-accent ds-active\">1</button></div>",
       "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:'Metronome Sans TC',system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-beats{display:flex;gap:16px;padding:16px;background:var(--ground)}.ds-beat{display:grid;place-items:center;width:44px;height:44px;border:2px solid var(--path);border-radius:50%;background:var(--ground);color:var(--ink);font:700 1.25rem/1 var(--score);font-variant-numeric:lining-nums;cursor:pointer;transition:scale 140ms ease-out,background-color 160ms ease-out,border-color 160ms ease-out,color 0s 55ms}.ds-beat:hover{border-color:var(--ink)}.ds-beat:focus-visible{outline:2px solid var(--focus);outline-offset:3px}.ds-accent{border-width:3px;border-color:var(--yellow);background:var(--ground);color:var(--yellow)}.ds-mute{border-style:dashed;color:var(--ink-3)}.ds-active{scale:1.14;border-color:var(--ink);background:var(--ink);color:var(--ground);transition-duration:0s;transition-delay:0s}.ds-accent.ds-active{border-color:var(--ink);background:var(--yellow);color:var(--on-yellow)}.ds-accent:focus-visible{outline-color:var(--ink)}"
     },

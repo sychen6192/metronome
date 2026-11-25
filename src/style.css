@@ -417,9 +417,10 @@ button svg {
   inset: 0;
 }
 
-/* Beat numerals are the accent controls: highlighter disc = accent, ring = normal, dashed = mute. */
+/* Beat numerals are the accent controls: highlighter disc = accent, ring = normal, dashed = mute.
+   44 px on a phone; the figure sets --numeral, which grows with it on larger screens. */
 .beat {
-  --size: 44px;
+  --size: var(--numeral, 44px);
   position: absolute;
   display: grid;
   place-items: center;
@@ -430,7 +431,7 @@ button svg {
   background: var(--ground);
   color: var(--ink);
   font-family: var(--score);
-  font-size: 1.25rem;
+  font-size: max(1.25rem, var(--size) * 5 / 11);
   font-weight: 700;
   line-height: 1;
   font-variant-numeric: lining-nums;
@@ -448,9 +449,9 @@ button svg {
    tiers keep neighbours on the same row that far apart) and as tall as the tiers allow: raised
    tiers sit 46 drawing units apart, so half of that each way never reaches the next tier. */
 .pattern.crowded .beat {
-  --size: 30px;
+  --size: var(--numeral, 30px);
   border-width: 1.5px;
-  font-size: 0.875rem;
+  font-size: max(0.875rem, var(--size) * 7 / 15);
 }
 
 .pattern.crowded .beat::before {
@@ -954,10 +955,12 @@ button svg {
 
 /* ---------------------------------------------------------------- settings: a diagram's legend */
 
+/* A band from edge to edge; on a wider screen (a small tablet, a phone on its side) its rows keep
+   to a 560 px measure instead of stretching with it. */
 .settings {
   display: grid;
   margin: 0 -16px;
-  padding: 8px 16px;
+  padding: 8px max(16px, (100% + 32px - 560px) / 2);
   background: var(--ground-2);
 }
 
@@ -1352,24 +1355,14 @@ button svg {
   }
 }
 
-/* Wide screens: the playing area keeps the first screen; the settings sit below it as a
-   two-column legend. */
-@media (min-width: 900px) {
-  .app {
-    padding-inline: 32px;
-  }
-
-  .stage {
-    width: min(100%, 760px);
-    margin-inline: auto;
-  }
-
-  /* The legend in two columns: sound settings on the left, the speed trainer on the right. */
+/* From a tablet held upright: the settings sit below the playing area as a legend in two columns,
+   sound settings on the left, the speed trainer on the right. */
+@media (min-width: 800px) {
   .settings {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: 48px;
+    column-gap: 32px;
     margin: 0;
-    padding: 8px 32px 12px;
+    padding: 8px 24px 12px;
     border-radius: 20px;
   }
 
@@ -1380,6 +1373,23 @@ button svg {
   .settings > .trainer {
     grid-column: 2;
     grid-row: 1 / span 3;
+  }
+}
+
+/* Wide screens: the playing area keeps to the middle and the legend gets more air. */
+@media (min-width: 900px) {
+  .app {
+    padding-inline: 32px;
+  }
+
+  .stage {
+    width: min(100%, 760px);
+    margin-inline: auto;
+  }
+
+  .settings {
+    column-gap: 48px;
+    padding: 8px 32px 12px;
   }
 
   /* Under the language switch, clear of the figure. */
