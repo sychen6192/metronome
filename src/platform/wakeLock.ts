@@ -28,8 +28,9 @@ export class ScreenWakeLock {
     if (!('wakeLock' in navigator) || this.sentinel) return
     try {
       const sentinel = await navigator.wakeLock.request('screen')
-      if (!this.wanted) {
-        // Released while the request was pending.
+      if (!this.wanted || this.sentinel) {
+        // Released while the request was pending, or another request got there first: a second
+        // lock would outlive release() and keep the screen on.
         await sentinel.release()
         return
       }

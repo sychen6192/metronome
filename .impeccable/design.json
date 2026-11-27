@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-17T00:00:00+00:00",
+  "generatedAt": "2026-11-27T00:00:00+00:00",
   "title": "Design System: 節拍器 Metronome",
   "extensions": {
     "colorMeta": {
@@ -413,7 +413,7 @@
       },
       {
         "name": "transport-narrow",
-        "value": "348px",
+        "value": "21.75rem",
         "purpose": "@container (the transport) max-width: secondary buttons stack icon over label at 64px with a 20px radius."
       },
       {
@@ -422,19 +422,24 @@
         "purpose": "max-width: install button icon-only."
       },
       {
+        "name": "legend",
+        "value": "800px",
+        "purpose": "min-width (a tablet held upright): the settings become the two-column legend panel (rows left, trainer right over the first three rows; 20px radius, 8px 24px 12px padding, 32px column gap). Below it the band runs edge to edge and its rows keep to a 560px measure, centred."
+      },
+      {
         "name": "wide",
         "value": "900px",
-        "purpose": "min-width: 32px gutters, 760px stage, two-column legend panel (rows left, trainer right over the first three rows), toast under the language switch."
+        "purpose": "min-width: 32px gutters, 760px stage, the legend's column gap 48px and padding 8px 32px 12px, toast under the language switch."
       },
       {
         "name": "short",
         "value": "700px",
-        "purpose": "max-height: header 52px, stage reserve 348px, figure min 288px, gap 8px, figure margin-top 4px, BPM capped at 72px, ruler drops its markings (padding 0), transport margin 0. Default stage: reserve 476px, figure min 320px."
+        "purpose": "max-height: header 52px, stage reserve 348px, figure min 288px, gap 8px, figure margin-top 4px, ruler drops its markings, transport margin 0. --spare (the height left once a phone's width limits the figure) goes to the BPM (72px + 0.75 × spare, up to the width's cap) and to the ruler's padding (0.2 × spare each side, at most 12px). Default stage: reserve 476px, figure min 320px."
       },
       {
         "name": "landscape",
         "value": "(orientation: landscape) and (max-height: 600px) and (min-width: 600px)",
-        "purpose": "Two columns 24px apart: the figure spans every row on the left; tempo, ruler and transport grouped and centred on the right (rows 1fr auto auto auto 1fr)."
+        "purpose": "Two columns 24px apart: the figure spans every row on the left; tempo, ruler and transport grouped and centred on the right (rows 1fr auto auto auto 1fr). The BPM grows into the height beside the figure: max(72px, (100svh − header − 190px) × 1.3), up to the width's cap."
       }
     ],
     "themes": {
@@ -464,7 +469,17 @@
         "struck": "scaleX(1.5)",
         "upbeat": "runs left from its ictus"
       },
-      "labelGap": "38 units (400×260 drawing box)"
+      "labelGap": "38 units (400×260 drawing box), at most 14px clear of the ictus mark on screen",
+      "numeral": {
+        "size": "44px up to a 400px figure, growing to 56px at 720px (29px + 15px × scale, even px)",
+        "crowded": "30px, growing to 38px (20px + 10px × scale, even px)",
+        "source": "numeralSize() in src/core/pattern.ts; the figure sets --numeral; arrowheads clear the struck numeral (×1.14) at that size",
+        "type": "5/11 of the size (7/15 crowded), never under 1.25rem (0.875rem)"
+      },
+      "upbeatNumeral": "searched per bar and figure size: the nearest spot round the upbeat's ictus that every stroke clears by the struck numeral plus 3px (rings at 1, 0.85, 1.25, 1.5 and 2 × the usual distance, up to 57 units); never on another numeral, a mark or the resting baton",
+      "batonLayer": "its own SVG sheet above the numerals (z-index 2, pointer-events none); below them (z-index 0) in crowded bars",
+      "release": "struck numeral and ictus mark let go over min(160ms, 35% of the beat) (--release, set with the tempo)",
+      "ticks": "3.2-unit dots, faint chalk at 60% at rest, full on their sub-click"
     }
   },
   "components": [
@@ -472,15 +487,15 @@
       "name": "Start Button",
       "kind": "button",
       "refersTo": "button-start",
-      "description": "The single primary action: yellow pill, the only lifted object on the board. Its keyboard focus ring is ink (chalk on slate, navy on paper), never yellow on yellow.",
-      "html": "<button class=\"ds-start\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7.5 5.2v13.6L18.6 12z\"/></svg><span>Start</span></button>",
-      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:'Metronome Sans TC',system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-start{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-width:148px;height:64px;padding:0 28px;border:0;border-radius:999px;background:var(--yellow);color:var(--on-yellow);font:700 1.125rem/1 var(--sans);box-shadow:0 6px 18px rgb(0 0 0 / 0.22);cursor:pointer;transition:scale 100ms ease-out,box-shadow 160ms ease-out}.ds-start svg{width:24px;height:24px;fill:currentColor}.ds-start:active{scale:.97;box-shadow:0 2px 8px rgb(0 0 0 / 0.2)}.ds-start:focus-visible{outline:2px solid var(--ink);outline-offset:3px}"
+      "description": "The single primary action: yellow pill, the only lifted object on the board. Its glyph's box is cropped to its ink, so the gap to the label is the gap seen. Its keyboard focus ring is ink (chalk on slate, navy on paper), never yellow on yellow.",
+      "html": "<button class=\"ds-start\"><svg viewBox=\"6 4 14 16\" aria-hidden=\"true\"><path d=\"M7.5 5.2v13.6L18.6 12z\"/></svg><span>Start</span></button>",
+      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:'Metronome Sans TC',system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-start{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-width:148px;height:64px;padding:0 28px;border:0;border-radius:999px;background:var(--yellow);color:var(--on-yellow);font:700 1.125rem/1 var(--sans);box-shadow:0 6px 18px rgb(0 0 0 / 0.22);cursor:pointer;transition:scale 100ms ease-out,box-shadow 160ms ease-out}.ds-start svg{width:14px;height:16px;fill:currentColor}.ds-start:hover{filter:brightness(1.06)}.ds-start:active{scale:.97;box-shadow:0 2px 8px rgb(0 0 0 / 0.2)}.ds-start:focus-visible{outline:2px solid var(--ink);outline-offset:3px}"
     },
     {
       "name": "Secondary Button",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "Tap and Trainer flanking Start: ruled full pill, line icon; stacks into a 20px-radius panel when the transport is 348px wide or less.",
+      "description": "Tap and Trainer flanking Start: ruled full pill, line icon; stacks into a 20px-radius panel when the transport is 348px wide or less. Both are at least min(108px, 29cqi) wide, so the pair sits evenly about Start. Trainer on: yellow edge with an 18% tint on slate, navy edge over a 45% wash on paper.",
       "html": "<button class=\"ds-secondary\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M3.5 17.5 9 12l4 4 7.5-7.5m0 0H15m5.5 0V14\"/></svg><span>Trainer</span></button>",
       "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:'Metronome Sans TC',system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-secondary{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:92px;height:52px;padding:0 14px;border:1.5px solid var(--rule);border-radius:999px;background:none;color:var(--ink);font:600 .9375rem/1 var(--sans);cursor:pointer;transition:background-color 160ms ease-out,border-color 160ms ease-out,scale 100ms ease-out}.ds-secondary svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.ds-secondary:hover{background:var(--ground-2)}.ds-secondary:active{scale:.97}.ds-secondary:focus-visible{outline:2px solid var(--focus);outline-offset:3px}.ds-secondary[aria-pressed=true]{border-color:var(--yellow);background:color-mix(in srgb,var(--yellow) 18%,var(--ground))}@container (max-width:348px){.ds-secondary{flex-direction:column;gap:2px;height:64px;padding:0 10px;border-radius:20px;font-size:.8125rem}}"
     },
@@ -496,7 +511,7 @@
       "name": "Beat Numerals",
       "kind": "custom",
       "refersTo": "beat-numeral",
-      "description": "Accent controls on the beat-pattern figure: accent ring with yellow numeral (dark), normal ring, dashed mute, held struck fill; a struck accent turns solid yellow.",
+      "description": "Accent controls on the beat-pattern figure: accent ring with yellow numeral (dark), normal ring, dashed mute, held struck fill; a struck accent turns solid yellow. 44px on a phone's figure, growing with a larger one to 56px (30px to 38px in crowded bars). Under each ictus, never more than 14px clear of its mark; the upbeat's takes the nearest spot no stroke runs under. The baton travels over them on its own sheet (under them in a crowded bar).",
       "html": "<div class=\"ds-beats\"><button class=\"ds-beat ds-accent\">1</button><button class=\"ds-beat ds-active\">2</button><button class=\"ds-beat\">3</button><button class=\"ds-beat ds-mute\">4</button><button class=\"ds-beat ds-accent ds-active\">1</button></div>",
       "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:'Metronome Sans TC',system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-beats{display:flex;gap:16px;padding:16px;background:var(--ground)}.ds-beat{display:grid;place-items:center;width:44px;height:44px;border:2px solid var(--path);border-radius:50%;background:var(--ground);color:var(--ink);font:700 1.25rem/1 var(--score);font-variant-numeric:lining-nums;cursor:pointer;transition:scale 140ms ease-out,background-color 160ms ease-out,border-color 160ms ease-out,color 0s 55ms}.ds-beat:hover{border-color:var(--ink)}.ds-beat:focus-visible{outline:2px solid var(--focus);outline-offset:3px}.ds-accent{border-width:3px;border-color:var(--yellow);background:var(--ground);color:var(--yellow)}.ds-mute{border-style:dashed;color:var(--ink-3)}.ds-active{scale:1.14;border-color:var(--ink);background:var(--ink);color:var(--ground);transition-duration:0s;transition-delay:0s}.ds-accent.ds-active{border-color:var(--ink);background:var(--yellow);color:var(--on-yellow)}.ds-accent:focus-visible{outline-color:var(--ink)}"
     },
@@ -504,7 +519,7 @@
       "name": "Tempo Mark",
       "kind": "custom",
       "refersTo": "typography.display",
-      "description": "The tempo set as a score prints it: Italian marking over an engraved metronome mark. The BPM is a borderless numeric text field that looks the same at rest: tap it to type a tempo (selected on focus, digits only, Enter or leaving keeps it, Escape puts it back); a focus-coloured rule under the digits shows editing.",
+      "description": "The tempo set as a score prints it: Italian marking over an engraved metronome mark. The BPM is a borderless numeric text field that looks the same at rest: tap it to type a tempo (selected on focus, digits only, Enter or leaving keeps it, Escape puts it back); a focus-coloured rule under the digits shows editing. On short screens it is held to the height left (never under 72px). The wheel tunes it only where aimed: over the mark after the pointer has moved onto it.",
       "html": "<div class=\"ds-tempo\"><span class=\"ds-marking\">Allegro</span><span class=\"ds-mark\"><svg class=\"ds-note\" viewBox=\"0 0 12 34\" fill=\"currentColor\" aria-hidden=\"true\"><ellipse cx=\"5\" cy=\"28\" rx=\"4.6\" ry=\"3.3\" transform=\"rotate(-20 5 28)\"/><rect x=\"8\" y=\"2\" width=\"1.6\" height=\"26\"/></svg><span class=\"ds-eq\">=</span><input class=\"ds-bpm\" type=\"text\" inputmode=\"numeric\" value=\"120\" aria-label=\"Tempo (BPM)\"></span></div>",
       "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:'Metronome Sans TC',system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-tempo{display:grid;justify-items:center;gap:4px;padding:16px;background:var(--ground);color:var(--ink)}.ds-marking{font:700 1.375rem/1.2 var(--score);letter-spacing:.01em}.ds-mark{display:flex;align-items:baseline;gap:.1em;font:700 5rem/1 var(--engraved);font-variant-numeric:tabular-nums}.ds-note{width:.22em;height:.62em;align-self:center}.ds-eq{font:700 .34em var(--score);translate:0 -.7em;margin-right:.08em}.ds-bpm{box-sizing:content-box;width:3ch;height:1em;margin:-.2em 0;padding:0;border:0;border-radius:0;background:transparent;color:inherit;font:inherit;font-variant-numeric:tabular-nums;line-height:1;text-align:center;caret-color:var(--yellow);cursor:text}.ds-bpm:focus{outline:none;background:linear-gradient(var(--focus),var(--focus)) center bottom .12em/100% 3px no-repeat}"
     },
@@ -552,9 +567,9 @@
       "name": "Toast",
       "kind": "card",
       "refersTo": "toast",
-      "description": "Status message over the header row (under the language switch from 900px), never over the figure or Start; optional yellow 44px action and 44px close; never interrupts playback; data-nosnippet keeps it out of search snippets. Toasts with an action stay until used or closed and stack; a plain message shows over them for 4s, but one that needs the user replaces it at once (the audio error, with 重試 / Try again).",
+      "description": "Status message over the header row (under the language switch from 900px, no wider than min(420px, 50vw − 110px) so the resting baton stays clear), never over the figure or Start; 52px tall with one or two lines; optional yellow 44px action and a 44px close that keeps its size; first in the page for the keyboard, closed by Escape; never interrupts playback; data-nosnippet keeps it out of search snippets. Toasts with an action stay until used or closed and stack; a plain message shows over them for 4s, but one that needs the user replaces it at once (the audio error, with 重試 / Retry).",
       "html": "<div class=\"ds-toast\" role=\"status\" data-nosnippet><span>Update ready</span><button class=\"ds-toast-action\">Reload</button></div>",
-      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:'Metronome Sans TC',system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-toast{display:inline-flex;align-items:center;gap:8px;padding:8px 8px 8px 16px;border-radius:14px;background:var(--ink);color:var(--ground);font:.9375rem var(--sans);box-shadow:0 10px 30px rgb(0 0 0 / 0.3)}.ds-toast-action{min-height:44px;padding:0 14px;border:0;border-radius:10px;background:var(--yellow);color:var(--on-yellow);font:700 .9375rem var(--sans);cursor:pointer}.ds-toast-action:focus-visible{outline:2px solid var(--ground);outline-offset:3px}"
+      "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:'Metronome Sans TC',system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-toast{display:inline-flex;align-items:center;gap:8px;padding:4px 4px 4px 16px;border-radius:14px;background:var(--ink);color:var(--ground);font:.9375rem var(--sans);box-shadow:0 10px 30px rgb(0 0 0 / 0.3)}.ds-toast-action{flex:none;min-height:44px;padding:0 14px;border:0;border-radius:10px;background:var(--yellow);color:var(--on-yellow);font:700 .9375rem var(--sans);cursor:pointer}.ds-toast-action:focus-visible{outline:2px solid var(--ground);outline-offset:3px}"
     },
     {
       "name": "Support Button",
@@ -568,7 +583,7 @@
       "name": "Hint Bubble",
       "kind": "feedback",
       "refersTo": "first-time hint",
-      "description": "Said once, beside the control it explains, the first time it matters: the toast's chalk surface with a pointer; takes no touch and ends at the next touch or key, remembered.",
+      "description": "A first-time hint beside the control it explains, said once: the toast's surface with a pointer, at most 300px wide, on the side asked for or the other where that would leave the screen. The next touch or key ends it; a touch on the bubble itself only sends it away (it may lie over another control), a touch elsewhere does what it would have done.",
       "html": "<div class=\"ds-bubble\" role=\"status\">點數字切換：重音 → 一般 → 靜音</div>",
       "css": ":host{--ground:#172036;--ground-2:#1d2742;--ink:#eceff6;--ink-2:#b4bdd2;--ink-3:#8792ad;--rule:#33405f;--path:rgb(236 239 246 / 0.6);--yellow:#fccf3f;--on-yellow:#172036;--focus:#fccf3f;--score:'Old Standard TT','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;--engraved:'Metronome Engraved','Old Standard TT',Georgia,serif;--sans:'Metronome Sans TC',system-ui,-apple-system,'Segoe UI','PingFang TC','Noto Sans TC',sans-serif} .ds-bubble{position:relative;display:inline-block;margin-top:12px;max-width:260px;padding:8px 12px;border-radius:14px;background:var(--ink);color:var(--ground);box-shadow:0 10px 30px rgb(0 0 0 / .3);font:400 .875rem/1.4 var(--sans);text-wrap:balance;word-break:keep-all}.ds-bubble::before{content:'';position:absolute;top:-6px;left:calc(50% - 6px);width:12px;height:12px;background:inherit;rotate:45deg}"
     }

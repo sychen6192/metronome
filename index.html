@@ -13,9 +13,21 @@
     <link rel="icon" href="/pwa-192x192.png" sizes="192x192" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
     <meta name="apple-mobile-web-app-title" content="節拍器" />
+    <!-- The tempo is set in this face and waits for it (font-display: block): fetch it with the page. -->
+    <link rel="preload" href="/src/fonts/metronome-engraved.woff2" as="font" type="font/woff2" crossorigin />
     <script type="module" src="/src/main.ts"></script>
   </head>
   <body>
+    <!-- Status messages, never part of a search result snippet. First in the page: a toast lies
+         over the header row, so its buttons come before the header's for the keyboard. -->
+    <div id="toast" class="toast" role="status" data-nosnippet hidden>
+      <span id="toast-text"></span>
+      <button id="toast-action" class="toast-action" type="button" hidden></button>
+      <button id="toast-close" class="toast-close" type="button" data-i18n-label="dismiss" aria-label="關閉">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+      </button>
+    </div>
+
     <div class="app">
       <header class="topbar">
         <h1 class="brand">
@@ -36,7 +48,7 @@
 
       <main class="layout">
         <section class="stage">
-          <figure class="pattern-figure">
+          <figure class="pattern-figure" data-i18n-label="pattern" aria-label="拍式圖：指揮棒依拍子移動">
             <div id="pattern" class="pattern">
               <div id="beat-buttons" class="beat-buttons" role="group" data-i18n-label="beatsGroup" aria-label="小節拍點"></div>
             </div>
@@ -100,8 +112,8 @@
               <span data-i18n="tap">打拍</span>
             </button>
             <button id="play" class="primary" type="button" data-i18n-title="playTitle" aria-keyshortcuts="Space">
-              <svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 5.2v13.6L18.6 12z" /></svg>
-              <svg class="icon-stop" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="1.6" /></svg>
+              <svg class="icon-play" viewBox="6 4 14 16" aria-hidden="true"><path d="M7.5 5.2v13.6L18.6 12z" /></svg>
+              <svg class="icon-stop" viewBox="5 5 14 14" aria-hidden="true"><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="1.6" /></svg>
               <span id="play-label" data-i18n="play">開始</span>
             </button>
             <button id="trainer-toggle" class="secondary" type="button" aria-pressed="false" data-i18n-label="trainerToggle">
@@ -163,13 +175,5 @@
     <div id="accent-hint" class="bubble" role="status" data-nosnippet hidden><span data-i18n="accentHint">點數字切換：重音 → 一般 → 靜音</span></div>
     <div id="trainer-hint" class="bubble" role="status" data-nosnippet hidden><span data-i18n="trainerHint"></span></div>
 
-    <!-- Status messages, never part of a search result snippet. -->
-    <div id="toast" class="toast" role="status" data-nosnippet hidden>
-      <span id="toast-text"></span>
-      <button id="toast-action" class="toast-action" type="button" hidden></button>
-      <button id="toast-close" class="toast-close" type="button" data-i18n-label="dismiss" aria-label="關閉">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
-      </button>
-    </div>
   </body>
 </html>

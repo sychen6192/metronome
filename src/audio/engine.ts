@@ -5,8 +5,12 @@ import type { TimerMessage } from './timer.worker'
 
 /** How often the scheduler runs. */
 const TICK_MS = 25
-/** How far ahead clicks are handed to the audio clock. Must comfortably exceed TICK_MS. */
-const LOOKAHEAD = 0.1
+/**
+ * How far ahead clicks are handed to the audio clock. Must comfortably exceed TICK_MS, and the
+ * longest the page keeps the main thread on a slow phone (redrawing the figure for a new bar,
+ * switching language): a tick that comes later than this drops a click.
+ */
+const LOOKAHEAD = 0.15
 /** Background tabs may only get one timer tick per second, so schedule further ahead there. */
 const HIDDEN_LOOKAHEAD = 1.5
 /** Gap before the first click, so it is never scheduled in the past. */
@@ -89,6 +93,8 @@ export class MetronomeEngine {
     }
     if (generation !== this.generation) return // stopped (or restarted) while resuming
 
+    // The clicks are rendered before the clock is read, so the first one is never late.
+    this.clicksFor(this.getSettings().sound)
     this.sequencer.start(ctx.currentTime + START_DELAY)
     this.scheduling = true
     this.schedule()
@@ -127,6 +133,8 @@ export class MetronomeEngine {
     try {
       const ctx = this.ensureContext()
       clearTimeout(this.suspendTimer)
+      // This resume is the page's own: after a pause from outside it must not restart playback.
+      this.pausedExternally = false
       await ctx.resume()
       if (this.running) return // playback started while resuming
       this.play('accent', this.clicksFor(sound), ctx.currentTime + 0.01)
@@ -141,9 +149,13 @@ export class MetronomeEngine {
     return this.ctx ? this.audibleTime(this.ctx) : 0
   }
 
-  /** When the next beat (not sub-click) will be heard, if it is already scheduled. */
+  /**
+   * When the next beat (not sub-click) will be heard: its scheduled time once it has one, until
+   * then where the tempo now set puts it (a tempo change mid-beat moves it).
+   */
   nextBeatTime(): number | undefined {
-    return this.pending.find((click) => click.sub === 0)?.time
+    const scheduled = this.pending.find((click) => click.sub === 0)?.time
+    return scheduled ?? (this.scheduling ? this.sequencer.nextBeatTime : undefined)
   }
 
   /** Clicks that have reached the speakers since the last call, oldest first. */
@@ -210,8 +222,10 @@ export class MetronomeEngine {
     if (!ctx || !this.running) return
 
     const lookahead = document.hidden ? HIDDEN_LOOKAHEAD : LOOKAHEAD
-    this.sequencer.catchUp(ctx.currentTime, LATE_TOLERANCE)
+    // A newly chosen sound is rendered first: what that takes counts as lateness, to be skipped,
+    // not played late.
     const clicks = this.clicksFor(this.getSettings().sound)
+    this.sequencer.catchUp(ctx.currentTime, LATE_TOLERANCE)
 
     for (const event of this.sequencer.scheduleUntil(ctx.currentTime + lookahead)) {
       this.pending.push(event)

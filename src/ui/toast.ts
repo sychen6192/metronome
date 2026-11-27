@@ -34,10 +34,18 @@ const persistent: Toast[] = []
 let transient: Toast | null = null
 let hideTimer: number | undefined
 
-closeButton.addEventListener('click', () => {
+function close(): void {
   if (transient) clearTransient()
   else persistent.pop()?.dismissed?.()
   render()
+}
+
+closeButton.addEventListener('click', close)
+// Escape closes the toast on top, unless a field is using the key (the tempo being typed).
+document.addEventListener('keydown', (event) => {
+  if (event.key !== 'Escape' || toast.hidden || event.isComposing) return
+  if (event.target instanceof HTMLElement && event.target.matches('input, select, textarea')) return
+  close()
 })
 actionButton.addEventListener('click', () => {
   const top = persistent.pop()

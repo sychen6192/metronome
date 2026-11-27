@@ -69,6 +69,8 @@
   --baton: var(--yellow);
   --baton-ring: var(--ground);
   --focus: var(--yellow);
+  /* How much yellow tints the Trainer button while it is on. */
+  --trainer-tint: 18%;
   /* Accent numerals. On slate an accent rests as a yellow ring and strikes solid yellow: the
      strike must be the brightest change on the board, and yellow to chalk is only 1.3:1. */
   --accent-edge: var(--yellow);
@@ -111,6 +113,8 @@
     --baton: var(--yellow);
     --baton-ring: #172036;
     --focus: #172036;
+    /* On paper 18% is next to nothing (1.06:1): a highlighter's wash under the navy edge. */
+    --trainer-tint: 45%;
     /* On paper an accent rests as a highlighter disc and strikes navy (10.9:1 against yellow). */
     --accent-edge: #172036;
     --accent-edge-width: 2px;
@@ -134,17 +138,17 @@
 
 html {
   background: var(--ground);
-  scrollbar-color: var(--rule) transparent;
+  scrollbar-color: var(--ink-3) transparent;
 }
 
 body {
   min-height: 100dvh;
   margin: 0;
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
-    env(safe-area-inset-left);
+  /* The bottom inset is the settings band's, which closes the page. */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
   background: var(--ground);
   color: var(--ink);
-  caret-color: var(--yellow);
+  caret-color: var(--focus);
 }
 
 /* The interface font's quotes and ellipsis are full-width, for Chinese; English takes its
@@ -221,7 +225,7 @@ button svg {
 .app {
   width: min(100%, 1080px);
   margin: 0 auto;
-  padding: 0 16px 24px;
+  padding: 0 16px;
 }
 
 /* Wraps only on the narrowest screens (e.g. a 280 px cover display with Install shown). */
@@ -232,6 +236,14 @@ button svg {
   justify-content: space-between;
   gap: 0 12px;
   min-height: 60px;
+}
+
+/* The header and the stage are an instrument, not a text: a double tap or a long press on the
+   marking or the signature selects nothing. The tempo, which is typed, stays selectable. */
+.topbar,
+.stage {
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 /* The wordmark speaks in the score voice, like the tempo mark. */
@@ -314,6 +326,13 @@ button svg {
   color: var(--ground);
 }
 
+@media (hover: hover) {
+  .language a:not([aria-current='page']):hover {
+    background: var(--ground-2);
+    color: var(--ink);
+  }
+}
+
 /* ---------------------------------------------------------------- stage */
 
 .layout {
@@ -338,9 +357,11 @@ button svg {
 }
 
 /* As large as the screen allows while the tempo, ruler and Start still fit below it (about the
-   upper half of a desktop screen); a phone's width limits it first. */
+   upper half of a desktop screen); a phone's width limits it first. Its layers stack inside it:
+   the drawing, the numerals, then the baton's sheet. */
 .pattern {
   position: relative;
+  isolation: isolate;
   width: min(100%, 520px);
   width: min(100%, clamp(var(--figure-min), (100svh - var(--reserve)) * 20 / 13, 720px));
   aspect-ratio: 20 / 13;
@@ -360,9 +381,10 @@ button svg {
   fill: var(--path);
 }
 
+/* Subdivision ticks: at rest still plain enough to show which subdivision is on. */
 .tick {
   fill: var(--ink-3);
-  opacity: 0.35;
+  opacity: 0.6;
 }
 
 /* Each ictus is printed as a short bar: the plane the baton strikes. */
@@ -371,7 +393,7 @@ button svg {
   stroke-width: 3px;
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;
-  transition: transform 160ms ease-out;
+  transition: transform var(--release, 160ms) ease-out;
   transform-box: fill-box;
   transform-origin: center;
 }
@@ -400,10 +422,6 @@ button svg {
   stroke-width: 3px;
 }
 
-.ripple[data-level='sub'] {
-  stroke: var(--ink-3);
-}
-
 .baton {
   fill: var(--baton);
   stroke: var(--baton-ring);
@@ -415,11 +433,25 @@ button svg {
 .beat-buttons {
   position: absolute;
   inset: 0;
+  z-index: 1;
 }
 
-/* Beat numerals are the accent controls: highlighter disc = accent, ring = normal, dashed = mute. */
+/* The baton travels over the numerals, so it is never lost behind one, and takes no touch. Where a
+   crowded bar sets the numerals on the ictus, it passes under them: there the numeral lighting up
+   is the strike. */
+.pattern-baton {
+  z-index: 2;
+  pointer-events: none;
+}
+
+.pattern.crowded .pattern-baton {
+  z-index: 0;
+}
+
+/* Beat numerals are the accent controls: highlighter disc = accent, ring = normal, dashed = mute.
+   44 px on a phone; the figure sets --numeral, which grows with it on larger screens. */
 .beat {
-  --size: 44px;
+  --size: var(--numeral, 44px);
   position: absolute;
   display: grid;
   place-items: center;
@@ -430,27 +462,28 @@ button svg {
   background: var(--ground);
   color: var(--ink);
   font-family: var(--score);
-  font-size: 1.25rem;
+  font-size: max(1.25rem, var(--size) * 5 / 11);
   font-weight: 700;
   line-height: 1;
   font-variant-numeric: lining-nums;
   translate: -50% -50%;
-  /* The numeral swaps colour halfway through the fill's release, when it reads on either fill;
-     swapping at once would leave it the colour of the fill for a few frames. */
+  /* The numeral swaps colour a third of the way through the fill's release, when it reads on
+     either fill; swapping at once would leave it the colour of the fill for a few frames. The
+     release (--release, set with the tempo) is over before the next beat is struck. */
   transition:
-    scale 140ms ease-out,
-    background-color 160ms ease-out,
-    border-color 160ms ease-out,
-    color 0s 55ms;
+    scale var(--release, 160ms) ease-out,
+    background-color var(--release, 160ms) ease-out,
+    border-color var(--release, 160ms) ease-out,
+    color 0s calc(var(--release, 160ms) * 0.34);
 }
 
 /* Crowded bars: smaller numerals sit on their ictus. Their hit areas still reach 44 px wide (the
    tiers keep neighbours on the same row that far apart) and as tall as the tiers allow: raised
    tiers sit 46 drawing units apart, so half of that each way never reaches the next tier. */
 .pattern.crowded .beat {
-  --size: 30px;
+  --size: var(--numeral, 30px);
   border-width: 1.5px;
-  font-size: 0.875rem;
+  font-size: max(0.875rem, var(--size) * 7 / 15);
 }
 
 .pattern.crowded .beat::before {
@@ -568,14 +601,19 @@ button svg {
   line-height: 1.2;
   letter-spacing: 0.01em;
   white-space: nowrap;
+  max-width: 100%;
 }
 
 /* The speed trainer's heading, where the marking was: "accel. → ♩ = 160" as a score writes a tempo
-   change, then the step in the interface voice. */
+   change, then the step in the interface voice. It fits one line; with a reader's much larger text
+   the step goes to a second one instead of off the screen. */
 .direction-line {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: baseline;
+  justify-content: center;
   gap: 0.3em;
+  max-width: 100%;
 }
 
 .direction-change {
@@ -653,8 +691,19 @@ button svg {
   font-variant-numeric: tabular-nums;
   line-height: 1;
   text-align: center;
-  caret-color: var(--yellow);
   cursor: text;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* Where the browser can size a field to its text, it does (a reader's own letter-spacing
+   included); elsewhere the script sets the width in digits. */
+@supports (field-sizing: content) {
+  .bpm {
+    field-sizing: content;
+    width: auto;
+    min-width: 1ch;
+  }
 }
 
 .bpm:focus {
@@ -889,11 +938,16 @@ button svg {
     box-shadow 160ms ease-out;
 }
 
+/* The glyphs' boxes are cropped to their ink, so the gap to the label is the gap seen. */
 .primary svg {
-  width: 24px;
-  height: 24px;
+  width: 14px;
+  height: 16px;
   fill: currentColor;
   stroke: none;
+}
+
+.primary .icon-stop {
+  height: 14px;
 }
 
 .primary:active {
@@ -915,7 +969,8 @@ button svg {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-width: min(92px, 26cqi);
+  /* As wide as the longer label needs (Trainer), so the pair sits evenly about Start. */
+  min-width: min(108px, 29cqi);
   height: 52px;
   padding: 0 clamp(8px, 3.3cqi, 14px);
   border: 1.5px solid var(--rule);
@@ -949,21 +1004,32 @@ button svg {
 
 #trainer-toggle[aria-pressed='true'] {
   border-color: var(--yellow-edge);
-  background: color-mix(in srgb, var(--yellow) 18%, var(--ground));
+  background: color-mix(in srgb, var(--yellow) var(--trainer-tint), var(--ground));
 }
 
 /* ---------------------------------------------------------------- settings: a diagram's legend */
 
+/* A band from edge to edge; on a wider screen (a small tablet, a phone on its side) its rows keep
+   to a 560 px measure instead of stretching with it. */
 .settings {
   display: grid;
   margin: 0 -16px;
-  padding: 8px 16px;
+  padding: 8px max(16px, (100% + 32px - 560px) / 2) calc(20px + env(safe-area-inset-bottom));
   background: var(--ground-2);
+}
+
+/* On the raised band the thumb's ring is the band's colour, not a halo of the ground's. */
+.settings .slider::-webkit-slider-thumb {
+  border-color: var(--ground-2);
+}
+
+.settings .slider::-moz-range-thumb {
+  border-color: var(--ground-2);
 }
 
 .row {
   display: grid;
-  grid-template-columns: 5.5rem minmax(0, 1fr);
+  grid-template-columns: minmax(5.5rem, max-content) minmax(0, 1fr);
   align-items: center;
   gap: 12px;
   min-height: 64px;
@@ -1026,6 +1092,7 @@ button svg {
 .select {
   width: 100%;
   min-height: 46px;
+  cursor: pointer;
   padding: 0 40px 0 14px;
   border: 1.5px solid var(--rule);
   border-radius: 10px;
@@ -1111,15 +1178,29 @@ button svg {
   font-size: 0.8125rem;
 }
 
+/* Typed values are ink like the select's; no spinner arrows (the field is narrow, and the arrow
+   keys still step it). */
 .trainer-grid input {
   width: 100%;
   min-height: 46px;
   padding: 0 12px;
-  border: 1.5px solid var(--rule);
+  /* A field's edge is all that says it can be typed in: plain enough to see (3:1), unlike the
+     rules that only separate. */
+  border: 1.5px solid var(--ink-3);
   border-radius: 10px;
   background: var(--ground);
+  color: var(--ink);
   font-size: 1.0625rem;
   font-variant-numeric: tabular-nums;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.trainer-grid input::-webkit-inner-spin-button,
+.trainer-grid input::-webkit-outer-spin-button {
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 /* The thanks at the foot of the band is Buy Me a Coffee's own button, kept small: their yellow,
@@ -1181,6 +1262,23 @@ button svg {
     filter: brightness(0.94);
   }
 
+  .primary:hover {
+    filter: brightness(1.06);
+  }
+
+  .switch:hover {
+    border-color: var(--ink-3);
+  }
+
+  .switch[aria-checked='true']:hover {
+    border-color: var(--ink);
+  }
+
+  /* The number can be typed: the rule that marks editing shows faintly under it. */
+  .bpm:hover:not(:focus) {
+    background: linear-gradient(var(--rule), var(--rule)) center bottom 0.12em / 100% 3px no-repeat;
+  }
+
   .beat:hover {
     border-color: var(--ink);
   }
@@ -1189,12 +1287,13 @@ button svg {
 /* ---------------------------------------------------------------- toast */
 
 /* A first-time hint beside the control it explains: the toast's chalk surface with a pointer.
-   It never takes a touch, so the control under it still works; the next touch or key ends it.
+   The next touch or key ends it. A touch on the bubble only sends it away (it may lie over
+   another control); a touch anywhere else does what it would have done.
    Chinese breaks after its punctuation or at the arrows, never inside a word. */
 .bubble {
   position: absolute;
   z-index: 9;
-  max-width: min(260px, calc(100vw - 32px));
+  max-width: min(300px, calc(100vw - 32px));
   padding: 8px 12px;
   border: 1px solid transparent;
   border-radius: 14px;
@@ -1206,7 +1305,7 @@ button svg {
   text-wrap: balance;
   word-break: keep-all;
   overflow-wrap: anywhere;
-  pointer-events: none;
+  cursor: default;
 }
 
 .bubble::before {
@@ -1238,8 +1337,11 @@ button svg {
   align-items: center;
   gap: 8px;
   width: max-content;
-  max-width: calc(100vw - 32px);
-  padding: 8px 8px 8px 16px;
+  /* Nearly the screen's width on a phone, so a sentence takes two lines, not three, and the toast
+     stays within the header row. */
+  max-width: calc(100vw - 16px);
+  /* 52 px tall with its 44 px buttons: inside the header row even where that is 52 px. */
+  padding: 4px 4px 4px 16px;
   border-radius: 14px;
   background: var(--ink);
   color: var(--ground);
@@ -1275,6 +1377,7 @@ button svg {
 
 .toast-close {
   display: grid;
+  flex: none;
   place-items: center;
   width: 44px;
   height: 44px;
@@ -1324,7 +1427,7 @@ button svg {
 
 /* A narrow transport: Tap and Trainer set their label under the icon, at Start's height, so the
    row fits with English labels too. */
-@container (max-width: 348px) {
+@container (max-width: 21.75rem) {
   .secondary {
     flex-direction: column;
     gap: 2px;
@@ -1352,8 +1455,39 @@ button svg {
   }
 }
 
-/* Wide screens: the playing area keeps the first screen; the settings sit below it as a
-   two-column legend. */
+/* From a tablet held upright: the settings sit below the playing area as a legend in two columns,
+   sound settings on the left, the speed trainer on the right. */
+@media (min-width: 800px) {
+  .app {
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  }
+
+  .settings {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 32px;
+    margin: 0;
+    padding: 8px 24px 12px;
+    border-radius: 20px;
+  }
+
+  .settings > .row {
+    grid-column: 1;
+  }
+
+  /* The trainer's fields sit in the middle of what its three rows leave under its heading. */
+  .settings > .trainer {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    display: grid;
+    grid-template-rows: auto 1fr;
+  }
+
+  .settings > .trainer .trainer-grid {
+    align-self: center;
+  }
+}
+
+/* Wide screens: the playing area keeps to the middle and the legend gets more air. */
 @media (min-width: 900px) {
   .app {
     padding-inline: 32px;
@@ -1364,29 +1498,18 @@ button svg {
     margin-inline: auto;
   }
 
-  /* The legend in two columns: sound settings on the left, the speed trainer on the right. */
   .settings {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: 48px;
-    margin: 0;
     padding: 8px 32px 12px;
-    border-radius: 20px;
   }
 
-  .settings > .row {
-    grid-column: 1;
-  }
-
-  .settings > .trainer {
-    grid-column: 2;
-    grid-row: 1 / span 3;
-  }
-
-  /* Under the language switch, clear of the figure. */
+  /* Under the language switch, and no wider than leaves the middle of the figure, where the
+     baton rests, clear. */
   .toast {
     top: calc(var(--topbar-h) + 4px + env(safe-area-inset-top));
     left: auto;
     right: max(32px, (100% - 1080px) / 2 + 32px);
+    max-width: min(420px, 50vw - 110px);
     transform: none;
   }
 }
@@ -1399,9 +1522,12 @@ button svg {
     min-height: 52px;
   }
 
+  /* --spare: the height the first screen still has once a phone's width, not its height, has
+     limited the figure (a phone in its browser: 390 x 664 leaves 83 px). */
   .stage {
     --reserve: 348px;
     --figure-min: 288px;
+    --spare: max(0px, 100svh - var(--reserve) - (100vw - 32px) * 0.65);
     gap: 8px;
   }
 
@@ -1409,12 +1535,15 @@ button svg {
     margin-top: 4px;
   }
 
+  /* The tempo takes most of that height (its line is 0.76 of its size), from 72 px up to what the
+     width allows; the scale takes the rest back as room above and below, away from − and + and
+     from the transport. */
   .metronome-mark {
-    font-size: min(72px, calc((100cqi - 2 * var(--step) - 16px) / 2.15));
+    font-size: min(8rem, (100cqi - 2 * var(--step) - 16px) / 2.15, 72px + var(--spare) * 0.75);
   }
 
   .ruler {
-    padding-block: 0;
+    padding-block: min(12px, var(--spare) * 0.2);
   }
 
   .ruler-scale {
@@ -1460,6 +1589,11 @@ button svg {
 
   .pattern {
     width: min(100%, (100svh - var(--topbar-h) - 84px) * 20 / 13);
+  }
+
+  /* Beside the figure the tempo has the height the marking, scale and transport leave it. */
+  .metronome-mark {
+    font-size: min(8rem, (100cqi - 2 * var(--step) - 16px) / 2.15, max(72px, (100svh - var(--topbar-h) - 190px) * 1.3));
   }
 }
 
@@ -1578,6 +1712,22 @@ button svg {
   .primary {
     border: 2px solid ButtonText;
     box-shadow: none;
+  }
+
+  /* The rule under the tempo being typed is a gradient, which these themes drop; and the toast,
+     whose surface becomes the page's, needs an edge, as do its buttons. */
+  .bpm:focus {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
+
+  .toast {
+    border: 1px solid CanvasText;
+  }
+
+  .toast-action,
+  .toast-close {
+    border: 1px solid ButtonText;
   }
 
   .segment:has(input:checked),

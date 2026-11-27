@@ -48,6 +48,15 @@ export class Sequencer {
   }
 
   /**
+   * When the next beat (not sub-click) that has not been scheduled yet will sound, at the tempo
+   * now set: the clicks already scheduled keep their times, the rest of the beat follows the tempo.
+   */
+  get nextBeatTime(): number {
+    if (this.pulse.sub === 0) return this.nextTime
+    return this.nextTime + (1 - this.pulse.frac) * beatDuration(this.getSettings().bpm)
+  }
+
+  /**
    * If the scheduler fell behind (e.g. a stalled main thread or throttled tab), skip the clicks
    * that are more than `tolerance` seconds late instead of firing them all at once. Whole pulses
    * are skipped, so the beat grid and bar position stay where they were; a click that is only
