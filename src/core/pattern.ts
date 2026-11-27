@@ -21,9 +21,7 @@ export interface Segment {
 export interface PatternGeometry {
   /** One point per beat, beat 1 first. */
   ictus: Point[]
-  /** Where each beat's numeral goes: beside its ictus, or on it when the bar is crowded. */
-  labels: Point[]
-  /** Crowded bars put numerals on the ictus (smaller), so they cannot collide. */
+  /** Crowded bars put numerals on the ictus (smaller), so they cannot collide; see numeralPoints. */
   labelsOnIctus: boolean
   /** Where the baton waits while stopped: raised, ready for the downbeat. */
   rest: Point
@@ -45,7 +43,10 @@ const TOP_Y = -6
 const MAX_BEATS = 16
 /** Up to this many beats, numerals sit beside their ictus; more and they sit on it. */
 const MAX_BESIDE = 8
+/** How far from its ictus a numeral's centre sits, in drawing units, */
 const LABEL_GAP = 38
+/** but on screen never more than this many px clear of the mark: a large figure keeps its numerals by their beats. */
+const NUMERAL_GAP = 14
 
 /** Horizontal distance from the centre of the j-th of `count` side beats (1-based). */
 function sideOffset(j: number, count: number, crowded: boolean): number {
@@ -112,14 +113,7 @@ export function patternGeometry(beatsPerBar: number): PatternGeometry {
           return segment(from, ictus[next]!, next === 0)
         })
 
-  const labels = ictus.map((point, beat) => {
-    if (labelsOnIctus) return point
-    // Right of the upbeat (clear of the path); under every other beat.
-    if (beat === beats - 1 && beats > 1) return { x: point.x + LABEL_GAP, y: point.y + 4 }
-    return { x: point.x, y: point.y + LABEL_GAP }
-  })
-
-  return { ictus, labels, labelsOnIctus, rest: apex(segments.at(-1)!), segments }
+  return { ictus, labelsOnIctus, rest: apex(segments.at(-1)!), segments }
 }
 
 /** Highest point of a segment: the baton's raised position before the downbeat. */
@@ -342,8 +336,89 @@ export function numeralSize(scale: number, crowded: boolean): number {
 export interface Mark {
   a: Point
   b: Point
-  /** The upbeat's mark runs away from its numeral, which sits beside it. */
+  /** The upbeat's mark runs left from its ictus; its numeral sits beside or below it. */
   upbeat: boolean
+}
+
+/** The printed mark at each ictus, at `scale` px per unit. */
+function ictusMarks({ ictus, labelsOnIctus }: PatternGeometry, scale: number): Mark[] {
+  const upbeat = !labelsOnIctus && ictus.length > 1 ? ictus.length - 1 : -1
+  const length = ICTUS_MARK / scale
+  return ictus.map((point, beat): Mark =>
+    beat === upbeat
+      ? { a: { x: point.x - length, y: point.y }, b: point, upbeat: true }
+      : { a: { x: point.x - length / 2, y: point.y }, b: { x: point.x + length / 2, y: point.y }, upbeat: false },
+  )
+}
+
+/**
+ * Where each beat's numeral sits when the figure is drawn at `scale` px per unit. In a crowded bar,
+ * on its ictus. Otherwise under it: LABEL_GAP units down, but never more than NUMERAL_GAP px clear
+ * of the mark, so a large figure keeps each numeral by its beat. The upbeat's ictus hangs among the
+ * strokes, so its numeral takes the spot around it that they leave clear (upbeatSpot).
+ */
+export function numeralPoints(geometry: PatternGeometry, scale: number): Point[] {
+  const { ictus, labelsOnIctus } = geometry
+  if (labelsOnIctus) return ictus
+  const radius = numeralSize(scale, false) / 2
+  const reach = Math.min(LABEL_GAP, (radius + NUMERAL_GAP) / scale)
+  const points = ictus.map((point) => ({ x: point.x, y: point.y + reach }))
+  if (ictus.length > 1) points[ictus.length - 1] = upbeatSpot(geometry, points.slice(0, -1), scale, radius, reach)
+  return points
+}
+
+/** Where the upbeat's numeral is tried, as angles from "to its right", turning down: the familiar spots first, then all round. */
+const UPBEAT_ANGLES = [6, 53, 99, -17, ...Array.from({ length: 24 }, (_, i) => i * 15)]
+/** And how far out, as shares of the usual distance: there first, then closer in, then further out, */
+const UPBEAT_RINGS = [1, 0.85, 1.25, 1.5, 2]
+/** up to this many drawing units from the ictus (the middle of the triangle a bar of three draws). */
+const UPBEAT_FARTHEST = LABEL_GAP * 1.5
+
+/**
+ * The upbeat's numeral: beside its ictus where no stroke runs under it, so the baton is never lost
+ * behind it and it never cuts a stroke. Tries the spots around the ictus and keeps the one the
+ * strokes leave clearest, as near as that allows; never on another numeral, a mark or the resting
+ * baton. (To the right in 2, below and right in 4, further out inside the triangle of 3.)
+ */
+function upbeatSpot(geometry: PatternGeometry, others: readonly Point[], scale: number, radius: number, reach: number): Point {
+  const { ictus, segments, rest } = geometry
+  const up = ictus.at(-1)!
+  const unit = (px: number) => px / scale
+  const struck = radius * STRUCK_SCALE
+  // Clear of every stroke by the struck numeral and the heaviest pen; more than that earns nothing.
+  const enough = unit(struck + 3)
+  const strokes = segments.flatMap((segment) => Array.from({ length: 97 }, (_, i) => pointOnSegment(segment, i / 96)))
+  const marks = ictusMarks(geometry, scale)
+  const away = (p: Point, q: Point) => Math.hypot(p.x - q.x, p.y - q.y)
+
+  let best: Point = { x: up.x + reach, y: up.y }
+  let bestScore = -Infinity
+  const distances = [...UPBEAT_RINGS.map((ring) => ring * reach).filter((distance) => distance < UPBEAT_FARTHEST), UPBEAT_FARTHEST]
+  for (const distance of distances) {
+    for (const angle of UPBEAT_ANGLES) {
+      const turn = (angle * Math.PI) / 180
+      const spot = { x: up.x + Math.cos(turn) * distance, y: up.y + Math.sin(turn) * distance }
+      const fits =
+        spot.x >= unit(radius - 12) &&
+        spot.x <= PATTERN_BOX.width - unit(radius - 12) &&
+        spot.y >= unit(radius) &&
+        spot.y <= PATTERN_BOX.height &&
+        others.every((other) => away(spot, other) >= unit(radius + struck + 2)) &&
+        marks.every(({ a, b }) => distanceToSegment(spot, a, b) >= unit(struck + 1.5)) &&
+        away(spot, rest) >= unit(radius + BATON_CLEAR)
+      if (!fits) continue
+      const clear = Math.min(...strokes.map((point) => away(spot, point)))
+      const further = Math.max(0, distance - reach)
+      // The nearest spot that is clear enough; failing that the clearest, where a unit of
+      // clearance is worth about three of distance from the ictus.
+      const score = clear >= enough ? 1000 - further : clear - 0.35 * further
+      if (score > bestScore + 1e-9) {
+        best = spot
+        bestScore = score
+      }
+    }
+  }
+  return best
 }
 
 export interface Drawing {
@@ -360,24 +435,17 @@ export interface Drawing {
  */
 export function drawPattern(geometry: PatternGeometry, scale: number, offsets: readonly number[]): Drawing {
   const unit = (px: number) => px / scale
-  const { segments, ictus, labels, labelsOnIctus } = geometry
+  const { segments, labelsOnIctus } = geometry
   const heavyOf = (k: number) => (k === segments.length - 1 ? PEN.downbeat : PEN.heavy)
   const shapes = segments.map((segment, k) => strokeOutline(segment, unit(PEN.thin), unit(heavyOf(k))))
-
-  const upbeat = !labelsOnIctus && ictus.length > 1 ? ictus.length - 1 : -1
-  const length = unit(ICTUS_MARK)
-  const marks = ictus.map((point, beat): Mark =>
-    beat === upbeat
-      ? { a: { x: point.x - length, y: point.y }, b: point, upbeat: true }
-      : { a: { x: point.x - length / 2, y: point.y }, b: { x: point.x + length / 2, y: point.y }, upbeat: false },
-  )
+  const marks = ictusMarks(geometry, scale)
 
   // Crowded bars have no room for arrows; the numerals' order carries the direction.
   let arrows = 0
   if (!labelsOnIctus) {
     const struck = (numeralSize(scale, false) / 2) * STRUCK_SCALE
     const around: Obstacle[] = [
-      ...labels.map((point) => ({ a: point, b: point, r: unit(struck + CLEAR.numeral) })),
+      ...numeralPoints(geometry, scale).map((point) => ({ a: point, b: point, r: unit(struck + CLEAR.numeral) })),
       // Struck marks widen by half: a centred mark both ways, the upbeat's to the left.
       ...marks.map(({ a, b, upbeat: one }) => {
         const extra = (b.x - a.x) / (one ? 2 : 4)

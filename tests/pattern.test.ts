@@ -7,6 +7,7 @@ import {
   drawPattern,
   triangleClears,
   batonProgress,
+  numeralPoints,
   numeralSize,
   patternGeometry,
   pointOnSegment,
@@ -70,21 +71,25 @@ describe('patternGeometry', () => {
   // The narrowest figure: a 320 px screen minus its 16 px gutters.
   const SCALE = 288 / PATTERN_BOX.width
 
-  it('keeps numerals apart and on screen in the narrowest figure', () => {
-    for (let beats = 1; beats <= 16; beats++) {
-      const { labels, labelsOnIctus } = patternGeometry(beats)
-      // 44 px numerals beside the ictus, 30 px on it in crowded bars; at least 2 px apart.
-      const size = labelsOnIctus ? 30 : 44
-      for (const label of labels) {
-        // Within the side gutter, at least 4 px from the screen edge.
-        expect(label.x * SCALE - size / 2).toBeGreaterThanOrEqual(-12)
-        expect((PATTERN_BOX.width - label.x) * SCALE - size / 2).toBeGreaterThanOrEqual(-12)
-        expect(label.y).toBeLessThanOrEqual(PATTERN_BOX.height)
-      }
-      for (let i = 0; i < labels.length; i++) {
-        for (let j = i + 1; j < labels.length; j++) {
-          const distance = Math.hypot(labels[i]!.x - labels[j]!.x, labels[i]!.y - labels[j]!.y) * SCALE
-          expect(distance, `${beats} beats: numerals ${i + 1} and ${j + 1}`).toBeGreaterThanOrEqual(size + 2)
+  it('keeps numerals apart and on screen from the narrowest figure to the widest', () => {
+    for (const width of [288, 320, 358, 400, 520, 720]) {
+      const scale = width / PATTERN_BOX.width
+      for (let beats = 1; beats <= 16; beats++) {
+        const geometry = patternGeometry(beats)
+        const labels = numeralPoints(geometry, scale)
+        // 44 px numerals beside the ictus, 30 px on it in crowded bars (more on a large figure); at least 2 px apart.
+        const size = numeralSize(scale, geometry.labelsOnIctus)
+        for (const label of labels) {
+          // Within the side gutter, at least 4 px from the screen edge.
+          expect(label.x * scale - size / 2).toBeGreaterThanOrEqual(-12)
+          expect((PATTERN_BOX.width - label.x) * scale - size / 2).toBeGreaterThanOrEqual(-12)
+          expect(label.y).toBeLessThanOrEqual(PATTERN_BOX.height)
+        }
+        for (let i = 0; i < labels.length; i++) {
+          for (let j = i + 1; j < labels.length; j++) {
+            const distance = Math.hypot(labels[i]!.x - labels[j]!.x, labels[i]!.y - labels[j]!.y) * scale
+            expect(distance, `${beats} beats at ${width}px: numerals ${i + 1} and ${j + 1}`).toBeGreaterThanOrEqual(size + 2)
+          }
         }
       }
     }
@@ -92,8 +97,9 @@ describe('patternGeometry', () => {
 
   it('gives crowded numerals 44 px wide hit areas that never overlap', () => {
     for (let beats = 9; beats <= 16; beats++) {
-      const { labels, labelsOnIctus } = patternGeometry(beats)
-      expect(labelsOnIctus).toBe(true)
+      const geometry = patternGeometry(beats)
+      const labels = numeralPoints(geometry, SCALE)
+      expect(geometry.labelsOnIctus).toBe(true)
       // 30 px numerals whose hit areas reach 44 px wide (30 tall).
       const centres = labels.map((label) => ({ x: label.x * SCALE, y: label.y * SCALE }))
       for (let i = 0; i < centres.length; i++) {
@@ -107,7 +113,7 @@ describe('patternGeometry', () => {
 
   it('leaves clear space between crowded numerals, not a chain of touching discs', () => {
     for (let beats = 9; beats <= 16; beats++) {
-      const { labels } = patternGeometry(beats)
+      const labels = numeralPoints(patternGeometry(beats), SCALE)
       for (let i = 0; i < labels.length; i++) {
         for (let j = i + 1; j < labels.length; j++) {
           const gap = Math.hypot(labels[i]!.x - labels[j]!.x, labels[i]!.y - labels[j]!.y) * SCALE - 30
@@ -258,6 +264,73 @@ describe('numeralSize', () => {
   })
 })
 
+describe('numeralPoints', () => {
+  const strokesOf = (beats: number) =>
+    patternGeometry(beats).segments.flatMap((segment) => Array.from({ length: 241 }, (_, i) => pointOnSegment(segment, i / 240)))
+  const clearance = (point: { x: number; y: number }, strokes: { x: number; y: number }[]) =>
+    Math.min(...strokes.map((q) => Math.hypot(q.x - point.x, q.y - point.y)))
+
+  it('sets every numeral but the upbeat under its ictus, close by on a large figure', () => {
+    for (const [width, gap] of [[288, 5], [358, 12], [400, 14], [720, 14]] as const) {
+      const scale = width / PATTERN_BOX.width
+      for (let beats = 1; beats <= 8; beats++) {
+        const geometry = patternGeometry(beats)
+        const radius = numeralSize(scale, false) / 2
+        numeralPoints(geometry, scale).forEach((label, beat) => {
+          if (beats > 1 && beat === beats - 1) return
+          expect(label.x).toBe(geometry.ictus[beat]!.x)
+          // From the mark to the numeral's edge, on screen.
+          expect((label.y - geometry.ictus[beat]!.y) * scale - radius, `${beats} beats at ${width}px`).toBeCloseTo(gap, 0)
+        })
+      }
+    }
+  })
+
+  it('keeps the strokes out from under every numeral, so the baton never runs behind one', () => {
+    // From a 340 px figure (a 372 px screen) no stroke passes under a numeral; before, the upbeat's
+    // sat on the first stroke of 3/4 and the baton vanished behind it.
+    for (const width of [340, 358, 400, 520, 720]) {
+      const scale = width / PATTERN_BOX.width
+      for (let beats = 2; beats <= 8; beats++) {
+        const strokes = strokesOf(beats)
+        const radius = numeralSize(scale, false) / 2 / scale
+        numeralPoints(patternGeometry(beats), scale).forEach((label, beat) => {
+          // A stroke may graze the ring by a couple of px in the busiest bars, never reach the digit.
+          expect(clearance(label, strokes) - radius, `${beats} beats at ${width}px: numeral ${beat + 1}`).toBeGreaterThanOrEqual(-2 / scale)
+        })
+      }
+    }
+  })
+
+  it('still keeps the common metres clear in the narrowest figure', () => {
+    const scale = 288 / PATTERN_BOX.width
+    for (const beats of [2, 3, 4]) {
+      const strokes = strokesOf(beats)
+      for (const label of numeralPoints(patternGeometry(beats), scale)) {
+        expect(clearance(label, strokes), `${beats} beats`).toBeGreaterThanOrEqual(numeralSize(scale, false) / 2 / scale)
+      }
+    }
+  })
+
+  it('keeps the upbeat numeral by its ictus', () => {
+    for (const width of [288, 358, 520, 720]) {
+      const scale = width / PATTERN_BOX.width
+      for (let beats = 2; beats <= 8; beats++) {
+        const geometry = patternGeometry(beats)
+        const label = numeralPoints(geometry, scale).at(-1)!
+        const ictus = geometry.ictus.at(-1)!
+        // At most as far as the middle of the triangle a bar of three draws.
+        expect(Math.hypot(label.x - ictus.x, label.y - ictus.y), `${beats} beats at ${width}px`).toBeLessThanOrEqual(38 * 1.5 + 1e-6)
+      }
+    }
+  })
+
+  it('sets crowded numerals on their ictus', () => {
+    const geometry = patternGeometry(12)
+    expect(numeralPoints(geometry, 1)).toEqual(geometry.ictus)
+  })
+})
+
 describe('drawn pattern', () => {
   const WIDTHS = [288, 358, 520, 720]
   /** Radius of a numeral while its beat is struck, at a figure width. */
@@ -275,7 +348,7 @@ describe('drawn pattern', () => {
           if (geometry.labelsOnIctus) expect(arrows).toBe(0)
           for (const head of heads) {
             const where = `${beats} beats at ${width}px`
-            for (const label of geometry.labels) {
+            for (const label of numeralPoints(geometry, scale)) {
               expect(triangleClears(head, { a: label, b: label, r: (struckNumeral(scale) + 1) / scale }), where).toBe(true)
             }
             for (const { a, b } of marks) {
@@ -306,15 +379,17 @@ describe('drawn pattern', () => {
       for (let beats = 2; beats <= 8; beats++) {
         const geometry = patternGeometry(beats)
         const { marks } = drawPattern(geometry, scale, [0])
+        const labels = numeralPoints(geometry, scale)
         marks.forEach((mark, beat) => {
-          const label = geometry.labels[beat]!
+          const label = labels[beat]!
           const ictus = geometry.ictus[beat]!
           const where = `${beats} beats at ${width}px`
           if (mark.upbeat) {
-            // Runs left from the ictus; its numeral sits to the right.
+            // Runs left from the ictus; its numeral sits clear of it, wherever the strokes left room.
             expect(mark.b.x).toBe(ictus.x)
             expect(mark.a.x).toBeLessThan(ictus.x)
-            expect((label.x - ictus.x) * scale - struckNumeral(scale), where).toBeGreaterThanOrEqual(1.5)
+            const gap = Math.min(...[0, 0.25, 0.5, 0.75, 1].map((t) => Math.hypot(label.x - (mark.a.x + (mark.b.x - mark.a.x) * t), label.y - mark.a.y)))
+            expect(gap * scale - struckNumeral(scale), where).toBeGreaterThanOrEqual(1.5)
           } else {
             expect((mark.a.x + mark.b.x) / 2).toBeCloseTo(ictus.x)
             expect((label.y - ictus.y) * scale - struckNumeral(scale), where).toBeGreaterThanOrEqual(1.5)

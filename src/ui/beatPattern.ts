@@ -3,6 +3,7 @@ import {
   TICK_RADIUS,
   batonProgress,
   drawPattern,
+  numeralPoints,
   numeralSize,
   patternGeometry,
   pointOnSegment,
@@ -62,9 +63,20 @@ export class BeatPattern {
     this.ticks = svg('g', { class: 'pattern-ticks' })
     this.marks = svg('g', { class: 'pattern-ictus' })
     this.ripples = svg('g', { class: 'pattern-ripples' })
-    this.baton = svg('circle', { class: 'baton', r: 13 })
-    drawing.append(this.path, this.ticks, this.marks, this.ripples, this.baton)
+    drawing.append(this.path, this.ticks, this.marks, this.ripples)
     figure.prepend(drawing)
+    // The baton travels on a sheet of its own, over the numerals: it is the one moving thing the
+    // player follows, so it is never lost behind one. (In a crowded bar the numerals sit on the
+    // ictus and light up there; the stylesheet slips the baton under them.)
+    const sheet = svg('svg', {
+      viewBox: `0 0 ${PATTERN_BOX.width} ${PATTERN_BOX.height}`,
+      class: 'pattern-drawing pattern-baton',
+      'aria-hidden': 'true',
+      focusable: 'false',
+    })
+    this.baton = svg('circle', { class: 'baton', r: 13 })
+    sheet.append(this.baton)
+    figure.append(sheet)
     // The drawing scales with the figure; pen widths, marks and the baton keep their size on screen.
     new ResizeObserver(([entry]) => {
       const width = entry?.contentRect.width ?? 0
@@ -72,7 +84,7 @@ export class BeatPattern {
       this.scale = width / PATTERN_BOX.width
       // Screen px per drawing unit, for the numerals' hit areas.
       figure.style.setProperty('--unit', String(this.scale))
-      this.sizeNumerals()
+      this.placeNumerals()
       this.baton.setAttribute('r', (batonRadius(width) / this.scale).toFixed(2))
       this.drawStrokes()
     }).observe(figure)
@@ -185,17 +197,20 @@ export class BeatPattern {
       this.buttons.append(button)
     }
     while (existing.length > beats) this.buttons.lastElementChild!.remove()
-    this.geometry.labels.forEach((point, beat) => {
-      const button = existing[beat] as HTMLElement
-      Object.assign(button.style, percent(point))
-    })
     this.figure.classList.toggle('crowded', this.geometry.labelsOnIctus)
-    this.sizeNumerals()
+    this.placeNumerals()
   }
 
-  /** The numerals grow with the figure; the arrowheads keep clear of them at the same size. */
-  private sizeNumerals(): void {
+  /**
+   * The numerals at the figure's size: they grow with it, and sit by their beats where the strokes
+   * leave room at that size (the arrowheads keep clear of them at the same size and place).
+   */
+  private placeNumerals(): void {
     this.figure.style.setProperty('--numeral', `${numeralSize(this.scale, this.geometry.labelsOnIctus)}px`)
+    numeralPoints(this.geometry, this.scale).forEach((point, beat) => {
+      const button = this.buttons.children[beat] as HTMLElement | undefined
+      if (button) Object.assign(button.style, percent(point))
+    })
   }
 
   private drawTicks(): void {

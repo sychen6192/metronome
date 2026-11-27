@@ -29,6 +29,22 @@ describe('Sequencer', () => {
     expect(sequencer.nextClickTime).toBe(3)
   })
 
+  it('says when the next beat will sound, at the tempo now set', () => {
+    const { sequencer, set } = setup({ bpm: 60, subdivision: 'eighth' })
+    sequencer.start(0)
+    expect(sequencer.nextBeatTime).toBe(0)
+    // The beat at 0 is scheduled; its off-beat at 0.5 is next, the beat after at 1.
+    sequencer.scheduleUntil(0.1)
+    expect(sequencer.nextClickTime).toBe(0.5)
+    expect(sequencer.nextBeatTime).toBe(1)
+    // Twice as fast mid-beat: the off-beat keeps its time, the half beat after it halves.
+    set({ bpm: 120 })
+    expect(sequencer.nextBeatTime).toBe(0.75)
+    sequencer.scheduleUntil(0.6)
+    expect(sequencer.nextClickTime).toBe(0.75)
+    expect(sequencer.nextBeatTime).toBe(0.75)
+  })
+
   it('does not schedule the same click twice across windows', () => {
     const { sequencer } = setup({ bpm: 120 })
     sequencer.start(0)

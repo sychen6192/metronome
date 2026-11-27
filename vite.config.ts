@@ -65,6 +65,9 @@ export default defineConfig({
   base,
   build: {
     target: 'es2022',
+    // The three small font subsets stay files: inlined, they would sit in the stylesheet that
+    // blocks the first paint, though one is only for the trainer and one for the foot of the page.
+    assetsInlineLimit: (file) => (file.endsWith('.woff2') ? false : undefined),
     rolldownOptions: {
       input: { main: resolve(root, 'index.html'), en: englishPage },
     },
@@ -75,12 +78,12 @@ export default defineConfig({
       // "prompt" instead of "autoUpdate": never reload the page while the metronome is playing.
       registerType: 'prompt',
       injectRegister: false,
-      includeAssets: ['favicon.ico', 'apple-touch-icon-180x180.png'],
       includeManifestIcons: false,
       manifest: manifest('zh-Hant', site),
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,webmanifest,woff2}'],
-        globIgnores: ['404.html', 'og-image.png'],
+        // Not for offline use: the large icons are only fetched when the app is installed.
+        globIgnores: ['404.html', 'og-image.png', 'pwa-512x512.png', 'maskable-icon-512x512.png', 'apple-touch-icon-180x180.png'],
         cleanupOutdatedCaches: true,
         // Both pages answer from the precache with any query string (?ref=…, ?gclid=…).
         ignoreURLParametersMatching: [/./],
